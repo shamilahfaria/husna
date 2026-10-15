@@ -277,6 +277,9 @@
   .favdua-name .tr-s{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.02rem; color:var(--dot,var(--gold)); }
   .favdua-name .mn-s{ font-size:.74rem; color:var(--ink-dim); }
   .favdua-text{ font-family:'Cormorant Garamond',serif; font-size:1.12rem; line-height:1.5; margin:0 0 8px; white-space:pre-wrap; }
+  .logs-guide{ margin:20px 0 4px; }
+  .logs-guide .panel{ margin:12px auto; }
+  .guide-tip{ position:relative; z-index:1; text-align:center; }
 </style>
 </head>
 <body>
@@ -305,11 +308,29 @@
   <h2 class="title-en">Asma al-Husna</h2>
   <p class="subtitle">The Ninety-Nine Names of Allah</p>
   <p class="verse">"And to Allah belong the most beautiful names, so call upon Him by them." — Qur'an 7:180</p>
-  <p class="tip">Prefix any name with <em>Ya</em> — يا — when calling upon Allah in dua.</p>
   <p class="tip">Tap or click a card to flip it and see a dua, where an authentic one exists.</p>
   <p class="tip">Tap <em style="font-family:Inter,sans-serif;font-weight:600">Select</em> to choose Names for your Dua Log.</p>
 </header>
 
+<nav class="controls" id="controls">
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Search — e.g. &quot;forgive&quot;, &quot;provision&quot;, or &quot;Razzaq&quot;" aria-label="Search names of Allah">
+  </div>
+  <div class="chips" id="chips"></div>
+</nav>
+
+<main id="main"></main>
+<p class="no-results" id="noResults">No names match that search.</p>
+
+<footer>
+  <p>Grouped into fifteen categories by primary quality, so related names sit together — a memory aid, not a ranking. Each still belongs to Allah alone, whole and complete.</p>
+  <p class="dua">May Allah answer you by every one of them.</p>
+</footer>
+</div>
+
+<div id="view-logs" class="view" hidden>
+<div id="logsGuide" class="logs-guide">
+<div class="guide-tip"><p class="tip">Prefix any name with <em>Ya</em> — يا — when calling upon Allah in dua.</p></div>
 <section class="panel etiquette">
   <h2>Etiquette of Dua</h2>
   <p class="sub">A quick reminder, for before you begin</p>
@@ -333,24 +354,8 @@
   <p class="en">...I ask You <span class="hl">by every Name that is Yours</span> — that You named Yourself with, or revealed in Your Book, or taught to any of Your creation, or kept in the knowledge of the unseen with You.</p>
   <p class="src">Musnad Ahmad, sahih (al-Albani) — narrated by Ibn Mas'ud</p>
 </section>
-
-<nav class="controls" id="controls">
-  <div class="search-wrap">
-    <input type="text" id="search" placeholder="Search — e.g. &quot;forgive&quot;, &quot;provision&quot;, or &quot;Razzaq&quot;" aria-label="Search names of Allah">
-  </div>
-  <div class="chips" id="chips"></div>
-</nav>
-
-<main id="main"></main>
-<p class="no-results" id="noResults">No names match that search.</p>
-
-<footer>
-  <p>Grouped into fifteen categories by primary quality, so related names sit together — a memory aid, not a ranking. Each still belongs to Allah alone, whole and complete.</p>
-  <p class="dua">May Allah answer you by every one of them.</p>
-</footer>
 </div>
-
-<div id="view-logs" class="view" hidden></div>
+</div>
 
 <div class="selbar" id="selbar" aria-hidden="true">
   <div class="selbar-in">
@@ -1159,6 +1164,8 @@ function addEntries(entries, target){
 
 /* ---------- Dua Log views ---------- */
 const logsView = document.getElementById('view-logs');
+const logsGuide = document.getElementById('logsGuide'); // Etiquette + Dua That Calls Every Name (always open)
+logsGuide.remove();
 function sortedLogs(){ return data.logs.slice().sort((a, b) => (b.date + (b.created || '')).localeCompare(a.date + (a.created || ''))); }
 function entryCount(log){ return log.sessions.reduce((t, s) => t + s.entries.length, 0); }
 
@@ -1180,6 +1187,7 @@ function renderLogList(){
     fileIn
   ]));
   wrap.appendChild(head);
+  wrap.appendChild(logsGuide);
   const logs = sortedLogs();
   if (!logs.length) {
     wrap.appendChild(el('div', {class:'empty', text:'No logs yet. Go to Names, tap Select, choose the Names you want to call on, then tap Add to Dua Log.'}));
