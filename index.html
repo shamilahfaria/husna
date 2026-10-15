@@ -287,6 +287,27 @@
   .update-btn{ width:34px; height:34px; padding:0; border:none; background:transparent; color:var(--ink-faint); opacity:.45; font-size:1rem; line-height:1; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:opacity .2s,color .2s; }
   .update-btn:hover, .update-btn:focus-visible{ opacity:.9; color:var(--gold); }
   .update-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:1px; }
+  /* memo sheet: iOS-style delete */
+  .sheet-head{ position:relative; }
+  .sheet-edit{ position:absolute; top:12px; right:12px; background:none; border:none; color:var(--gold); font-family:'Inter',sans-serif; font-size:.88rem; font-weight:600; padding:8px 10px; min-width:44px; min-height:40px; cursor:pointer; border-radius:8px; }
+  .sheet-edit:focus-visible{ outline:2px solid var(--gold); }
+  .sheet-head h2{ padding:0 52px; }
+  .sheet-body{ padding-left:0; padding-right:0; overflow-x:hidden; }
+  .memo-row{ position:relative; overflow:hidden; border-top:1px solid var(--hairline); }
+  .memo-row:first-child{ border-top:none; }
+  .memo-row .memo-item{ position:relative; z-index:1; background:var(--bg); padding:12px 16px; border-top:none; touch-action:pan-y; will-change:transform; }
+  .memo-row:first-child .memo-item{ padding-top:4px; }
+  .memo-row.swiping .memo-item{ user-select:none; -webkit-user-select:none; }
+  .memo-del{ position:absolute; top:0; right:0; bottom:0; width:88px; border:none; background:#d93a30; color:#fff; font-family:'Inter',sans-serif; font-size:.9rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0 0 0 0; }
+  .memo-del:focus-visible{ outline:2px solid #fff; outline-offset:-4px; }
+  .memo-minus{ display:none; position:absolute; left:10px; top:50%; transform:translateY(-50%); width:44px; height:44px; padding:0; border:none; background:none; cursor:pointer; align-items:center; justify-content:center; z-index:2; }
+  .memo-minus span{ width:22px; height:22px; border-radius:50%; background:#d93a30; display:flex; align-items:center; justify-content:center; transition:transform .25s; }
+  .memo-minus span::after{ content:""; width:10px; height:2.5px; background:#fff; border-radius:2px; }
+  .memo-row.open .memo-minus span{ transform:rotate(-90deg); }
+  .sheet.editing .memo-minus{ display:flex; }
+  .sheet.editing .memo-row .memo-item{ padding-left:56px; }
+  .sheet-foot .btn[disabled]{ opacity:.4; }
+  @media (prefers-reduced-motion: reduce){ .memo-row .memo-item{ transition:none !important; } }
 </style>
 </head>
 <body>
@@ -376,6 +397,7 @@
 <div class="sheet-wrap" id="sheetWrap" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet-head">
+      <button class="sheet-edit" id="sheetEdit" type="button" aria-pressed="false">Edit</button>
       <h2 id="sheetTitle">Add to Dua Log</h2>
       <p>What are you calling on each Name for? Leave any blank and a general supplication will be written for it.</p>
       <div class="target" id="sheetTarget"></div>
@@ -1101,6 +1123,7 @@ const sheetWrap = document.getElementById('sheetWrap');
 function openMemoSheet(ns, target){
   const body = document.getElementById('sheetBody');
   body.innerHTML = '';
+  sheetWrap._ns = ns.slice(); sheetWrap._target = target; openMemoRow = null;
   const now = new Date();
   let tgtText;
   if (target && findLog(target.logId)) tgtText = 'Saving to ' + findLog(target.logId).title;
@@ -1116,18 +1139,122 @@ function openMemoSheet(ns, target){
     ta.addEventListener('input', () => autoGrow(ta));
     const label = el('label', {for:fid}, ['What are you calling on ', el('span', {class:'lbl-name', text:item.tr}), ' for?']);
     const right = el('div', null, [label, ta, el('div', {class:'memo-hint', text:'Optional \u2014 leave blank for a general supplication.'})]);
-    const row = el('div', {class:'memo-item', style:'--dot:' + CAT_BY_ID[item.cat].color}, [buildMiniCard(item), right]);
+    const minus = el('button', {type:'button', class:'memo-minus', 'aria-label':'Remove ' + item.tr, tabindex:'-1'}, [el('span', {'aria-hidden':'true'})]);
+    const content = el('div', {class:'memo-item', style:'--dot:' + CAT_BY_ID[item.cat].color}, [minus, buildMiniCard(item), right]);
+    const del = el('button', {type:'button', class:'memo-del', text:'Delete', 'aria-label':'Delete ' + item.tr + ' from this list', tabindex:'-1'});
+    const row = el('div', {class:'memo-row', 'data-n':String(n)}, [del, content]);
+    minus.addEventListener('click', (e) => { e.stopPropagation(); if (row.classList.contains('open')) closeRow(row); else openRow(row); });
+    del.addEventListener('click', (e) => { e.stopPropagation(); removeMemoRow(row); });
+    attachSwipe(row, content);
     body.appendChild(row);
   });
+  setSheetEditing(false);
   sheetWrap.hidden = false;
   document.body.style.overflow = 'hidden';
   body.scrollTop = 0;
-  sheetWrap._target = target;
-  sheetWrap._ns = ns;
   const first = body.querySelector('textarea');
   if (first && window.matchMedia('(hover:hover)').matches) first.focus();
 }
-function closeSheet(){ sheetWrap.hidden = true; document.body.style.overflow = ''; }
+function closeSheet(){ sheetWrap.hidden = true; document.body.style.overflow = ''; openMemoRow = null; }
+
+/* ---- iOS-style removal of Names from the memo sheet: swipe left, or Edit -> minus -> Delete ---- */
+const DEL_W = 88;
+let openMemoRow = null;
+function setRowX(row, x, animate){
+  const c = row.querySelector('.memo-item');
+  c.style.transition = animate ? 'transform .25s ease' : 'none';
+  c.style.transform = x ? 'translateX(' + x + 'px)' : '';
+  row.querySelector('.memo-del').style.width = Math.max(DEL_W, -x) + 'px';
+}
+function openRow(row){
+  if (openMemoRow && openMemoRow !== row) closeRow(openMemoRow);
+  setRowX(row, -DEL_W, true); row.classList.add('open'); openMemoRow = row;
+  row.querySelector('.memo-del').tabIndex = 0;
+}
+function closeRow(row){
+  setRowX(row, 0, true); row.classList.remove('open'); if (openMemoRow === row) openMemoRow = null;
+  row.querySelector('.memo-del').tabIndex = -1;
+}
+function attachSwipe(row, content){
+  let sx = 0, sy = 0, base = 0, dx = 0, mode = null, pid = null, justSwiped = false;
+  content.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.target.closest('.memo-minus')) return;
+    pid = e.pointerId; sx = e.clientX; sy = e.clientY; base = row.classList.contains('open') ? -DEL_W : 0; dx = base; mode = null;
+  });
+  content.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== pid) return;
+    const mx = e.clientX - sx, my = e.clientY - sy;
+    if (!mode) {
+      if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+      mode = (Math.abs(mx) > Math.abs(my) * 1.2) ? 'h' : 'v';      // vertical drags are left to the browser (scrolling)
+      if (mode === 'h') {
+        if (openMemoRow && openMemoRow !== row) closeRow(openMemoRow);
+        try { content.setPointerCapture(pid); } catch (err) {}
+        if (document.activeElement && content.contains(document.activeElement)) document.activeElement.blur();
+        row.classList.add('swiping');
+      }
+    }
+    if (mode !== 'h') return;
+    e.preventDefault();
+    dx = Math.min(0, base + mx);
+    setRowX(row, dx, false);
+  });
+  const end = (e) => {
+    if (e.pointerId !== pid) return;
+    pid = null; row.classList.remove('swiping');
+    if (mode !== 'h') { mode = null; return; }
+    mode = null; justSwiped = true; setTimeout(() => { justSwiped = false; }, 350);
+    const w = row.offsetWidth;
+    if (dx < -w * 0.6) removeMemoRow(row);              // full swipe deletes
+    else if (dx < -DEL_W / 2) openRow(row);
+    else closeRow(row);
+  };
+  content.addEventListener('pointerup', end);
+  content.addEventListener('pointercancel', end);
+  // a swipe should not turn into a click/focus on the textarea or card
+  content.addEventListener('click', (e) => { if (justSwiped) { justSwiped = false; e.preventDefault(); e.stopPropagation(); return; } if (row.classList.contains('open') && !e.target.closest('.memo-minus')) { e.preventDefault(); e.stopPropagation(); closeRow(row); } }, true);
+}
+function removeMemoRow(row){
+  if (row.classList.contains('removing')) return;
+  const n = Number(row.dataset.n);
+  row.classList.add('removing');
+  if (openMemoRow === row) openMemoRow = null;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  row.style.height = row.offsetHeight + 'px';
+  row.offsetHeight; // reflow
+  row.style.transition = 'height .28s ease, opacity .28s ease, padding .28s ease';
+  setRowX(row, -row.offsetWidth, true);
+  row.style.height = '0px'; row.style.opacity = '0';
+  const done = () => { if (row.parentNode) row.remove(); };
+  if (reduce) done(); else { row.addEventListener('transitionend', (e) => { if (e.target === row && e.propertyName === 'height') done(); }); setTimeout(done, 400); }
+  sheetWrap._ns = (sheetWrap._ns || []).filter(x => x !== n);
+  selected.delete(n);
+  syncSelectionUI();
+  updateSheetCount();
+  if (!sheetWrap._ns.length) {
+    setTimeout(() => { closeSheet(); toast('All Names removed \u2014 pick some Names to continue'); }, reduce ? 0 : 300);
+  }
+}
+function updateSheetCount(){
+  const k = (sheetWrap._ns || []).length;
+  document.getElementById('sheetSave').disabled = k === 0;
+  document.getElementById('sheetTitle').textContent = k ? 'Add ' + k + (k === 1 ? ' Name' : ' Names') + ' to Dua Log' : 'Add to Dua Log';
+}
+function setSheetEditing(on){
+  const sheet = sheetWrap.querySelector('.sheet');
+  sheet.classList.toggle('editing', on);
+  const b = document.getElementById('sheetEdit');
+  b.textContent = on ? 'Done' : 'Edit'; b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  sheetWrap.querySelectorAll('.memo-minus').forEach(m => { m.tabIndex = on ? 0 : -1; });
+  if (!on && openMemoRow) closeRow(openMemoRow);
+  updateSheetCount();
+}
+document.getElementById('sheetEdit').addEventListener('click', () => setSheetEditing(!sheetWrap.querySelector('.sheet').classList.contains('editing')));
+// tapping anywhere else in the sheet closes an open row
+sheetWrap.addEventListener('pointerdown', (e) => {
+  if (openMemoRow && !openMemoRow.contains(e.target)) closeRow(openMemoRow);
+}, true);
 document.getElementById('sheetCancel').addEventListener('click', closeSheet);
 sheetWrap.addEventListener('click', (e) => { if (e.target === sheetWrap) closeSheet(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheetWrap.hidden) closeSheet(); });
