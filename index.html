@@ -314,6 +314,26 @@
   .memo-item .card .ar{ font-size:1.4rem; }
   @media (max-width:480px){ .memo-item .card-inner{ height:142px; } .memo-item .card .meaning{ font-size:.76rem; } }
   .memo-item .card, .memo-item .card-inner, .memo-item .card-face, .memo-item .field{ touch-action:pan-y; }
+  /* settings + AI */
+  .logs-head{ position:relative; }
+  .gear-btn{ position:absolute; top:-8px; right:0; width:40px; height:40px; border:none; background:transparent; color:var(--ink-faint); opacity:.55; font-size:1.15rem; border-radius:50%; cursor:pointer; }
+  .gear-btn:hover, .gear-btn:focus-visible{ opacity:1; color:var(--gold); }
+  .set-body{ padding:16px 18px !important; }
+  .set-h{ font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--gold); font-size:1.15rem; margin:0 0 6px; }
+  .set-p{ font-size:.8rem; color:var(--ink-dim); line-height:1.5; margin:0 0 12px; }
+  .set-p.small{ font-size:.72rem; color:var(--ink-faint); margin-top:12px; }
+  .set-p a{ color:var(--gold); }
+  .set-label{ display:block; font-size:.74rem; font-weight:600; margin-bottom:6px; }
+  .set-row{ display:flex; gap:8px; align-items:center; }
+  .set-row .field{ flex:1; font-family:ui-monospace,Menlo,monospace; font-size:16px; }
+  .set-status{ font-size:.76rem; color:var(--ink-dim); margin:8px 0 10px; min-height:1.2em; }
+  .tag.refined{ color:var(--gold); }
+  .tag.refined::before{ content:"\2726 "; }
+  .icon-btn.rewrite{ font-size:1rem; }
+  .icon-btn.spin{ animation:spin 1s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .btn.busy{ opacity:.85 !important; pointer-events:none; }
+  .btn.busy::before{ content:""; width:13px; height:13px; border-radius:50%; border:2px solid rgba(21,18,4,.35); border-top-color:#151204; animation:spin .8s linear infinite; }
 </style>
 </head>
 <body>
@@ -1082,6 +1102,137 @@ function composeDua(n, memo){
   return {text: head + (short ? g[2] + ', ' : '') + r.clause + '.', generic: false};
 }
 
+/* ---------- optional Gemini rewriting (key lives only in this device's localStorage) ---------- */
+const AI_KEY_STORE = 'asmaDuaLog.geminiKey';
+const AI_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.8-flash']; // fast free-tier model first, newer Flash as fallback
+const AI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
+const AI_TIMEOUT = 15000;
+function getAiKey(){ try { return (localStorage.getItem(AI_KEY_STORE) || '').trim(); } catch (e) { return ''; } }
+function setAiKey(k){ try { if (k) localStorage.setItem(AI_KEY_STORE, k.trim()); else localStorage.removeItem(AI_KEY_STORE); } catch (e) {} }
+function aiAvailable(){ return !!getAiKey() && navigator.onLine !== false; }
+function vocativeOf(n){ const g = GEN[n]; return g[0] + ' (' + g[1] + ')'; }
+
+function buildAiPrompt(items){
+  return [
+    'You write personal duas (supplications) in English for a Muslim user\'s private Dua Log.',
+    'For EACH item below, write ONE concise supplication: a single sentence of about 15-30 words (never more than 30).',
+    'Rules:',
+    '- Begin EXACTLY with the item\'s "vocative" string, followed by a comma. Copy the Arabic exactly as provided and add no other Arabic.',
+    '- Address Allah directly and reverently ("You", "Your"), calling on the meaning of that Name where it fits naturally. Do not open with a descriptive clause such as "You are the ..."; go straight to the request after the vocative.',
+    '- PRESERVE every specific thing the user asked for, and their intent and nuance. Do not drop, merge, or genericize any request, do not invent new requests, and do not pad with filler (e.g. "divine", "ultimate", "infinite").',
+    '- Fix grammar and spelling. Keep any Islamic terms the user used (e.g. barakah, akhirah, ummah, rizq, deen) and spell them correctly.',
+    '- Write in the first person (me, my). No quotation marks, no "Ameen", no notes or explanations.',
+    '- Every item must get its own distinct wording; two different memos must never produce the same or near-identical dua.',
+    'Return JSON: {"duas":[{"id":"<id>","dua":"<text>"}]} with exactly one entry per id, in the same order.',
+    '',
+    'Items:',
+    JSON.stringify(items.map(it => ({id:String(it.id), name:it.name, meaning:it.meaning, vocative:it.vocative, memo:it.memo})), null, 1)
+  ].join('\n');
+}
+function aiRequestBody(prompt){
+  return {
+    contents:[{role:'user', parts:[{text:prompt}]}],
+    generationConfig:{
+      temperature:0.6,
+      responseMimeType:'application/json',
+      responseSchema:{type:'OBJECT', properties:{duas:{type:'ARRAY', items:{type:'OBJECT', properties:{id:{type:'STRING'}, dua:{type:'STRING'}}, required:['id','dua']}}}, required:['duas']}
+    }
+  };
+}
+async function aiCall(body, key){
+  let lastErr;
+  for (const model of AI_MODELS) {
+    const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = setTimeout(() => ctl && ctl.abort(), AI_TIMEOUT);
+    try {
+      const res = await fetch(AI_ENDPOINT + model + ':generateContent', {
+        method:'POST', headers:{'Content-Type':'application/json', 'x-goog-api-key':key},
+        body:JSON.stringify(body), signal:ctl ? ctl.signal : undefined
+      });
+      clearTimeout(timer);
+      if (res.status === 404) { lastErr = new Error('model unavailable'); continue; }   // try the next model
+      if (!res.ok) { const e = new Error('HTTP ' + res.status); e.status = res.status; throw e; }
+      const j = await res.json();
+      const txt = ((((j.candidates || [])[0] || {}).content || {}).parts || []).map(p => p.text || '').join('');
+      if (!txt) throw new Error('empty response');
+      return JSON.parse(txt);
+    } catch (e) { clearTimeout(timer); if (e && e.name === 'AbortError') { const t = new Error('timeout'); t.status = 'timeout'; throw t; } throw e; }
+  }
+  throw lastErr || new Error('no model');
+}
+/* items: [{id, n, memo}] -> {id: text} for every item that came back valid (caller falls back for the rest) */
+async function aiRefineItems(items){
+  const key = getAiKey();
+  if (!key) throw new Error('no key');
+  if (navigator.onLine === false) throw new Error('offline');
+  const payload = items.map(it => ({id:it.id, name:BY_N[it.n].tr, meaning:BY_N[it.n].meaning, vocative:vocativeOf(it.n), memo:it.memo}));
+  const out = await aiCall(aiRequestBody(buildAiPrompt(payload)), key);
+  const res = {};
+  (out && Array.isArray(out.duas) ? out.duas : []).forEach(d => {
+    const it = payload.find(p => p.id === String(d.id));
+    if (!it || typeof d.dua !== 'string') return;
+    let t = d.dua.trim().replace(/^["'\u201C]+|["'\u201D]+$/g, '').replace(/\s+/g, ' ');
+    if (!t.startsWith(it.vocative)) return;                  // must open with the exact vocative
+    if (t.split(' ').length > 50) return;                    // keep it concise
+    if (!/[.!]$/.test(t)) t += '.';
+    res[it.id] = t;
+  });
+  const vals = Object.values(res);
+  if (new Set(vals).size !== vals.length) throw new Error('duplicate duas');
+  return res;
+}
+async function aiTestKey(key){
+  return aiCall({contents:[{role:'user', parts:[{text:'Reply with the JSON {"ok":true}'}]}], generationConfig:{responseMimeType:'application/json'}}, key);
+}
+function aiErrorText(e){
+  if (!e) return 'Unknown error';
+  if (e.status === 400 || e.status === 401 || e.status === 403) return 'That key wasn\u2019t accepted';
+  if (e.status === 429) return 'Gemini rate limit reached \u2014 try again in a minute';
+  if (e.status === 'timeout') return 'Gemini took too long';
+  if (String(e.message) === 'offline') return 'You\u2019re offline';
+  return 'Couldn\u2019t reach Gemini';
+}
+
+/* ---------- settings sheet ---------- */
+function openSettings(){
+  const wrap = el('div', {class:'sheet-wrap', id:'settingsWrap'});
+  const close = () => { wrap.remove(); document.body.style.overflow = ''; };
+  const input = el('input', {type:'password', class:'field', id:'aiKey', autocomplete:'off', autocapitalize:'off', spellcheck:'false', placeholder:'Paste your Gemini API key', 'aria-label':'Gemini API key'});
+  const status = el('p', {class:'set-status', id:'aiStatus', 'aria-live':'polite'});
+  function refresh(){ const k = getAiKey(); input.value = ''; status.textContent = k ? 'Key saved on this device (\u2022\u2022\u2022\u2022' + k.slice(-4) + '). Memos will be refined by Gemini.' : 'No key saved \u2014 duas use the built-in wording.'; }
+  const show = el('button', {type:'button', class:'btn small ghost', text:'Show', onclick:() => { input.type = input.type === 'password' ? 'text' : 'password'; show.textContent = input.type === 'password' ? 'Show' : 'Hide'; }});
+  const body = el('div', {class:'sheet-body set-body'}, [
+    el('h3', {class:'set-h', text:'Refine memos with Gemini (optional)'}),
+    el('p', {class:'set-p', text:'With a key, the memos you write are turned into polished duas by Google\u2019s Gemini when you save. Without one (or offline), the built-in wording is used.'}),
+    el('label', {for:'aiKey', class:'set-label', text:'Gemini API key'}),
+    el('div', {class:'set-row'}, [input, show]),
+    status,
+    el('div', {class:'session-foot'}, [
+      el('button', {type:'button', class:'btn small gold', text:'Save key', onclick:() => { const v = input.value.trim(); if (!v) { status.textContent = 'Paste a key first.'; return; } setAiKey(v); refresh(); toast('Gemini key saved on this device'); }}),
+      el('button', {type:'button', class:'btn small', id:'aiTest', text:'Test key', onclick:async (ev) => {
+        const b = ev.currentTarget; const k = input.value.trim() || getAiKey();
+        if (!k) { status.textContent = 'Paste a key first.'; return; }
+        b.disabled = true; b.textContent = 'Testing\u2026';
+        try { await aiTestKey(k); status.textContent = '\u2713 Key works.' + (input.value.trim() && input.value.trim() !== getAiKey() ? ' Tap Save key to use it.' : ''); }
+        catch (e) { status.textContent = '\u2715 ' + aiErrorText(e) + '.'; }
+        b.disabled = false; b.textContent = 'Test key';
+      }}),
+      el('button', {type:'button', class:'btn small danger', text:'Clear', onclick:() => { setAiKey(''); refresh(); toast('Gemini key removed'); }})
+    ]),
+    el('p', {class:'set-p small'}, ['Get a free key at ', el('a', {href:'https://aistudio.google.com/apikey', target:'_blank', rel:'noopener', text:'aistudio.google.com/apikey'}), '. The key is stored only in this browser on this device \u2014 it is never in the app file, never exported in backups, and only sent to Google.']),
+    el('p', {class:'set-p small', text:'Note: on Gemini\u2019s free tier, Google may use the text you send (your memos) to improve its products. Leave the key empty if you\u2019d rather keep memos fully on-device.'})
+  ]);
+  const sheet = el('div', {class:'sheet', role:'dialog', 'aria-modal':'true', 'aria-label':'Settings'}, [
+    el('div', {class:'sheet-head'}, [el('h2', {text:'Settings'})]),
+    body,
+    el('div', {class:'sheet-foot'}, [el('button', {type:'button', class:'btn', text:'Done', onclick:close})])
+  ]);
+  wrap.appendChild(sheet);
+  wrap.addEventListener('click', ev => { if (ev.target === wrap) close(); });
+  document.body.appendChild(wrap); document.body.style.overflow = 'hidden';
+  refresh();
+}
+
 /* ---------- reference page: categories, favourites, search ---------- */
 function makeChip(id, label, color, isFav){
   const chip = document.createElement('button');
@@ -1367,7 +1518,9 @@ sheetWrap.addEventListener('pointerdown', (e) => {
 document.getElementById('sheetCancel').addEventListener('click', closeSheet);
 sheetWrap.addEventListener('click', (e) => { if (e.target === sheetWrap) closeSheet(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheetWrap.hidden) closeSheet(); });
-document.getElementById('sheetSave').addEventListener('click', () => {
+let savingSheet = false;
+document.getElementById('sheetSave').addEventListener('click', async () => {
+  if (savingSheet) return;
   const ns = sheetWrap._ns || [];
   const entries = ns.map(n => {
     const ta = document.getElementById('memo-' + n);
@@ -1375,12 +1528,28 @@ document.getElementById('sheetSave').addEventListener('click', () => {
     const d = composeDua(n, memo);
     return {id:uid(), n:n, memo:memo, text:d.text, generic:d.generic, note:''};
   });
+  const withMemo = entries.filter(e => e.memo);
+  let aiNote = '';
+  if (withMemo.length && aiAvailable()) {
+    const btn = document.getElementById('sheetSave');
+    savingSheet = true; btn.disabled = true; btn.classList.add('busy'); btn.textContent = 'Writing your duas\u2026';
+    try {
+      const got = await aiRefineItems(withMemo.map(e => ({id:e.id, n:e.n, memo:e.memo})));
+      let missed = 0;
+      withMemo.forEach(e => { if (got[e.id]) { e.text = got[e.id]; e.refined = true; } else missed++; });
+      if (missed) aiNote = missed + (missed === 1 ? ' dua' : ' duas') + ' used the built-in wording';
+    } catch (err) {
+      aiNote = aiErrorText(err) + ' \u2014 used the built-in wording';
+    }
+    savingSheet = false; btn.disabled = false; btn.classList.remove('busy'); btn.textContent = 'Save to Dua Log';
+    if (sheetWrap.hidden) return;   // user backed out while waiting
+  }
   const logId = addEntries(entries, sheetWrap._target);
   closeSheet();
   setSelecting(false);
   renderFavorites();
   location.hash = '#log/' + logId;
-  toast(entries.length + (entries.length === 1 ? ' Name' : ' Names') + ' added to your Dua Log');
+  toast(entries.length + (entries.length === 1 ? ' Name' : ' Names') + ' added to your Dua Log' + (aiNote ? ' \u00B7 ' + aiNote : ''));
 });
 
 function addEntries(entries, target){
@@ -1419,6 +1588,7 @@ function renderLogList(){
   logsView.innerHTML = '';
   const wrap = el('div', {class:'logs-wrap'});
   const head = el('div', {class:'logs-head'}, [
+    el('button', {class:'gear-btn', type:'button', 'aria-label':'Settings', title:'Settings', text:'\u2699', onclick:openSettings}),
     el('h1', {class:'title-ar', text:'سِجِلُّ الدُّعَاء'}),
     el('h2', {class:'title-en', text:'Dua Log'}),
     el('p', {class:'sub', text:'Your saved duas, one log per day. Saved only on this device \u2014 export a backup now and then.'}),
@@ -1550,7 +1720,21 @@ function renderEntry(log, s, e, ei){
   const box = el('div', {class:'entry' + (item ? '' : ' custom') + (e.done ? ' done' : ''), style:'--dot:' + color, 'data-sid':s.id});
   if (item) box.appendChild(buildCard(item, 'log'));
   const body = el('div', {class:'entry-body'});
-  const tag = el('span', {class:'tag' + (e.generic ? ' general' : ''), text: !item ? 'Your own dua' : e.generic ? 'General supplication' : (e.memo ? 'Your supplication' : 'Supplication')});
+  const tag = el('span', {class:'tag' + (e.generic ? ' general' : '') + (e.refined ? ' refined' : ''), text: !item ? 'Your own dua' : e.generic ? 'General supplication' : e.refined ? 'Refined supplication' : e.edited ? 'Edited supplication' : (e.memo ? 'Your supplication' : 'Supplication')});
+  const rewrite = (item && e.memo) ? el('button', {class:'icon-btn rewrite', type:'button', title:'Rewrite from memo', 'aria-label':'Rewrite this dua from its memo', text:'\u21BB'}) : null;
+  if (rewrite) rewrite.addEventListener('click', async () => {
+    if (e.edited && !confirm('Replace your edited wording with a fresh rewrite?')) return;
+    rewrite.disabled = true; rewrite.classList.add('spin');
+    let text = null, refined = false;
+    if (aiAvailable()) {
+      try { const got = await aiRefineItems([{id:e.id, n:e.n, memo:e.memo}]); if (got[e.id]) { text = got[e.id]; refined = true; } }
+      catch (err) { toast(aiErrorText(err) + ' \u2014 used the built-in wording'); }
+    }
+    if (!text) text = composeDua(e.n, e.memo).text;
+    e.text = text; e.refined = refined; e.generic = false; e.edited = false;
+    saveData(); renderLogDetail(log, true);
+    toast(refined ? 'Rewritten with Gemini' : 'Rewritten');
+  });
   const check = el('input', {type:'checkbox', class:'made-box', 'aria-label':'Mark this dua as made'});
   check.checked = !!e.done;
   check.addEventListener('change', () => {
@@ -1563,6 +1747,7 @@ function renderEntry(log, s, e, ei){
   star.addEventListener('click', () => { toggleFavDua(e); syncStar(); });
   syncStar();
   const tools = el('div', {class:'tools'}, [
+    rewrite,
     star,
     el('button', {class:'icon-btn', title:'Move up', 'aria-label':'Move up', text:'\u2191', disabled:ei === 0, onclick:() => moveEntry(log, s, ei, -1)}),
     el('button', {class:'icon-btn', title:'Move down', 'aria-label':'Move down', text:'\u2193', disabled:ei === s.entries.length - 1, onclick:() => moveEntry(log, s, ei, 1)}),
@@ -1574,7 +1759,7 @@ function renderEntry(log, s, e, ei){
   ta.value = e.text || '';
   ta.addEventListener('input', () => {
     e.text = ta.value; autoGrow(ta);
-    if (e.generic) { e.generic = false; e.edited = true; tag.className = 'tag'; tag.textContent = 'Edited supplication'; }
+    if (e.generic || e.refined || !e.edited) { e.generic = false; e.refined = false; e.edited = true; tag.className = 'tag'; tag.textContent = 'Edited supplication'; }
     syncStar();
     saveSoon();
   });
@@ -1752,7 +1937,7 @@ function cleanLog(l){
       id:String(s.id || uid()), time:String(s.time || new Date().toISOString()), note:String(s.note || ''),
       entries:s.entries.filter(e => e && (e.n == null || BY_N[e.n])).map(e => ({
         id:String(e.id || uid()), n:e.n ? Number(e.n) : null, memo:String(e.memo || ''), text:String(e.text || ''),
-        generic:!!e.generic, note:String(e.note || ''), custom:!e.n, done:!!e.done, doneAt:String(e.doneAt || '')
+        generic:!!e.generic, refined:!!e.refined, edited:!!e.edited, note:String(e.note || ''), custom:!e.n, done:!!e.done, doneAt:String(e.doneAt || '')
       }))
     }))
   };
@@ -1804,7 +1989,7 @@ function route(){
   const wasRef = currentView === 'reference';
   if (wasRef && view !== 'reference') refScroll = window.scrollY;
   if (!sheetWrap.hidden) closeSheet();
-  const pw = document.getElementById('pickWrap'); if (pw) { pw.remove(); document.body.style.overflow = ''; }
+  ['pickWrap', 'settingsWrap'].forEach(id => { const w = document.getElementById(id); if (w) { w.remove(); document.body.style.overflow = ''; } });
   if (view === 'reference') {
     refView.hidden = false; logsView.hidden = true; selectBtn.hidden = false;
     if (!wasRef) window.scrollTo(0, refScroll);
