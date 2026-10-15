@@ -334,6 +334,12 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
   .btn.busy{ opacity:.85 !important; pointer-events:none; }
   .btn.busy::before{ content:""; width:13px; height:13px; border-radius:50%; border:2px solid rgba(21,18,4,.35); border-top-color:#151204; animation:spin .8s linear infinite; }
+  .themes-sec{ margin-top:22px; padding-top:16px; border-top:1px solid var(--hairline); }
+  .theme-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+  .theme-row{ display:flex; align-items:flex-start; gap:6px; }
+  .theme-num{ font-size:.74rem; color:var(--gold); width:18px; padding-top:12px; text-align:right; flex:0 0 auto; }
+  .theme-field{ flex:1; font-size:16px; line-height:1.4; padding:8px 10px; min-height:40px; }
+  .theme-row .icon-btn{ margin-top:4px; flex:0 0 auto; }
 </style>
 </head>
 <body>
@@ -1077,29 +1083,130 @@ const THEMES = [
   {re:/protect|safe|safety|travel|journey/, f:(m) => { const p = personIn(m); const q = pron(p); return /travel|journey/.test(m) ? (p ? 'keep ' + p + ' safe on ' + q.pos + ' journey and bring ' + q.obj + ' home well' : 'keep me safe on my journey and bring me home well') : (p ? 'protect ' + p + ' and keep ' + q.obj + ' safe from all harm' : 'protect me and those I love from all harm'); }},
   {re:/pray|salah|salat|deen|iman|faith|closer to you|quran/, f:(m) => { const p = personIn(m); const q = pron(p); return p ? 'guide ' + p + ' back to You and make ' + q.pos + ' faith strong and sincere' : 'strengthen my faith, my prayer, and my connection to You'; }},
 ];
-function memoClause(memo){
-  const m = cleanMemo(memo);
-  if (!m) return {clause:'', themed:false};
-  const lo = m.toLowerCase();
-  for (const t of THEMES) if (t.re.test(lo)) return {clause:t.f(lo), themed:true};
-  let c = grammar(m);
-  if (/^be\b|^become\b|^stay\b/.test(c)) c = 'help me ' + c;
-  else if (/^(that|so that)\b/.test(c)) c = 'grant ' + c.replace(/^so /, '');
-  else if (/^(stop|quit|overcome|get|find|pass|finish|do|become|reach|achieve|learn|understand|win|make it|keep|stay)\b/.test(c) && !VERB_START.test(c)) c = 'help me ' + c;
-  else if (VERB_START.test(c)) c = c.replace(/^give\b/, 'grant');
-  else if (/^(my|our|his|her|their)\b/.test(c)) c = 'bless ' + c + (personIn(lo) ? ' with goodness in this life and the next' : ' and put goodness in it');
-  else c = 'grant me ' + c;
-  const words = c.split(/\s+/);
-  if (words.length > 28) c = words.slice(0, 28).join(' ').replace(/[,;:\-–—\s]+$/, '');
-  return {clause:c, themed:false};
+/* ---- preserve-first engine: keep the user's own requests, tidy grammar/pronouns, add at most one theme tail ---- */
+const TYPO = [[/\bakirah|akhira\b|aakhirah|akhirat\b/gi,'akhirah'],[/\bbarak(a|at|ah)\b|\bbarkat\b/gi,'barakah'],[/\bumma\b/gi,'ummah'],[/\bdunia\b/gi,'dunya'],[/\bdeen\b|\bdin\b/gi,'deen'],[/\bimaan\b/gi,'iman'],
+  [/\bbring my closer\b/gi,'bring me closer'],[/\bkids\b/gi,'children'],[/\bmom\b|\bmum\b/gi,'mother'],[/\bdad\b/gi,'father'],[/\bmake my trials\b/gi,'make my trials'],[/\bive\b/gi,"I've"],[/\bim\b/gi,"I'm"],[/\bdont\b/gi,"don't"],[/\bcant\b/gi,"can't"],[/\bu\b/g,'you'],[/\bur\b/g,'your'],[/\balot\b/gi,'a lot'],[/\bthru\b/gi,'through']];
+const OTHER_PERSON = /\b(mom|mum|mother|dad|father|brother|sister|son|daughter|husband|wife|friend|boss|coworker|co-worker|colleague|manager|teacher|uncle|aunt|cousin|neighbou?r|grandma|grandpa|grandmother|grandfather|baby|child|kid|kids|he's my|my (?:ex|partner|fiance|fianc\u00e9))\b/i;
+const CLAUSE_VERB = /^(open|respond|answer|hear|make|forgive|pardon|accept|grant|give|help|guide|protect|heal|cure|bless|let|keep|increase|remove|ease|bring|permeate|put|fill|purify|raise|provide|show|teach|strengthen|soften|free|lift|relieve|settle|mend|restore|unite|reunite|save|shield|cover|turn|write|choose|allow|send|return|enable|count|clear|calm|replace|take|unlock|expand|widen|honou?r|preserve|draw|guard|steady|correct|fix|inspire|reward|have|be|use)\b/i;
+function tidy(m){
+  let t = ' ' + m + ' ';
+  TYPO.forEach(([re, to]) => { t = t.replace(re, to); });
+  t = t.replace(/\b(pls|plz|kindly|inshallah|in sha allah|insha'?allah)\b/gi, ' ').replace(/\bplease\b(?!\s+(allah|you|him|god)\b)/gi, ' ');
+  t = t.replace(/^\s*(ya|o) allah\b,?/i, ' ');
+  // Allah in third person -> You (we are speaking to Him)
+  t = t.replace(/\b(to please|pleasing|for the sake of|for|from|to|with|by|of|near|closer to) allah\b/gi, (x, p) => p + ' You').replace(/\ballah's\b/gi, 'Your').replace(/\ballah\b/gi, 'You');
+  // he/him/his -> You/Your when no other person is mentioned (the user usually means Allah)
+  if (/\b(he|him|his|himself)\b/i.test(t) && !OTHER_PERSON.test(t)) {
+    t = t.replace(/\bhe has\b/gi, 'You have').replace(/\bhe is\b/gi, 'You are').replace(/\bhe was\b/gi, 'You were').replace(/\bhe\b/gi, 'You').replace(/\bhimself\b/gi, 'Yourself').replace(/\bhim\b/gi, 'You').replace(/\bhis\b/gi, 'Your')
+         .replace(/\bYou (gives|grants|knows|hears|sees|loves|does|makes|has)\b/g, (x, v) => 'You ' + ({gives:'give',grants:'grant',knows:'know',hears:'hear',sees:'see',loves:'love',does:'do',makes:'make',has:'have'})[v]);
+  }
+  t = t.replace(/\byou\b/g, 'You').replace(/\byour\b/g, 'Your').replace(/\byours\b/g, 'Yours').replace(/\byourself\b/g, 'Yourself').replace(/\bi\b/g, 'I').replace(/\bi'(m|ve|ll|d)\b/g, "I'$1");
+  return t.replace(/\s+/g, ' ').replace(/\s+([,.;!?])/g, '$1').trim();
 }
-function composeDua(n, memo){
+function toImperative(c, first){
+  c = c.trim().replace(/^(and|also|plus|&)\s+/i, '');
+  if (!c) return '';
+  c = c.replace(/^(i (want|need|would like|wish|hope|ask for|pray for)( to)?|give me( some)? help (in|with)|i ask you (for|to)|asking for|ask for)\s+/i, '');
+  if (/^to\s+/i.test(c)) c = c.replace(/^to\s+/i, '');
+  if (/^for\s+/i.test(c)) { c = c.replace(/^for\s+/i, ''); if (!CLAUSE_VERB.test(c)) return 'grant me ' + c; }
+  if (/^that\s+/i.test(c)) return first ? 'grant ' + c : c;                         // continuation of the previous clause
+  if (/^give\b/i.test(c)) return c.replace(/^give\b/i, 'grant');
+  if (CLAUSE_VERB.test(c)) return c.charAt(0).toLowerCase() + c.slice(1);
+  if (/^(my|our|the|this|all|every|i|I)\b.*\b(is|are|am|was|has|have)\b/.test(c)) return 'as ' + c;  // a statement, e.g. "my intention is to please You"
+  if (/^(you|You) (\w+)\b/.test(c) && !/^You (please|plz)/.test(c)) return c;        // a statement about Allah, e.g. "You gave me this job"
+  if (/^(be|become|stay|get|pass|finish|do|reach|achieve|learn|understand|overcome|stop|quit|find|win)\b/i.test(c)) return 'help me ' + c;
+  return 'grant me ' + c;
+}
+function startsClause(c){
+  return CLAUSE_VERB.test(c) || /^(to|for|that|so that|i (want|need|would like|wish|hope|ask)|give me|my \w+ (is|are)|i am|i'm|You \w+|and (help|make|let|grant|give|open|keep|bring|accept|forgive))\b/i.test(c);
+}
+function splitClauses(t){
+  const raw = t.replace(/\.(\s|$)/g, ', ').split(/\s*[,;]\s*/).map(x => x.trim()).filter(Boolean);
+  const out = [];
+  raw.forEach((c, i) => {
+    if (i > 0 && /^that\b/i.test(c)) { out[out.length - 1] += ', ' + c; return; }       // relative clause continues the previous request
+    if (i > 0 && !startsClause(c)) { out[out.length - 1] += ', ' + c; return; }          // list item: keep it with its request
+    out.push(c);
+  });
+  return out;
+}
+function joinClauses(parts){
+  if (parts.length === 1) return parts[0];
+  let out = parts[0];
+  for (let i = 1; i < parts.length; i++) {
+    const p = parts[i], last = i === parts.length - 1;
+    if (/^You \w+/.test(parts[i - 1]) && i === 1) { out += ', so ' + p; continue; }   // "You gave me this job, so help me..."
+    out += (last && !/^as\b/.test(p)) ? ', and ' + p : ', ' + p;
+  }
+  return out;
+}
+const AGAINST = /\b(undermin\w*|bully\w*|hurt\w*|hate\w*|annoy\w*|backstab\w*|lying about|lies about|jealous|insult\w*|disrespect\w*|mistreat\w*|abus\w*|wrong(ed|s) me|against me|unfair to me|toxic|gossip\w*|cheat\w*|betray\w*)\b/i;
+const HARMWISH = /\b(punish|destroy|curse|ruin|make (him|her|them|my \w+|that \w+|the \w+) (suffer|pay|fail|lose|sick)|revenge|get back at|hurt (him|her|them)|die|disappear forever|cut (him|her|them) off|cut ties|stop talking to my)\b/i;
+function safetyReframe(lo){
+  if (/\b(kill myself|end my life|want to die|hurt myself|harm myself|disappear)\b/.test(lo)) return {clause:'grant me relief from this heaviness, surround me with Your mercy and people who care for me, and do not leave me to myself', tail:false};
+  const pm = lo.match(/\bmy (coworker|co-worker|colleague|boss|manager|teacher|classmate|neighbou?r|friend|sister|brother|mother|father|mom|dad|husband|wife|in-laws|family|cousin|aunt|uncle|roommate)\b/);
+  const who = pm ? 'my ' + pm[1].replace(/^mom$/, 'mother').replace(/^dad$/, 'father') : 'those around me';
+  if (/\bcut (him|her|them)? ?(off|ties)|stop talking to my\b/.test(lo)) return {clause:'mend what is between me and ' + who + ', give me wisdom and patience, and bring good out of this', tail:false};
+  return {clause:'grant me relief and justice in what I am facing with ' + who + ', guide me in how to respond, and bring good out of it', tail:false};
+}
+const TAILS = [
+  {key:'barakah', text:'put barakah in it', imp:true, fits:/\b(work|job|career|business|study|studies|school|exam|actions?|do|doing|deeds?|time|home|marriage|money|income|rizq|provision|project|efforts?)\b/, skip:/barakah/},
+  {key:'intention', text:'sincerely for Your sake', fits:/\b(intention|please (You|Allah|Him)|deeds?|actions?|worship|serve|charity|sadaqah|good deeds)\b/i, skip:/for Your sake|sincer/},
+  {key:'accept my deeds', text:'accept it from me', imp:true, fits:/\b(deeds?|worship|salah|fast(ing)?|charity|sadaqah|hajj|umrah|quran|efforts?|repentance)\b/, skip:/accept/},
+  {key:"afiyah", text:"grant me \u2018afiyah", imp:true, fits:/\b(health|heal|sick|ill|safe|safety|travel|journey|trials?|hardship|pain|surgery|protect|calm|anxiety|stress)\b/, skip:/afiyah/},
+  {key:'best for me', text:'grant me whatever is best for me', imp:true, fits:/\b(doors?|growth|job|exam|test|result|decision|choose|outcome|marriage|spouse|opportunit\w*|future|path|move|offer|interview|apply|application|admission|plans?)\b/, skip:/best for me/},
+  {key:'family', text:'for me and my family', fits:/\b(provision|rizq|home|house|income|money|sustenance|safety|protect)\b/, skip:/family/},
+  {key:'hereafter', text:'in this world and the Hereafter', fits:/\b(goodness|good|success|happiness)\b/, skip:/hereafter|akhirah|both worlds/},
+  {key:'pardon', text:'pardon me', imp:true, fits:/\b(sins?|forgive|forgiveness|mistakes?|wrong|faults?)\b/, skip:/pardon/},
+  {key:'firm heart', text:'keep my heart firm on Your deen', imp:true, fits:/\b(repent\w*|faith|iman|deen|trials?|hardship|sins?|steadfast|tempt\w*)\b/, skip:/firm|steadfast/},
+];
+function pickTail(text, ctx){
+  const themes = (typeof getThemes === 'function' ? getThemes() : []).join(' ').toLowerCase();
+  const lo = text.toLowerCase();
+  const used = ctx && ctx.used ? ctx.used : new Set();
+  const cands = TAILS.filter(tl => themes.includes(tl.key) && tl.fits.test(lo) && !tl.skip.test(lo));
+  const pick = cands.find(tl => !used.has(tl.key));
+  if (!pick) return null;
+  used.add(pick.key);
+  const other = OTHER_PERSON.test(text);
+  return {key: pick.key, text: other ? pick.text.replace(/^grant me \u2018afiyah/, 'grant us \u2018afiyah') : pick.text, imp: !!pick.imp};
+}
+function memoClause(memo, ctx){
+  const raw = memo.replace(/[\u2019`]/g, "'").replace(/\s+/g, ' ').trim();
+  if (!raw) return {clause:'', themed:false};
+  const lo0 = raw.toLowerCase();
+  if (HARMWISH.test(lo0) || (AGAINST.test(lo0) && /\b(my|the|this|that|a|someone|people|they|he|she)\b/.test(lo0) && !/\bhelp me (not|stop|avoid)\b/.test(lo0))) {
+    if (HARMWISH.test(lo0) || OTHER_PERSON.test(lo0) || /\b(someone|people|they|she)\b/.test(lo0)) return Object.assign(safetyReframe(lo0), {themed:true});
+  }
+  const short = cleanMemo(raw);
+  const shortLo = short.toLowerCase();
+  // very short memos (or the user's knowledge example) use the polished templates
+  if (shortLo.split(/\s+/).length <= 6 || /synthes/.test(shortLo)) {
+    for (const t of THEMES) if (t.re.test(shortLo)) return {clause:t.f(shortLo), themed:true};
+  }
+  const t = tidy(raw);
+  const parts = splitClauses(t).map((c, i) => toImperative(c, i === 0)).filter(Boolean);
+  if (!parts.length) return {clause:'', themed:false};
+  return {clause:joinClauses(parts), parts:parts, themed:false};
+}
+function composeDua(n, memo, ctx){
+  ctx = ctx || {used:new Set()};
   const g = GEN[n];
   const head = g[0] + ' (' + g[1] + '), ';
-  const r = memo ? memoClause(memo) : {clause:''};
+  const r = memo ? memoClause(memo, ctx) : {clause:''};
   if (!r.clause) return {text: head + g[3], generic: true};
-  const short = r.clause.split(/\s+/).length < 7;
-  return {text: head + (short ? g[2] + ', ' : '') + r.clause + '.', generic: false};
+  let clause = r.clause;
+  const wc = s => s.split(/\s+/).filter(Boolean).length;
+  if (r.tail !== false) {
+    const tail = pickTail(memo, ctx);
+    if (tail && wc(head + clause) + wc(tail.text) <= 35) {
+      if (tail.imp) clause = joinClauses((r.parts || [clause]).concat([tail.text]));   // only the last item gets "and"
+      else clause += ', ' + tail.text;
+    } else if (tail) ctx.used.delete(tail.key);   // didn't fit the length; free it for another entry
+  }
+  clause = clause.replace(/\s+/g, ' ').replace(/,\s*,/g, ',').replace(/\bmy\s+my\b/g, 'my');
+  if (wc(head + clause) < 12 && !r.themed) clause = g[2] + ', ' + clause;
+  return {text: head + clause.replace(/[\s,]+$/, '') + '.', generic: false};
 }
 
 /* ---------- optional Gemini rewriting (key lives only in this device's localStorage) ---------- */
@@ -1112,10 +1219,25 @@ function setAiKey(k){ try { if (k) localStorage.setItem(AI_KEY_STORE, k.trim());
 function aiAvailable(){ return !!getAiKey() && navigator.onLine !== false; }
 function vocativeOf(n){ const g = GEN[n]; return g[0] + ' (' + g[1] + ')'; }
 
-function buildAiPrompt(items){
+const DEFAULT_THEMES = [
+  'Ask for barakah in my actions where it fits.',
+  'When I write \u2018he/him/his\u2019, I usually mean Allah or the Name I\u2019m calling on; use context.',
+  'Renew my intention: ask that my actions and intentions be sincerely for the sake of Allah.',
+  'Ask for good in this world and the Hereafter (Qur\u2019an 2:201).',
+  'Ask for \u2018afiyah (well-being and safety).',
+  'Ask for what is best for me (khayr), rather than insisting on a fixed outcome.',
+  'Ask Allah to accept my deeds.',
+  'Include my family and the ummah where natural.',
+  'Occasionally, when the memo suits it: a firm heart on the deen, \u2018do not leave me to myself\u2019 in hardship, help in remembrance/gratitude/worship, or asking for pardon (\u2018afw).'
+];
+function getThemes(){ return Array.isArray(data.themes) ? data.themes : DEFAULT_THEMES.slice(); }
+function cleanThemes(arr){ return (Array.isArray(arr) ? arr : []).filter(t => typeof t === 'string').map(t => t.replace(/\s+/g, ' ').trim().slice(0, 300)).filter(Boolean).slice(0, 30); }
+
+function buildAiPrompt(items, themes){
+  themes = cleanThemes(themes === undefined ? getThemes() : themes);
   return [
     'You write personal duas (supplications) in English for a Muslim user\'s private Dua Log.',
-    'For EACH item below, write ONE concise supplication: a single sentence of about 15-30 words (never more than 30).',
+    'For EACH item below, write ONE concise supplication: a single sentence of about 15-30 words (hard maximum 35).',
     'Rules:',
     '- Begin EXACTLY with the item\'s "vocative" string, followed by a comma. Copy the Arabic exactly as provided and add no other Arabic.',
     '- Address Allah directly and reverently ("You", "Your"), calling on the meaning of that Name where it fits naturally. Do not open with a descriptive clause such as "You are the ..."; go straight to the request after the vocative.',
@@ -1123,6 +1245,15 @@ function buildAiPrompt(items){
     '- Fix grammar and spelling. Keep any Islamic terms the user used (e.g. barakah, akhirah, ummah, rizq, deen) and spell them correctly.',
     '- Write in the first person (me, my). No quotation marks, no "Ameen", no notes or explanations.',
     '- Every item must get its own distinct wording; two different memos must never produce the same or near-identical dua.',
+    '- Ask comprehensively where natural: it is fine to widen a narrow ask slightly (e.g. "and whatever is best for me").',
+    '- Safety (always applies): never turn a memo into a dua for sin, for cutting family ties, or for harm against anyone (including the user). Reframe frustration or anger into asking for relief, justice, guidance, and good.',
+    '- Keep each dua to one sentence of about 15-30 words; never exceed 35 words.',
+    ...(themes.length ? [
+      '',
+      'Standing themes (the user\'s own preferences):',
+      ...themes.map((t, i) => (i + 1) + '. ' + t),
+      'How to use the standing themes: keep the user\'s requests first and intact, then weave in at most 1-2 themes per dua, ONLY where they fit naturally (themes 1-3 most often). Vary which themes appear across the items in this batch so the duas do not all end the same way. Never let a theme replace or crowd out what the user asked for, and stay within the word limit.'
+    ] : []),
     'Return JSON: {"duas":[{"id":"<id>","dua":"<text>"}]} with exactly one entry per id, in the same order.',
     '',
     'Items:',
@@ -1173,7 +1304,7 @@ async function aiRefineItems(items){
     if (!it || typeof d.dua !== 'string') return;
     let t = d.dua.trim().replace(/^["'\u201C]+|["'\u201D]+$/g, '').replace(/\s+/g, ' ');
     if (!t.startsWith(it.vocative)) return;                  // must open with the exact vocative
-    if (t.split(' ').length > 50) return;                    // keep it concise
+    if (t.split(' ').length > 40) return;                    // ~15-30 words, hard max ~35 (small slack for counting differences)
     if (!/[.!]$/.test(t)) t += '.';
     res[it.id] = t;
   });
@@ -1222,6 +1353,33 @@ function openSettings(){
     el('p', {class:'set-p small'}, ['Get a free key at ', el('a', {href:'https://aistudio.google.com/apikey', target:'_blank', rel:'noopener', text:'aistudio.google.com/apikey'}), '. The key is stored only in this browser on this device \u2014 it is never in the app file, never exported in backups, and only sent to Google.']),
     el('p', {class:'set-p small', text:'Note: on Gemini\u2019s free tier, Google may use the text you send (your memos) to improve its products. Leave the key empty if you\u2019d rather keep memos fully on-device.'})
   ]);
+  // ---- Standing themes (editable, saved with the logs, included in backups) ----
+  const themeList = el('div', {class:'theme-list'});
+  function persistThemes(list){ data.themes = list; saveSoon(); }
+  function readThemes(){ return Array.from(themeList.querySelectorAll('textarea')).map(t => t.value); }
+  function renderThemes(){
+    themeList.innerHTML = '';
+    getThemes().forEach((t, i) => {
+      const ta = el('textarea', {class:'field theme-field', rows:'1', maxlength:'300', 'aria-label':'Standing theme ' + (i + 1)});
+      ta.value = t;
+      ta.addEventListener('input', () => { autoGrow(ta); persistThemes(readThemes()); });
+      ta.addEventListener('blur', () => { const list = readThemes().map(x => x.trim()); if (list.some(x => !x)) { persistThemes(list.filter(Boolean)); renderThemes(); } });
+      const del = el('button', {type:'button', class:'icon-btn del', 'aria-label':'Delete theme ' + (i + 1), title:'Delete', text:'\u2715', onclick:() => { const list = readThemes(); list.splice(i, 1); persistThemes(list); renderThemes(); }});
+      themeList.appendChild(el('div', {class:'theme-row'}, [el('span', {class:'theme-num', text:(i + 1) + '.'}), ta, del]));
+    });
+    requestAnimationFrame(() => themeList.querySelectorAll('textarea').forEach(autoGrow));
+  }
+  const themesSec = el('div', {class:'themes-sec'}, [
+    el('h3', {class:'set-h', text:'Standing themes'}),
+    el('p', {class:'set-p', text:'Things you\u2019d like woven into your refined duas. Gemini adds at most one or two per dua, only where they fit, after your own requests.'}),
+    themeList,
+    el('div', {class:'session-foot'}, [
+      el('button', {type:'button', class:'btn small', text:'+ Add theme', onclick:() => { const list = readThemes(); if (list.length >= 30) { toast('That\u2019s plenty of themes \u2014 30 max.'); return; } list.push(''); data.themes = list; renderThemes(); const tas = themeList.querySelectorAll('textarea'); tas[tas.length - 1].focus(); }}),
+      el('button', {type:'button', class:'btn small ghost', text:'Reset to defaults', onclick:() => { if (!confirm('Replace your standing themes with the defaults?')) return; data.themes = null; saveData(); renderThemes(); toast('Standing themes reset'); }})
+    ])
+  ]);
+  body.appendChild(themesSec);
+  renderThemes();
   const sheet = el('div', {class:'sheet', role:'dialog', 'aria-modal':'true', 'aria-label':'Settings'}, [
     el('div', {class:'sheet-head'}, [el('h2', {text:'Settings'})]),
     body,
@@ -1522,10 +1680,11 @@ let savingSheet = false;
 document.getElementById('sheetSave').addEventListener('click', async () => {
   if (savingSheet) return;
   const ns = sheetWrap._ns || [];
+  const batch = {used:new Set()};   // rotate theme tails across this batch
   const entries = ns.map(n => {
     const ta = document.getElementById('memo-' + n);
     const memo = ta ? ta.value.trim() : '';
-    const d = composeDua(n, memo);
+    const d = composeDua(n, memo, batch);
     return {id:uid(), n:n, memo:memo, text:d.text, generic:d.generic, note:''};
   });
   const withMemo = entries.filter(e => e.memo);
@@ -1920,7 +2079,7 @@ function downloadLogTxt(log){
 
 /* ---------- export / import ---------- */
 function exportData(){
-  const blob = new Blob([JSON.stringify({app:'asma-al-husna-dua-log', version:1, exported:new Date().toISOString(), logs:data.logs, favDuas:data.favDuas}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({app:'asma-al-husna-dua-log', version:1, exported:new Date().toISOString(), logs:data.logs, favDuas:data.favDuas, themes:getThemes()}, null, 2)], {type:'application/json'});
   const a = el('a', {href:URL.createObjectURL(blob), download:'dua-log-backup-' + dayKey(new Date()) + '.json'});
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
@@ -1945,18 +2104,20 @@ function cleanLog(l){
 function importFile(file){
   const r = new FileReader();
   r.onload = () => {
-    let incoming, favIn;
+    let incoming, favIn, themesIn = null;
     try {
       const d = JSON.parse(r.result);
       incoming = (Array.isArray(d) ? d : d.logs || []).filter(validLog).map(cleanLog);
       favIn = (Array.isArray(d.favDuas) ? d.favDuas : []).filter(f => f && typeof f.text === 'string' && f.text.trim() && (f.n == null || BY_N[f.n]))
         .map(f => ({id:String(f.id || uid()), n:f.n ? Number(f.n) : null, text:f.text.trim().slice(0, 2000), saved:String(f.saved || '')}));
+      if (Array.isArray(d.themes)) themesIn = cleanThemes(d.themes);
     }
     catch (e) { alert('That file isn\u2019t a valid Dua Log backup.'); return; }
-    if (!incoming.length && !favIn.length) { alert('No logs found in that file.'); return; }
+    if (!incoming.length && !favIn.length && !themesIn) { alert('No logs found in that file.'); return; }
     const clash = incoming.filter(l => findLog(l.id)).length;
-    if (!confirm('Import ' + incoming.length + ' log' + (incoming.length === 1 ? '' : 's') + (favIn.length ? ' and ' + favIn.length + ' Favorite Duas' : '') + '?' + (clash ? ' ' + clash + ' with the same ID will be replaced by the backup copy.' : '') + ' Your other logs are kept.')) return;
+    if (!confirm('Import ' + incoming.length + ' log' + (incoming.length === 1 ? '' : 's') + (favIn.length ? ' and ' + favIn.length + ' Favorite Duas' : '') + (themesIn ? ' (your standing themes will be replaced by the backup\u2019s)' : '') + '?' + (clash ? ' ' + clash + ' with the same ID will be replaced by the backup copy.' : '') + ' Your other logs are kept.')) return;
     incoming.forEach(l => { const i = data.logs.findIndex(x => x.id === l.id); if (i >= 0) data.logs[i] = l; else data.logs.push(l); });
+    if (themesIn) data.themes = themesIn;
     let skipped = 0;
     favIn.forEach(f => {
       if (data.favDuas.some(x => x.id === f.id || ((x.n || null) === f.n && x.text === f.text))) return;
