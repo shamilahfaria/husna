@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c1022">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Asma al-Husna">
+<meta name="format-detection" content="telephone=no">
+<title>Asma al-Husna — The 99 Names of Allah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c1022; --card:#151b35; --card-hover:#1a2140;
+    --ink:#ece6d6; --ink-dim:rgba(236,230,214,.62); --ink-faint:rgba(236,230,214,.38);
+    --gold:#c9a227; --gold-soft:rgba(201,162,39,.28); --hairline:rgba(201,162,39,.18);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:auto;}
+  @media (prefers-reduced-motion: no-preference){ html{scroll-behavior:smooth;} }
+  body{ margin:0; background:radial-gradient(1200px 700px at 50% -10%, #171d3c 0%, var(--bg) 55%), var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; position:relative; min-height:100vh; }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+    background-image:
+      radial-gradient(1.6px 1.6px at 8% 12%, rgba(236,230,214,.55), transparent 60%),
+      radial-gradient(1.2px 1.2px at 18% 30%, rgba(236,230,214,.35), transparent 60%),
+      radial-gradient(1.6px 1.6px at 27% 8%, rgba(201,162,39,.5), transparent 60%),
+      radial-gradient(1.2px 1.2px at 35% 22%, rgba(236,230,214,.3), transparent 60%),
+      radial-gradient(1.6px 1.6px at 44% 40%, rgba(236,230,214,.4), transparent 60%),
+      radial-gradient(1.2px 1.2px at 52% 6%, rgba(201,162,39,.45), transparent 60%),
+      radial-gradient(1.6px 1.6px at 61% 28%, rgba(236,230,214,.4), transparent 60%),
+      radial-gradient(1.2px 1.2px at 70% 15%, rgba(236,230,214,.3), transparent 60%),
+      radial-gradient(1.6px 1.6px at 78% 35%, rgba(201,162,39,.4), transparent 60%),
+      radial-gradient(1.2px 1.2px at 86% 10%, rgba(236,230,214,.35), transparent 60%),
+      radial-gradient(1.6px 1.6px at 93% 25%, rgba(236,230,214,.45), transparent 60%),
+      radial-gradient(1.2px 1.2px at 12% 50%, rgba(236,230,214,.28), transparent 60%),
+      radial-gradient(1.4px 1.4px at 66% 55%, rgba(201,162,39,.35), transparent 60%),
+      radial-gradient(1.2px 1.2px at 40% 60%, rgba(236,230,214,.3), transparent 60%),
+      radial-gradient(1.4px 1.4px at 90% 60%, rgba(236,230,214,.3), transparent 60%);
+    background-repeat:no-repeat;
+  }
+
+  header.hero{ position:relative; z-index:1; max-width:640px; margin:0 auto; padding:52px 24px 20px; text-align:center; }
+  .rosette{ display:block; margin:0 auto 16px; opacity:0; animation:fadeIn .9s ease-out .1s forwards; }
+  @media (prefers-reduced-motion: reduce){ .rosette{opacity:1; animation:none;} }
+  @keyframes fadeIn{ from{opacity:0; transform:scale(.85) rotate(-8deg);} to{opacity:1; transform:scale(1) rotate(0);} }
+  .title-ar{ font-family:'Amiri',serif; font-size:clamp(2.1rem,6vw,2.9rem); font-weight:700; margin:0 0 6px; color:var(--gold); }
+  .title-en{ font-family:'Cormorant Garamond',serif; font-weight:500; font-style:italic; font-size:clamp(1.3rem,4vw,1.7rem); margin:0 0 4px; }
+  .subtitle{ margin:0 0 16px; font-size:.85rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim); }
+  .verse{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.05rem; color:var(--ink-dim); max-width:440px; margin:0 auto 14px; line-height:1.5; }
+  .tip{ display:inline-block; font-size:.8rem; color:var(--ink-dim); border:1px solid var(--hairline); border-radius:999px; padding:6px 14px; background:rgba(201,162,39,.06); margin:3px; }
+  .tip em{ font-style:normal; color:var(--gold); font-family:'Amiri',serif; }
+
+  .panel{ position:relative; z-index:1; max-width:640px; margin:14px auto; padding:18px 22px; background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius); }
+  .panel h2{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.15rem; margin:0 0 3px; color:var(--gold); text-align:center; }
+  .panel .sub{ text-align:center; font-size:.73rem; color:var(--ink-faint); margin:0 0 12px; }
+  .etiquette ol{ margin:0; padding:0; list-style:none; counter-reset:step; }
+  .etiquette li{ counter-increment:step; display:flex; gap:11px; padding:7px 0; border-top:1px solid var(--hairline); font-size:.84rem; line-height:1.4; }
+  .etiquette li:first-child{ border-top:none; }
+  .etiquette li::before{ content:counter(step); flex:0 0 auto; width:20px; height:20px; border-radius:50%; background:var(--gold-soft); color:var(--gold); font-size:.72rem; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+  .etiquette .src{ color:var(--ink-faint); font-size:.72rem; white-space:nowrap; margin-left:auto; padding-top:2px; }
+
+  .ism-box{ text-align:center; }
+  .ism-box .ar{ font-family:'Amiri',serif; font-size:1.25rem; line-height:1.9; margin:0 0 8px; }
+  .ism-box .tr{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.95rem; color:var(--ink-dim); margin:0 0 8px; }
+  .ism-box .en{ font-size:.85rem; color:var(--ink-dim); line-height:1.5; margin:0 0 8px; }
+  .ism-box .src{ font-size:.7rem; letter-spacing:.05em; text-transform:uppercase; color:var(--gold); opacity:.85; }
+  .hl{ color:var(--gold); font-weight:700; }
+
+  nav.controls{ position:sticky; top:0; z-index:10; backdrop-filter:blur(10px); background:rgba(12,16,34,.86); border-bottom:1px solid var(--hairline); padding:14px 20px; }
+  .search-wrap{ max-width:640px; margin:0 auto 12px; }
+  #search{ width:100%; font-family:'Inter',sans-serif; font-size:.95rem; padding:11px 16px; border-radius:10px; border:1px solid var(--hairline); background:var(--card); color:var(--ink); outline:none; }
+  #search::placeholder{ color:var(--ink-faint); }
+  #search:focus-visible{ border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft); }
+  .chips{ max-width:900px; margin:0 auto; display:flex; gap:8px; overflow-x:auto; scrollbar-width:thin; padding-bottom:2px; }
+  .chip{ flex:0 0 auto; display:flex; align-items:center; gap:7px; font-size:.78rem; font-weight:500; color:var(--ink-dim); background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:7px 13px; cursor:pointer; white-space:nowrap; transition:background .2s, color .2s, border-color .2s; }
+  .chip:hover{ color:var(--ink); }
+  .chip:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .chip.active{ color:var(--ink); border-color:var(--dot,var(--gold)); background:var(--card-hover); }
+  .chip .dot{ width:8px; height:8px; border-radius:50%; background:var(--dot,var(--gold)); flex:0 0 auto; }
+
+  main{ position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:28px 20px 10px; }
+  section.category{ margin-bottom:40px; scroll-margin-top:104px; }
+  .cat-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:14px; padding-bottom:9px; border-bottom:1px solid var(--hairline); }
+  .cat-head .dot{ width:11px; height:11px; border-radius:50%; background:var(--dot,var(--gold)); flex:0 0 auto; }
+  .cat-head h3{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.4rem; margin:0; }
+  .cat-head .count{ font-size:.76rem; color:var(--ink-faint); margin-left:auto; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:11px; }
+
+  .card{ perspective:1200px; }
+  .card-inner{ position:relative; width:100%; height:206px; transition:transform .5s; transform-style:preserve-3d; cursor:pointer; }
+  @media (prefers-reduced-motion: reduce){ .card-inner{ transition:none; } }
+  .card.flipped .card-inner{ transform:rotateY(180deg); }
+  .card-face{ position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:var(--radius); border:1px solid var(--hairline); border-left:3px solid var(--dot,var(--gold)); background:var(--card); padding:13px 13px 10px; overflow-y:auto; scrollbar-width:thin; }
+  .card:hover .card-face.front{ background:var(--card-hover); }
+  .card-face.back{ transform:rotateY(180deg); }
+  .card-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .card-num{ font-size:.68rem; color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+  .card .dot{ width:7px; height:7px; border-radius:50%; background:var(--dot,var(--gold)); }
+  .ar{ font-family:'Amiri',serif; font-size:1.55rem; color:var(--ink); margin:1px 0 5px; line-height:1.25; }
+  .translit{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.05rem; color:var(--dot,var(--gold)); margin:0 0 3px; }
+  .meaning{ font-size:.8rem; color:var(--ink-dim); line-height:1.35; }
+  .flip-hint{ position:absolute; bottom:8px; right:10px; font-size:.85rem; opacity:.35; }
+  .back-reflect{ font-style:italic; font-size:.74rem; color:var(--ink-dim); line-height:1.4; margin-bottom:7px; }
+  .back-dua-label{ font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--dot,var(--gold)); opacity:.8; margin-bottom:4px; }
+  .back-ar{ font-family:'Amiri',serif; font-size:1.1rem; line-height:1.6; margin-bottom:5px; }
+  .back-tr{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.78rem; color:var(--ink-dim); line-height:1.4; margin-bottom:5px; }
+  .back-en{ font-size:.74rem; color:var(--ink-dim); line-height:1.4; margin-bottom:6px; }
+  .back-src{ font-size:.62rem; letter-spacing:.04em; text-transform:uppercase; color:var(--dot,var(--gold)); opacity:.85; }
+  .card-face .hl{ color:var(--dot,var(--gold)); font-weight:700; }
+
+  .no-results{ text-align:center; color:var(--ink-faint); padding:40px 0; display:none; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.1rem; }
+
+  footer{ position:relative; z-index:1; max-width:520px; margin:20px auto 60px; text-align:center; padding:0 24px; color:var(--ink-faint); font-size:.82rem; line-height:1.65; }
+  footer .dua{ margin-top:10px; font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold); font-size:1.05rem; }
+
+  @media (max-width:480px){ .grid{ grid-template-columns:1fr 1fr; } .card-inner{ height:196px; } }
+
+  /* ---------- App shell (Dua Log feature) ---------- */
+  :root{ --appbar-h:54px; --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px); --fav:#e0b84a; }
+  body{ -webkit-tap-highlight-color:transparent; padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px); }
+  [hidden]{ display:none !important; }
+  .appbar{ position:sticky; top:0; z-index:20; padding-top:var(--safe-t); background:rgba(12,16,34,.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--hairline); }
+  .appbar-in{ max-width:1080px; margin:0 auto; height:var(--appbar-h); display:flex; align-items:center; gap:10px; padding:0 14px; }
+  .brand{ font-family:'Amiri',serif; color:var(--gold); font-size:1.15rem; line-height:1; margin-right:2px; white-space:nowrap; }
+  .tabs{ display:flex; background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:3px; }
+  .tab{ font-size:.8rem; font-weight:600; color:var(--ink-dim); text-decoration:none; padding:7px 14px; border-radius:999px; white-space:nowrap; transition:background .2s,color .2s; }
+  .tab.active{ background:var(--gold-soft); color:var(--ink); }
+  .tab:focus-visible, .btn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .appbar .spacer{ flex:1; }
+  .btn{ font-family:'Inter',sans-serif; font-size:.82rem; font-weight:600; color:var(--ink); background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:8px 15px; cursor:pointer; min-height:36px; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:6px; transition:background .2s,border-color .2s,opacity .2s; }
+  .btn:hover{ background:var(--card-hover); border-color:var(--gold-soft); }
+  .btn.gold{ background:var(--gold); color:#151204; border-color:var(--gold); }
+  .btn.gold:hover{ background:#d8b23a; }
+  .btn.ghost{ background:transparent; }
+  .btn.danger{ color:#e4877f; border-color:rgba(193,68,60,.4); background:transparent; }
+  .btn.small{ font-size:.74rem; padding:6px 11px; min-height:30px; }
+  .btn[disabled]{ opacity:.4; pointer-events:none; }
+  .icon-btn{ background:transparent; border:1px solid transparent; color:var(--ink-faint); border-radius:8px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-size:.95rem; }
+  .icon-btn:hover{ color:var(--ink); border-color:var(--hairline); }
+  .icon-btn.del:hover{ color:#e4877f; border-color:rgba(193,68,60,.4); }
+  .icon-btn[disabled]{ opacity:.25; pointer-events:none; }
+  #selectBtn.on{ border-color:var(--gold); color:var(--gold); }
+
+  nav.controls{ top:calc(var(--appbar-h) + var(--safe-t)); }
+  section.category{ scroll-margin-top:calc(var(--appbar-h) + var(--safe-t) + 128px); }
+
+  /* select mode */
+  .sel-check{ position:absolute; top:9px; right:9px; z-index:3; width:24px; height:24px; border-radius:50%; border:1.5px solid var(--ink-faint); background:rgba(12,16,34,.7); display:none; align-items:center; justify-content:center; pointer-events:none; }
+  .sel-check::after{ content:""; width:10px; height:6px; border-left:2px solid #151204; border-bottom:2px solid #151204; transform:rotate(-45deg) translate(1px,-1px); opacity:0; }
+  .card{ position:relative; }
+  body.selecting #view-reference .card .sel-check{ display:flex; }
+  body.selecting #view-reference .card .card-face.front .card-top .dot{ visibility:hidden; }
+  body.selecting #view-reference .card .flip-hint{ display:none; }
+  .card.selected .sel-check{ background:var(--gold); border-color:var(--gold); }
+  .card.selected .sel-check::after{ opacity:1; }
+  .card.selected .card-face.front{ background:var(--card-hover); box-shadow:inset 0 0 0 1.5px var(--gold); }
+  body.selecting #view-reference{ padding-bottom:calc(84px + var(--safe-b)); }
+
+  .selbar{ position:fixed; left:0; right:0; bottom:0; z-index:30; background:rgba(16,21,44,.97); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-top:1px solid var(--gold-soft); padding:12px 16px calc(12px + var(--safe-b)); transform:translateY(110%); visibility:hidden; transition:transform .25s ease, visibility 0s linear .25s; }
+  .selbar.show{ transform:none; visibility:visible; transition:transform .25s ease, visibility 0s; }
+  .selbar-in{ max-width:640px; margin:0 auto; display:flex; align-items:center; gap:10px; }
+  .selbar .count{ font-size:.85rem; color:var(--ink-dim); flex:1; min-width:0; line-height:1.3; }
+  .selbar .count b{ color:var(--gold); font-size:1rem; }
+  .selbar .target{ display:block; font-size:.7rem; color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* favourites */
+  .fav-star{ color:var(--fav); font-size:.95rem; line-height:1; }
+  .chip .fav-star{ font-size:.8rem; }
+  .use-count{ font-size:.62rem; color:var(--fav); letter-spacing:.03em; margin-left:auto; margin-right:6px; }
+
+  /* bottom sheet */
+  .sheet-wrap{ position:fixed; inset:0; z-index:40; background:rgba(5,8,20,.72); display:flex; align-items:flex-end; justify-content:center; }
+  .sheet{ width:100%; max-width:640px; max-height:calc(100% - var(--safe-t) - 18px); background:var(--bg); border:1px solid var(--hairline); border-bottom:none; border-radius:20px 20px 0 0; display:flex; flex-direction:column; overflow:hidden; animation:sheetUp .28s ease-out; }
+  @keyframes sheetUp{ from{ transform:translateY(40px); opacity:0; } to{ transform:none; opacity:1; } }
+  @media (prefers-reduced-motion: reduce){ .sheet{ animation:none; } .selbar{ transition:none; } }
+  .sheet-head{ padding:16px 20px 12px; border-bottom:1px solid var(--hairline); text-align:center; }
+  .sheet-head h2{ font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--gold); font-size:1.35rem; margin:0 0 4px; }
+  .sheet-head p{ margin:0; font-size:.78rem; color:var(--ink-dim); line-height:1.45; }
+  .sheet-head .target{ margin-top:6px; font-size:.7rem; color:var(--ink-faint); letter-spacing:.04em; }
+  .sheet-body{ overflow-y:auto; -webkit-overflow-scrolling:touch; padding:14px 16px; flex:1; }
+  .sheet-foot{ display:flex; gap:10px; padding:12px 16px calc(12px + var(--safe-b)); border-top:1px solid var(--hairline); background:rgba(16,21,44,.97); }
+  .sheet-foot .btn{ flex:1; min-height:44px; font-size:.9rem; }
+  .memo-item{ display:grid; grid-template-columns:150px 1fr; gap:12px; align-items:start; padding:12px 0; border-top:1px solid var(--hairline); }
+  .memo-item:first-child{ border-top:none; padding-top:2px; }
+  .mini-card{ border-radius:var(--radius); border:1px solid var(--hairline); border-left:3px solid var(--dot,var(--gold)); background:var(--card); padding:10px 11px; }
+  .mini-card .ar{ font-size:1.35rem; margin:0 0 3px; }
+  .mini-card .translit{ font-size:.98rem; }
+  .mini-card .meaning{ font-size:.74rem; }
+  .memo-item label{ display:block; font-size:.8rem; font-weight:600; color:var(--ink); margin:2px 0 6px; line-height:1.35; }
+  .memo-item label .lbl-name{ color:var(--dot,var(--gold)); }
+  .field{ width:100%; font-family:'Inter',sans-serif; font-size:16px; line-height:1.45; padding:10px 12px; border-radius:10px; border:1px solid var(--hairline); background:var(--card); color:var(--ink); outline:none; resize:none; min-height:44px; }
+  .field::placeholder{ color:var(--ink-faint); }
+  .field:focus{ border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft); }
+  .memo-hint{ font-size:.7rem; color:var(--ink-faint); margin-top:5px; }
+  @media (max-width:480px){ .memo-item{ grid-template-columns:1fr; gap:8px; } .mini-card{ display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 10px; } .mini-card .ar{ order:-1; } .mini-card .meaning{ flex-basis:100%; } }
+
+  /* ---------- Dua Log views ---------- */
+  .logs-wrap{ position:relative; z-index:1; max-width:760px; margin:0 auto; padding:26px 16px calc(60px + var(--safe-b)); }
+  .logs-head{ text-align:center; margin-bottom:18px; }
+  .logs-head .title-ar{ font-size:clamp(1.8rem,6vw,2.3rem); margin-bottom:2px; }
+  .logs-head .title-en{ margin-bottom:6px; }
+  .logs-head .sub{ font-size:.8rem; color:var(--ink-dim); margin:0 auto 14px; max-width:420px; line-height:1.5; }
+  .logs-actions{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  .log-list{ display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+  .log-item{ display:block; width:100%; text-align:left; font:inherit; color:inherit; background:var(--card); border:1px solid var(--hairline); border-left:3px solid var(--gold); border-radius:var(--radius); padding:14px 16px; cursor:pointer; transition:background .2s; }
+  .log-item:hover{ background:var(--card-hover); }
+  .log-item .t{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.2rem; color:var(--ink); margin:0 0 3px; }
+  .log-item .m{ font-size:.74rem; color:var(--ink-faint); margin-bottom:8px; }
+  .log-item .names{ display:flex; flex-wrap:wrap; gap:5px; }
+  .pill{ font-size:.72rem; color:var(--ink-dim); border:1px solid var(--hairline); border-radius:999px; padding:3px 9px; background:rgba(201,162,39,.05); }
+  .pill .ar-s{ font-family:'Amiri',serif; color:var(--dot,var(--gold)); margin-right:4px; font-size:.85rem; }
+  .empty{ text-align:center; color:var(--ink-faint); padding:34px 18px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.1rem; line-height:1.6; border:1px dashed var(--hairline); border-radius:var(--radius); margin-top:20px; }
+
+  .back-link{ display:inline-flex; align-items:center; gap:6px; color:var(--ink-dim); text-decoration:none; font-size:.82rem; margin-bottom:14px; }
+  .back-link:hover{ color:var(--gold); }
+  .log-title{ width:100%; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(1.45rem,5.5vw,1.9rem); color:var(--gold); background:transparent; border:1px solid transparent; border-radius:10px; padding:4px 8px; margin:0 -8px; outline:none; text-align:center; }
+  .log-title:hover{ border-color:var(--hairline); }
+  .log-title:focus{ border-color:var(--gold); background:var(--card); }
+  .log-meta{ text-align:center; font-size:.74rem; color:var(--ink-faint); margin:4px 0 12px; letter-spacing:.03em; }
+  .log-tools{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .rename-hint{ text-align:center; font-size:.68rem; color:var(--ink-faint); margin-bottom:10px; }
+
+  .divider{ display:flex; align-items:center; gap:12px; margin:26px 0 14px; color:var(--gold); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--gold-soft), transparent); }
+  .divider svg{ flex:0 0 auto; }
+  .entry{ display:grid; grid-template-columns:200px 1fr; gap:14px; align-items:start; background:rgba(21,27,53,.55); border:1px solid var(--hairline); border-radius:var(--radius); padding:12px; margin-bottom:12px; }
+  .entry.custom{ grid-template-columns:1fr; }
+  .entry .card-inner{ height:186px; }
+  .entry-body{ min-width:0; }
+  .entry-top{ display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+  .tag{ font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--dot,var(--gold)); opacity:.9; }
+  .tag.general{ color:var(--ink-faint); }
+  .entry-top .tools{ margin-left:auto; display:flex; gap:2px; }
+  .memo-line{ font-size:.74rem; color:var(--ink-faint); margin:0 0 6px; font-style:italic; }
+  .memo-line b{ font-style:normal; font-weight:500; color:var(--ink-dim); }
+  .dua-text{ font-family:'Cormorant Garamond',serif; font-size:1.18rem; line-height:1.5; color:var(--ink); background:transparent; border:1px solid transparent; padding:6px 8px; margin:0 -8px; width:calc(100% + 16px); min-height:0; }
+  .dua-text:hover{ border-color:var(--hairline); }
+  .dua-text:focus{ background:var(--card); }
+  .note-field{ margin-top:8px; font-size:16px; }
+  .add-note{ margin-top:6px; background:none; border:none; color:var(--ink-faint); font-size:.74rem; cursor:pointer; padding:4px 0; }
+  .add-note:hover{ color:var(--gold); }
+  .session-foot{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .session-note-label{ font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin:14px 0 5px; }
+  .log-danger{ text-align:center; margin-top:34px; }
+  @media (max-width:560px){ .entry{ grid-template-columns:1fr; } .entry .card-inner{ height:170px; } .brand{ display:none; } }
+  @media (max-width:480px){ #search{ font-size:16px; } .tab{ padding:7px 12px; } }
+  .toast{ position:fixed; left:50%; bottom:calc(24px + var(--safe-b)); transform:translateX(-50%); z-index:50; background:var(--card-hover); border:1px solid var(--gold-soft); color:var(--ink); font-size:.82rem; padding:10px 16px; border-radius:999px; box-shadow:0 8px 30px rgba(0,0,0,.4); opacity:0; pointer-events:none; transition:opacity .25s; max-width:90vw; text-align:center; }
+  .toast.show{ opacity:1; }
+  /* made tick-box */
+  .made-check{ display:inline-flex; align-items:center; gap:6px; font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); cursor:pointer; margin-right:6px; padding:4px 6px 4px 0; }
+  .made-box{ appearance:none; -webkit-appearance:none; width:22px; height:22px; margin:0; border-radius:6px; border:1.5px solid var(--ink-faint); background:rgba(12,16,34,.6); cursor:pointer; display:inline-grid; place-content:center; transition:background .2s,border-color .2s; }
+  .made-box::after{ content:""; width:10px; height:6px; border-left:2px solid #151204; border-bottom:2px solid #151204; transform:rotate(-45deg) translate(1px,-1px); opacity:0; }
+  .made-box:checked{ background:var(--gold); border-color:var(--gold); }
+  .made-box:checked::after{ opacity:1; }
+  .made-box:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .entry.done .made-check{ color:var(--gold); }
+  .entry.done .dua-text, .entry.done .memo-line, .entry.done .note-field, .entry.done .tag{ opacity:.42; }
+  .entry.done .dua-text{ text-decoration:line-through; text-decoration-color:rgba(201,162,39,.45); text-decoration-thickness:1px; }
+  .entry{ transition:background .3s; }
+  .entry.done{ background:rgba(21,27,53,.3); }
+  .icon-btn.star{ font-size:1.05rem; }
+  .icon-btn.star.on{ color:var(--fav); }
+  /* favorite duas */
+  .favduas{ margin-top:38px; scroll-margin-top:calc(var(--appbar-h) + var(--safe-t) + 12px); }
+  .favduas .cat-head .fav-star{ font-size:1rem; }
+  .favduas-sub{ font-size:.76rem; color:var(--ink-faint); margin:-4px 0 12px; line-height:1.45; }
+  .favdua{ background:var(--card); border:1px solid var(--hairline); border-left:3px solid var(--dot,var(--gold)); border-radius:var(--radius); padding:12px 14px; margin-bottom:10px; }
+  .favdua-name{ display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 9px; margin-bottom:4px; }
+  .favdua-name .ar-s{ font-family:'Amiri',serif; font-size:1.25rem; color:var(--ink); }
+  .favdua-name .tr-s{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.02rem; color:var(--dot,var(--gold)); }
+  .favdua-name .mn-s{ font-size:.74rem; color:var(--ink-dim); }
+  .favdua-text{ font-family:'Cormorant Garamond',serif; font-size:1.12rem; line-height:1.5; margin:0 0 8px; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+
+<header class="appbar" id="appbar">
+  <div class="appbar-in">
+    <span class="brand" aria-hidden="true">الأسماء</span>
+    <nav class="tabs" aria-label="Pages">
+      <a class="tab active" href="#reference" data-view="reference">Names</a>
+      <a class="tab" href="#logs" data-view="logs">Dua Log</a>
+    </nav>
+    <span class="spacer"></span>
+    <button class="btn" id="selectBtn" type="button" aria-pressed="false">Select</button>
+  </div>
+</header>
+
+<div id="view-reference" class="view">
+
+<header class="hero">
+  <svg class="rosette" width="56" height="56" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+    <rect x="20" y="20" width="60" height="60" stroke="#c9a227" stroke-width="2"/>
+    <rect x="20" y="20" width="60" height="60" stroke="#c9a227" stroke-width="2" transform="rotate(45 50 50)"/>
+    <circle cx="50" cy="50" r="3.5" fill="#c9a227"/>
+  </svg>
+  <h1 class="title-ar">الأسماء الحسنى</h1>
+  <h2 class="title-en">Asma al-Husna</h2>
+  <p class="subtitle">The Ninety-Nine Names of Allah</p>
+  <p class="verse">"And to Allah belong the most beautiful names, so call upon Him by them." — Qur'an 7:180</p>
+  <p class="tip">Prefix any name with <em>Ya</em> — يا — when calling upon Allah in dua.</p>
+  <p class="tip">Tap or click a card to flip it and see a dua, where an authentic one exists.</p>
+  <p class="tip">Tap <em style="font-family:Inter,sans-serif;font-weight:600">Select</em> to choose Names for your Dua Log.</p>
+</header>
+
+<section class="panel etiquette">
+  <h2>Etiquette of Dua</h2>
+  <p class="sub">A quick reminder, for before you begin</p>
+  <ol>
+    <li>Begin and end with praise of Allah and salawat on the Prophet ﷺ <span class="src">Tirmidhi, sahih</span></li>
+    <li>Ask with certainty of an answer, not half-heartedly <span class="src">Bukhari &amp; Muslim</span></li>
+    <li>Be specific — ask by name and in detail, as the Sahaba did <span class="src">Sunnah</span></li>
+    <li>Supplicate often in ease, not only in hardship <span class="src">Tirmidhi</span></li>
+    <li>The last third of the night and right after fard prayer are especially accepted times <span class="src">Tirmidhi</span></li>
+    <li>Don't rush or grow impatient and give up <span class="src">Bukhari &amp; Muslim</span></li>
+    <li>Bring a present, attentive heart <span class="src">Tirmidhi, hasan</span></li>
+    <li>Call Him by the specific Name that fits your need <span class="src">Qur'an 7:180</span></li>
+  </ol>
+</section>
+
+<section class="panel ism-box">
+  <h2>The Dua That Calls Every Name</h2>
+  <p class="sub">For when you don't know which Name to reach for</p>
+  <p class="ar">...أَسْأَلُكَ <span class="hl">بِكُلِّ اسْمٍ هُوَ لَكَ</span>، سَمَّيْتَ بِهِ نَفْسَكَ، أَوْ أَنْزَلْتَهُ فِي كِتَابِكَ، أَوْ عَلَّمْتَهُ أَحَدًا مِنْ خَلْقِكَ، أَوِ اسْتَأْثَرْتَ بِهِ فِي عِلْمِ الْغَيْبِ عِنْدَكَ</p>
+  <p class="tr">...as'aluka <span class="hl">bikulli ismin huwa laka</span>, sammayta bihi nafsak, aw anzaltahu fi kitabik, aw 'allamtahu ahadan min khalqik, awista'tharta bihi fi 'ilmil-ghaybi 'indak</p>
+  <p class="en">...I ask You <span class="hl">by every Name that is Yours</span> — that You named Yourself with, or revealed in Your Book, or taught to any of Your creation, or kept in the knowledge of the unseen with You.</p>
+  <p class="src">Musnad Ahmad, sahih (al-Albani) — narrated by Ibn Mas'ud</p>
+</section>
+
+<nav class="controls" id="controls">
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Search — e.g. &quot;forgive&quot;, &quot;provision&quot;, or &quot;Razzaq&quot;" aria-label="Search names of Allah">
+  </div>
+  <div class="chips" id="chips"></div>
+</nav>
+
+<main id="main"></main>
+<p class="no-results" id="noResults">No names match that search.</p>
+
+<footer>
+  <p>Grouped into fifteen categories by primary quality, so related names sit together — a memory aid, not a ranking. Each still belongs to Allah alone, whole and complete.</p>
+  <p class="dua">May Allah answer you by every one of them.</p>
+</footer>
+</div>
+
+<div id="view-logs" class="view" hidden></div>
+
+<div class="selbar" id="selbar" aria-hidden="true">
+  <div class="selbar-in">
+    <div class="count" id="selCount" aria-live="polite"></div>
+    <button class="btn ghost" id="selCancel" type="button">Cancel</button>
+    <button class="btn gold" id="selAdd" type="button" disabled>Add to Dua Log</button>
+  </div>
+</div>
+
+<div class="sheet-wrap" id="sheetWrap" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Add to Dua Log</h2>
+      <p>What are you calling on each Name for? Leave any blank and a general supplication will be written for it.</p>
+      <div class="target" id="sheetTarget"></div>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+    <div class="sheet-foot">
+      <button class="btn" id="sheetCancel" type="button">Back</button>
+      <button class="btn gold" id="sheetSave" type="button">Save to Dua Log</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const CATEGORIES = [
+  {id:'majesty',      label:'Majesty & Sovereignty',       color:'#c9a227'},
+  {id:'mercy',        label:'Mercy, Love & Gentleness',    color:'#c17a9c'},
+  {id:'power',        label:'Power & Strength',            color:'#c1443c'},
+  {id:'knowledge',    label:'Knowledge & Awareness',       color:'#4a83c9'},
+  {id:'creation',     label:'Creation & Design',           color:'#45a97a'},
+  {id:'forgiveness',  label:'Forgiveness & Repentance',    color:'#8a6bbf'},
+  {id:'provision',    label:'Provision & Generosity',      color:'#d9a441'},
+  {id:'justice',      label:'Justice',                     color:'#a89358'},
+  {id:'guardianship', label:'Guardianship & Security',     color:'#33a99a'},
+  {id:'life',         label:'Life & Eternity',             color:'#5c60ab'},
+  {id:'oneness',      label:'Oneness',                     color:'#e6d9a8'},
+  {id:'guidance',     label:'Guidance & Light',            color:'#47b4d1'},
+  {id:'exaltation',   label:'Exaltation & Standing',       color:'#dd8a63'},
+  {id:'response',     label:'Response & Reward',           color:'#b4629a'},
+  {id:'time',         label:'Time & Order',                color:'#6f8fb3'},
+];
+
+/* Each entry: n, tr (transliteration), ar (Arabic), meaning, cat,
+   reflect (short line, always shown),
+   dua (optional): {ar, tr, en, src} with **word** marking the highlighted portion */
+const NAMES = [
+{n:1,tr:"Ar-Rahman",ar:"الرَّحْمَن",meaning:"The Most Merciful",cat:"mercy",
+ reflect:"Open any dua by calling on His mercy that encompasses all things.",
+ dua:{ar:"بِسْمِ اللَّهِ **الرَّحْمَٰنِ** الرَّحِيمِ",tr:"Bismillahi **r-Rahmani** r-Rahim",en:"In the name of Allah, **the Most Merciful**, the Especially Merciful",src:"Opening verse of 113 surahs"}},
+{n:2,tr:"Ar-Rahim",ar:"الرَّحِيم",meaning:"The Especially Merciful",cat:"mercy",
+ reflect:"Call when you need His mercy applied specifically to your situation.",
+ dua:{ar:"بِسْمِ اللَّهِ الرَّحْمَٰنِ **الرَّحِيمِ**",tr:"Bismillahi r-Rahmani **r-Rahim**",en:"In the name of Allah, the Most Merciful, **the Especially Merciful**",src:"Opening verse of 113 surahs"}},
+{n:3,tr:"Al-Malik",ar:"الْمَلِك",meaning:"The King, Eternal Lord",cat:"majesty",
+ reflect:"Remember all true ownership and authority belong to Him alone.",dua:null},
+{n:4,tr:"Al-Quddus",ar:"الْقُدُّوس",meaning:"The Most Holy",cat:"majesty",
+ reflect:"Said in ruku and sujud of the Prophet's ﷺ own night prayer.",
+ dua:{ar:"**سُبُّوحٌ قُدُّوسٌ**، رَبُّ الْمَلَائِكَةِ وَالرُّوحِ",tr:"**Subbuhun Quddus**, Rabbul-mala'ikati war-Ruh",en:"**Perfect and Most Holy**, Lord of the angels and the Spirit",src:"Sahih Muslim, via Aisha"}},
+{n:5,tr:"As-Salam",ar:"السَّلَام",meaning:"The Source of Peace",cat:"guardianship",
+ reflect:"Ask for peace in your heart, your home, and your affairs.",dua:null},
+{n:6,tr:"Al-Mu'min",ar:"الْمُؤْمِن",meaning:"The Granter of Security",cat:"guardianship",
+ reflect:"Call when you need reassurance and security in uncertainty.",dua:null},
+{n:7,tr:"Al-Muhaymin",ar:"الْمُهَيْمِن",meaning:"The Guardian",cat:"guardianship",
+ reflect:"Trust He is watching over and safeguarding every detail.",dua:null},
+{n:8,tr:"Al-'Aziz",ar:"الْعَزِيز",meaning:"The Almighty",cat:"majesty",
+ reflect:"Call when you feel small before something difficult.",dua:null},
+{n:9,tr:"Al-Jabbar",ar:"الْجَبَّار",meaning:"The Compeller",cat:"majesty",
+ reflect:"Ask Him to mend and restore what feels broken.",dua:null},
+{n:10,tr:"Al-Mutakabbir",ar:"الْمُتَكَبِّر",meaning:"The Supreme",cat:"majesty",
+ reflect:"Remember true greatness belongs to Him, not to people or outcomes.",dua:null},
+{n:11,tr:"Al-Khaliq",ar:"الْخَالِق",meaning:"The Creator",cat:"creation",
+ reflect:"From Sayyidul-Istighfar, the greatest formula of seeking forgiveness.",
+ dua:{ar:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ، **خَلَقْتَنِي** وَأَنَا عَبْدُكَ",tr:"Allahumma anta Rabbi la ilaha illa anta, **khalaqtani** wa ana 'abduk",en:"O Allah, You are my Lord, none has the right to be worshipped but You, **You created me** and I am Your servant",src:"Sahih al-Bukhari, via Shaddad ibn Aws"}},
+{n:12,tr:"Al-Bari'",ar:"الْبَارِئ",meaning:"The Evolver, Maker of Order",cat:"creation",
+ reflect:"Trust His design in how your circumstances are unfolding.",dua:null},
+{n:13,tr:"Al-Musawwir",ar:"الْمُصَوِّر",meaning:"The Fashioner",cat:"creation",
+ reflect:"Call when asking Him to shape a good outcome for you.",dua:null},
+{n:14,tr:"Al-Ghaffar",ar:"الْغَفَّار",meaning:"The Constantly Forgiving",cat:"forgiveness",
+ reflect:"Call when you keep returning to the same sin, again and again.",dua:null},
+{n:15,tr:"Al-Qahhar",ar:"الْقَهَّار",meaning:"The Subduer",cat:"power",
+ reflect:"Ask Him to subdue whatever overwhelms you — fear, a habit, an enemy.",dua:null},
+{n:16,tr:"Al-Wahhab",ar:"الْوَهَّاب",meaning:"The Bestower",cat:"provision",
+ reflect:"Called on when asking for a gift only He can give, undeserved.",
+ dua:{ar:"رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً إِنَّكَ أَنْتَ **الْوَهَّابُ**",tr:"Rabbana la tuzigh qulubana ba'da idh hadaytana, wa hab lana min ladunka rahmah, innaka anta **al-Wahhab**",en:"Our Lord, let not our hearts deviate after You have guided us, and grant us mercy from Yourself — indeed You are **the Bestower**",src:"Qur'an 3:8"}},
+{n:17,tr:"Ar-Razzaq",ar:"الرَّزَّاق",meaning:"The Provider",cat:"provision",
+ reflect:"A short line the Prophet ﷺ said calmly between two prostrations.",
+ dua:{ar:"اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَاهْدِنِي، وَ**ارْزُقْنِي**",tr:"Allahummaghfir li, warhamni, wahdini, wa**rzuqni**",en:"O Allah, forgive me, have mercy on me, guide me, and **provide for me**",src:"Tirmidhi & Abu Dawud, sahih — said between two prostrations"}},
+{n:18,tr:"Al-Fattah",ar:"الْفَتَّاح",meaning:"The Opener",cat:"provision",
+ reflect:"Call when a door feels shut — He opens what no one else can.",
+ dua:{ar:"رَبَّنَا **افْتَحْ** بَيْنَنَا وَبَيْنَ قَوْمِنَا بِالْحَقِّ وَأَنْتَ خَيْرُ الْفَاتِحِينَ",tr:"Rabbana **iftah** baynana wa bayna qawmina bilhaqqi, wa anta khayrul-fatihin",en:"Our Lord, **open/decide** between us and our people in truth — You are the best of those who open the way",src:"Qur'an 7:89"}},
+{n:19,tr:"Al-'Alim",ar:"الْعَلِيم",meaning:"The All-Knowing",cat:"knowledge",
+ reflect:"One of the shortest, most repeated duas for understanding.",
+ dua:{ar:"رَبِّ **زِدْنِي عِلْمًا**",tr:"Rabbi **zidni 'ilma**",en:"My Lord, **increase me in knowledge**",src:"Qur'an 20:114"}},
+{n:20,tr:"Al-Qabid",ar:"الْقَابِض",meaning:"The Withholder",cat:"exaltation",
+ reflect:"Reflect when provision feels tight — it is still by His measure.",dua:null},
+{n:21,tr:"Al-Basit",ar:"الْبَاسِط",meaning:"The Extender",cat:"exaltation",
+ reflect:"Call when asking Him to expand your rizq or your relief.",dua:null},
+{n:22,tr:"Al-Khafid",ar:"الْخَافِض",meaning:"The Abaser",cat:"exaltation",
+ reflect:"Remember He alone lowers what needed lowering, with justice.",dua:null},
+{n:23,tr:"Ar-Rafi'",ar:"الرَّافِع",meaning:"The Exalter",cat:"exaltation",
+ reflect:"Call when asking Him to raise your status or your standing.",dua:null},
+{n:24,tr:"Al-Mu'izz",ar:"الْمُعِزّ",meaning:"The Giver of Honor",cat:"exaltation",
+ reflect:"Call when asking to be seen well, respected, or believed.",dua:null},
+{n:25,tr:"Al-Mudhill",ar:"الْمُذِلّ",meaning:"The Giver of Dishonor",cat:"exaltation",
+ reflect:"Reflect on this when asking Him to humble what oppresses others.",dua:null},
+{n:26,tr:"As-Sami'",ar:"السَّمِيع",meaning:"The All-Hearing",cat:"knowledge",
+ reflect:"Remember He hears you even in silence, even unspoken.",dua:null},
+{n:27,tr:"Al-Basir",ar:"الْبَصِير",meaning:"The All-Seeing",cat:"knowledge",
+ reflect:"Remember nothing about your situation is hidden from Him.",dua:null},
+{n:28,tr:"Al-Hakam",ar:"الْحَكَم",meaning:"The Judge",cat:"justice",
+ reflect:"Call when you need a fair outcome only He can arbitrate.",dua:null},
+{n:29,tr:"Al-'Adl",ar:"الْعَدْل",meaning:"The Utterly Just",cat:"justice",
+ reflect:"Trust His fairness even when a situation feels unjust.",dua:null},
+{n:30,tr:"Al-Latif",ar:"اللَّطِيف",meaning:"The Subtle One",cat:"mercy",
+ reflect:"Captures His gentle arranging of affairs, though it doesn't name Him directly.",
+ dua:{ar:"اللَّهُمَّ لَا سَهْلَ إِلَّا مَا **جَعَلْتَهُ سَهْلًا**، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا",tr:"Allahumma la sahla illa ma **ja'altahu sahla**, wa anta taj'alul-hazna idha shi'ta sahla",en:"O Allah, nothing is easy except what **You make easy**, and You make hardship easy, if You will",src:"Ibn Hibban / Ibn as-Sunni, hasan — via Anas ibn Malik"}},
+{n:31,tr:"Al-Khabir",ar:"الْخَبِير",meaning:"The All-Aware",cat:"knowledge",
+ reflect:"Remember He is intimately aware of what you are going through.",dua:null},
+{n:32,tr:"Al-Halim",ar:"الْحَلِيم",meaning:"The Forbearing",cat:"mercy",
+ reflect:"Call when asking for patience with yourself or with others.",dua:null},
+{n:33,tr:"Al-'Azim",ar:"الْعَظِيم",meaning:"The Magnificent",cat:"majesty",
+ reflect:"Said by the Prophet ﷺ in every ruku, at Allah's own instruction.",
+ dua:{ar:"سُبْحَانَ رَبِّيَ **الْعَظِيمِ**",tr:"Subhana Rabbiya **al-'Azim**",en:"Glory be to my Lord, **the Magnificent**",src:"Abu Dawud"}},
+{n:34,tr:"Al-Ghafur",ar:"الْغَفُور",meaning:"The All-Forgiving",cat:"forgiveness",
+ reflect:"Abu Bakr himself asked the Prophet ﷺ for a dua to say in his own prayer.",
+ dua:{ar:"اللَّهُمَّ إِنِّي ظَلَمْتُ نَفْسِي ظُلْمًا كَثِيرًا، وَلَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ، **فَاغْفِرْ لِي** مَغْفِرَةً مِنْ عِنْدِكَ",tr:"Allahumma inni zalamtu nafsi zulman kathira, wa la yaghfirudh-dhunuba illa anta, **faghfir li** maghfiratan min 'indik",en:"O Allah, I have greatly wronged myself, and none forgives sins but You — **so forgive me** with forgiveness from Yourself",src:"Bukhari & Muslim — taught to Abu Bakr as-Siddiq, at his request"}},
+{n:35,tr:"Ash-Shakur",ar:"الشَّكُور",meaning:"The Appreciative",cat:"response",
+ reflect:"What the Prophet ﷺ taught Mu'adh ibn Jabal to say after every prayer.",
+ dua:{ar:"اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَ**شُكْرِكَ** وَحُسْنِ عِبَادَتِكَ",tr:"Allahumma a'inni 'ala dhikrika wa **shukrika** wa husni 'ibadatik",en:"O Allah, help me to remember You, **to thank You**, and to worship You well",src:"Abu Dawud, sahih — via Mu'adh ibn Jabal"}},
+{n:36,tr:"Al-'Aliyy",ar:"الْعَلِيّ",meaning:"The Highest",cat:"majesty",
+ reflect:"Remember nothing and no one is above Him.",dua:null},
+{n:37,tr:"Al-Kabir",ar:"الْكَبِير",meaning:"The Greatest",cat:"majesty",
+ reflect:"Call to shrink a problem back down to its true size.",dua:null},
+{n:38,tr:"Al-Hafiz",ar:"الْحَفِيظ",meaning:"The Preserver",cat:"guardianship",
+ reflect:"Ask Him to preserve your health, your family, and your deen.",dua:null},
+{n:39,tr:"Al-Muqit",ar:"الْمُقِيت",meaning:"The Sustainer",cat:"provision",
+ reflect:"Trust He sustains you even when the source isn't visible yet.",dua:null},
+{n:40,tr:"Al-Hasib",ar:"الْحَسِيب",meaning:"The Reckoner",cat:"knowledge",
+ reflect:"Remember He is enough — sufficient for whatever you are facing.",dua:null},
+{n:41,tr:"Al-Jalil",ar:"الْجَلِيل",meaning:"The Majestic",cat:"majesty",
+ reflect:"Call when you need the weight of His majesty to steady you.",dua:null},
+{n:42,tr:"Al-Karim",ar:"الْكَرِيم",meaning:"The Most Generous",cat:"provision",
+ reflect:"Call when asking generously — He gives beyond what's deserved.",dua:null},
+{n:43,tr:"Ar-Raqib",ar:"الرَّقِيب",meaning:"The Watchful",cat:"knowledge",
+ reflect:"Remember He is watching over you with care, not just observing.",dua:null},
+{n:44,tr:"Al-Mujib",ar:"الْمُجِيب",meaning:"The Responder to Prayer",cat:"response",
+ reflect:"His own promise, given directly, that calling on Him is never wasted.",
+ dua:{ar:"ادْعُونِي **أَسْتَجِبْ** لَكُمْ",tr:"Ud'uni **astajib** lakum",en:"Call upon Me, **I will answer** you",src:"Qur'an 40:60"}},
+{n:45,tr:"Al-Wasi'",ar:"الْوَاسِع",meaning:"The All-Encompassing",cat:"response",
+ reflect:"The dua of the angels, asking on behalf of every believer.",
+ dua:{ar:"رَبَّنَا **وَسِعْتَ** كُلَّ شَيْءٍ رَحْمَةً وَعِلْمًا",tr:"Rabbana **wasi'ta** kulla shay'in rahmatan wa 'ilma",en:"Our Lord, **You encompass** all things in mercy and knowledge",src:"Qur'an 40:7 — the dua of the angels"}},
+{n:46,tr:"Al-Hakim",ar:"الْحَكِيم",meaning:"The Perfectly Wise",cat:"knowledge",
+ reflect:"Trust the wisdom in His timing, even when it's unclear to you.",dua:null},
+{n:47,tr:"Al-Wadud",ar:"الْوَدُود",meaning:"The Most Loving",cat:"mercy",
+ reflect:"The verse many recite for love and warmth within a marriage.",
+ dua:{ar:"رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا **قُرَّةَ أَعْيُنٍ**",tr:"Rabbana hab lana min azwajina wa dhurriyyatina **qurrata a'yun**",en:"Our Lord, grant us **coolness of the eyes** through our spouses and children",src:"Qur'an 25:74"}},
+{n:48,tr:"Al-Majid",ar:"الْمَجِيد",meaning:"The Most Glorious",cat:"majesty",
+ reflect:"Call when reflecting on His glory to steady your heart.",dua:null},
+{n:49,tr:"Al-Ba'ith",ar:"الْبَاعِث",meaning:"The Resurrector",cat:"creation",
+ reflect:"Remember nothing you've done sincerely is wasted — it will be raised again.",dua:null},
+{n:50,tr:"Ash-Shahid",ar:"الشَّهِيد",meaning:"The Witness",cat:"knowledge",
+ reflect:"Remember He witnesses your sincerity even when no one else does.",dua:null},
+{n:51,tr:"Al-Haqq",ar:"الْحَقّ",meaning:"The Truth",cat:"justice",
+ reflect:"Anchor yourself in Him when everything else feels uncertain.",dua:null},
+{n:52,tr:"Al-Wakil",ar:"الْوَكِيل",meaning:"The Trustee",cat:"provision",
+ reflect:"Said by Ibrahim in the fire, and by the companions after Uhud.",
+ dua:{ar:"حَسْبُنَا اللَّهُ وَنِعْمَ **الْوَكِيلُ**",tr:"Hasbunallahu wa ni'mal-**Wakil**",en:"Allah is sufficient for us, and He is the best **Disposer of affairs**",src:"Qur'an 3:173; Bukhari — said by the companions after Uhud"}},
+{n:53,tr:"Al-Qawiyy",ar:"الْقَوِيّ",meaning:"The Possessor of All Strength",cat:"power",
+ reflect:"Call when you feel too weak to carry something alone.",dua:null},
+{n:54,tr:"Al-Matin",ar:"الْمَتِين",meaning:"The Firm One",cat:"power",
+ reflect:"Trust His strength doesn't waver, even when yours does.",dua:null},
+{n:55,tr:"Al-Waliyy",ar:"الْوَلِيّ",meaning:"The Protecting Friend",cat:"guardianship",
+ reflect:"Call when you need a friend and protector, not just help.",dua:null},
+{n:56,tr:"Al-Hamid",ar:"الْحَمِيد",meaning:"The Praised",cat:"majesty",
+ reflect:"Said by every worshipper, rising from every ruku, in every prayer.",
+ dua:{ar:"رَبَّنَا وَ**لَكَ الْحَمْدُ**",tr:"Rabbana wa **lakal-hamd**",en:"Our Lord, and **praise is for You**",src:"Sahih al-Bukhari"}},
+{n:57,tr:"Al-Muhsi",ar:"الْمُحْصِي",meaning:"The Appraiser",cat:"knowledge",
+ reflect:"The dua of a companion, moments before his martyrdom.",
+ dua:{ar:"اللَّهُمَّ **أَحْصِهِمْ عَدَدًا**",tr:"Allahumma **ahsihim 'adada**",en:"O Allah, **count them precisely**, one by one",src:"Sahih al-Bukhari — the dua of Khubayb ibn Adiy at his execution"}},
+{n:58,tr:"Al-Mubdi'",ar:"الْمُبْدِئ",meaning:"The Originator",cat:"creation",
+ reflect:"Trust He can begin something new for you from nothing.",dua:null},
+{n:59,tr:"Al-Mu'id",ar:"الْمُعِيد",meaning:"The Restorer",cat:"creation",
+ reflect:"Call when asking Him to restore what was lost.",dua:null},
+{n:60,tr:"Al-Muhyi",ar:"الْمُحْيِي",meaning:"The Giver of Life",cat:"creation",
+ reflect:"Call when asking Him to revive a dead hope or a cold heart.",dua:null},
+{n:61,tr:"Al-Mumit",ar:"الْمُمِيت",meaning:"The Taker of Life",cat:"creation",
+ reflect:"Reflect on this to loosen your grip on what was never permanent.",dua:null},
+{n:62,tr:"Al-Hayy",ar:"الْحَيّ",meaning:"The Ever-Living",cat:"life",
+ reflect:"A dua the Prophet ﷺ himself would say in moments of anxiety.",
+ dua:{ar:"**يَا حَيُّ** يَا قَيُّومُ، بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ",tr:"**Ya Hayyu** Ya Qayyum, bi rahmatika astagheeth, aslih li sha'ni kullah",en:"**O Ever-Living**, O Sustainer, by Your mercy I seek relief — set right all of my affairs",src:"Tirmidhi, hasan — via Anas ibn Malik"}},
+{n:63,tr:"Al-Qayyum",ar:"الْقَيُّوم",meaning:"The Self-Subsisting",cat:"life",
+ reflect:"Paired with Al-Hayy above — He upholds all things and needs nothing.",
+ dua:{ar:"يَا حَيُّ **يَا قَيُّومُ**، بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ",tr:"Ya Hayyu **Ya Qayyum**, bi rahmatika astagheeth, aslih li sha'ni kullah",en:"O Ever-Living, **O Sustainer**, by Your mercy I seek relief — set right all of my affairs",src:"Tirmidhi, hasan — via Anas ibn Malik"}},
+{n:64,tr:"Al-Wajid",ar:"الْوَاجِد",meaning:"The Finder",cat:"time",
+ reflect:"Trust He finds a way for you where you cannot see one.",dua:null},
+{n:65,tr:"Al-Maajid",ar:"الْمَاجِد",meaning:"The Noble, Glorious",cat:"time",
+ reflect:"Call when reflecting on His nobility to humble your own asking.",dua:null},
+{n:66,tr:"Al-Wahid",ar:"الْوَاحِد",meaning:"The Only One",cat:"oneness",
+ reflect:"The most direct statement of His oneness in the whole Qur'an.",
+ dua:{ar:"وَإِلَٰهُكُمْ إِلَٰهٌ **وَاحِدٌ** لَا إِلَٰهَ إِلَّا هُوَ الرَّحْمَٰنُ الرَّحِيمُ",tr:"Wa ilahukum ilahun **wahid**, la ilaha illa huwa, ar-Rahmanu-r-Rahim",en:"And your God is **One** God — there is no god but Him, the Most Merciful, the Especially Merciful",src:"Qur'an 2:163"}},
+{n:67,tr:"Al-Ahad",ar:"الأَحَد",meaning:"The One",cat:"oneness",
+ reflect:"From the hadith of the greatest Name of Allah.",
+ dua:{ar:"...بِأَنَّكَ أَنْتَ اللَّهُ لَا إِلَٰهَ إِلَّا أَنْتَ، **الْأَحَدُ** الصَّمَدُ",tr:"...bi annaka Antallahu la ilaha illa Anta, **al-Ahadu**, as-Samad",en:"...that You are Allah, none has the right to be worshipped but You, **the One**, the Eternal Refuge",src:"Abu Dawud & Tirmidhi, sahih — the greatest-Name hadith, via Buraidah"}},
+{n:68,tr:"As-Samad",ar:"الصَّمَد",meaning:"The Eternal Refuge",cat:"provision",
+ reflect:"From the same greatest-Name hadith as Al-Ahad, just above.",
+ dua:{ar:"...بِأَنَّكَ أَنْتَ اللَّهُ لَا إِلَٰهَ إِلَّا أَنْتَ، الْأَحَدُ **الصَّمَدُ**",tr:"...bi annaka Antallahu la ilaha illa Anta, al-Ahadu, **as-Samad**",en:"...that You are Allah, none has the right to be worshipped but You, the One, **the Eternal Refuge all creation depends on**",src:"Abu Dawud & Tirmidhi, sahih — the greatest-Name hadith, via Buraidah"}},
+{n:69,tr:"Al-Qadir",ar:"الْقَادِر",meaning:"The Powerful",cat:"power",
+ reflect:"From the Istikhara dua, taught for any decision, big or small.",
+ dua:{ar:"اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ، وَ**أَسْتَقْدِرُكَ بِقُدْرَتِكَ**",tr:"Allahumma inni astakhiruka bi'ilmika, wa **astaqdiruka bi qudratika**",en:"O Allah, I seek Your guidance by Your knowledge, and **I ask ability of You through Your power**",src:"Sahih al-Bukhari — via Jabir ibn Abdullah, the dua of Istikhara"}},
+{n:70,tr:"Al-Muqtadir",ar:"الْمُقْتَدِر",meaning:"The Creator of All Power",cat:"power",
+ reflect:"Trust nothing is difficult for Him to bring about.",dua:null},
+{n:71,tr:"Al-Muqaddim",ar:"الْمُقَدِّم",meaning:"The Expediter",cat:"time",
+ reflect:"Trust His timing on what He brings first in your life.",dua:null},
+{n:72,tr:"Al-Mu'akhkhir",ar:"الْمُؤَخِّر",meaning:"The Delayer",cat:"time",
+ reflect:"Trust His timing on what He is delaying — it isn't denial.",dua:null},
+{n:73,tr:"Al-Awwal",ar:"الأَوَّل",meaning:"The First",cat:"life",
+ reflect:"From the Prophet's ﷺ own dua before sleep.",
+ dua:{ar:"أَنْتَ **الْأَوَّلُ** فَلَيْسَ قَبْلَكَ شَيْءٌ",tr:"Anta **al-Awwalu** fa laysa qablaka shay'",en:"You are **the First**, so there is nothing before You",src:"Sahih Muslim — the Prophet's ﷺ bedtime dua"}},
+{n:74,tr:"Al-Akhir",ar:"الآخِر",meaning:"The Last",cat:"life",
+ reflect:"Same bedtime dua as Al-Awwal, just above.",
+ dua:{ar:"وَأَنْتَ **الْآخِرُ** فَلَيْسَ بَعْدَكَ شَيْءٌ",tr:"Wa anta **al-Akhiru** fa laysa ba'daka shay'",en:"And You are **the Last**, so there is nothing after You",src:"Sahih Muslim — the Prophet's ﷺ bedtime dua"}},
+{n:75,tr:"Az-Zahir",ar:"الظَّاهِر",meaning:"The Manifest",cat:"life",
+ reflect:"Same bedtime dua as Al-Awwal and Al-Akhir.",
+ dua:{ar:"وَأَنْتَ **الظَّاهِرُ** فَلَيْسَ فَوْقَكَ شَيْءٌ",tr:"Wa anta **az-Zahiru** fa laysa fawqaka shay'",en:"And You are **the Manifest**, so there is nothing above You",src:"Sahih Muslim — the Prophet's ﷺ bedtime dua"}},
+{n:76,tr:"Al-Batin",ar:"الْبَاطِن",meaning:"The Hidden",cat:"life",
+ reflect:"The final line of this same, remarkable bedtime dua.",
+ dua:{ar:"وَأَنْتَ **الْبَاطِنُ** فَلَيْسَ دُونَكَ شَيْءٌ",tr:"Wa anta **al-Batinu** fa laysa dunaka shay'",en:"And You are **the Hidden**, so nothing is nearer than You",src:"Sahih Muslim — the Prophet's ﷺ bedtime dua"}},
+{n:77,tr:"Al-Wali",ar:"الْوَالِي",meaning:"The Governor",cat:"time",
+ reflect:"Call when you need Him to take charge of an affair for you.",dua:null},
+{n:78,tr:"Al-Muta'ali",ar:"الْمُتَعَالِي",meaning:"The Supremely Exalted",cat:"majesty",
+ reflect:"Remember He is above every limitation you're imagining onto Him.",dua:null},
+{n:79,tr:"Al-Barr",ar:"الْبَرّ",meaning:"The Source of Goodness",cat:"mercy",
+ reflect:"Trust His goodness is behind even what looks difficult right now.",dua:null},
+{n:80,tr:"At-Tawwab",ar:"التَّوَّاب",meaning:"The Acceptor of Repentance",cat:"forgiveness",
+ reflect:"The dua of Yunus, inside the fish — its virtue reported by a companion.",
+ dua:{ar:"لَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ **إِنِّي كُنْتُ مِنَ الظَّالِمِينَ**",tr:"La ilaha illa anta, subhanak, **inni kuntu minaz-zalimin**",en:"There is no god but You, glory be to You — **truly I have been among the wrongdoers**",src:"Qur'an 21:87; its virtue narrated by Sa'd ibn Abi Waqqas, Tirmidhi"}},
+{n:81,tr:"Al-Muntaqim",ar:"الْمُنْتَقِم",meaning:"The Avenger",cat:"power",
+ reflect:"Reflect on this rather than seeking your own revenge — leave it to Him.",dua:null},
+{n:82,tr:"Al-'Afuww",ar:"الْعَفُوّ",meaning:"The Pardoner",cat:"forgiveness",
+ reflect:"What the Prophet ﷺ told Aisha to say on Laylat al-Qadr.",
+ dua:{ar:"اللَّهُمَّ إِنَّكَ **عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ** عَنِّي",tr:"Allahumma innaka **'Afuwwun tuhibbul-'afwa fa'fu** 'anni",en:"O Allah, **You are Pardoning, You love to pardon, so pardon** me",src:"Tirmidhi, sahih — via Aisha"}},
+{n:83,tr:"Ar-Ra'uf",ar:"الرَّؤُوف",meaning:"The Most Kind",cat:"mercy",
+ reflect:"Call when you need tenderness, not just mercy in the abstract.",dua:null},
+{n:84,tr:"Malik-ul-Mulk",ar:"مَالِكُ الْمُلْك",meaning:"Owner of All Sovereignty",cat:"majesty",
+ reflect:"Remember every position, title, and outcome is His to give or withhold.",dua:null},
+{n:85,tr:"Dhul-Jalali wal-Ikram",ar:"ذُو الْجَلَالِ وَالإِكْرَام",meaning:"Lord of Majesty and Generosity",cat:"majesty",
+ reflect:"The Prophet ﷺ told the Sahaba to persist in calling exactly this Name.",
+ dua:{ar:"أَلِظُّوا بِـ **يَا ذَا الْجَلَالِ وَالْإِكْرَامِ**",tr:"Alizzu bi **Ya Dhal-Jalali wal-Ikram**",en:"Persist in calling: **O Lord of Majesty and Generosity**",src:"Tirmidhi, hasan/sahih — via Anas ibn Malik"}},
+{n:86,tr:"Al-Muqsit",ar:"الْمُقْسِط",meaning:"The Equitable",cat:"justice",
+ reflect:"Trust His fairness in how things are being weighed for you.",dua:null},
+{n:87,tr:"Al-Jami'",ar:"الْجَامِع",meaning:"The Gatherer",cat:"provision",
+ reflect:"A reminder that all people, and all outcomes, return to Him.",
+ dua:{ar:"رَبَّنَا إِنَّكَ **جَامِعُ النَّاسِ** لِيَوْمٍ لَا رَيْبَ فِيهِ",tr:"Rabbana innaka **jami'un-nasi** liyawmin la rayba fih",en:"Our Lord, You are **the One who will gather all people** for a Day about which there is no doubt",src:"Qur'an 3:9"}},
+{n:88,tr:"Al-Ghaniyy",ar:"الْغَنِيّ",meaning:"The Self-Sufficient",cat:"provision",
+ reflect:"A compact dua for guidance, restraint, and contentment together.",
+ dua:{ar:"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَ**الْغِنَى**",tr:"Allahumma inni as'aluka al-huda, wat-tuqa, wal-'afafa, wal-**ghina**",en:"O Allah, I ask You for guidance, piety, chastity, and **contentment / self-sufficiency**",src:"Sahih Muslim — via Ibn Mas'ud"}},
+{n:89,tr:"Al-Mughni",ar:"الْمُغْنِي",meaning:"The Enricher",cat:"provision",
+ reflect:"The Prophet ﷺ taught this to Ali ibn Abi Talib for someone deep in debt.",
+ dua:{ar:"اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَ**أَغْنِنِي** بِفَضْلِكَ عَمَّنْ سِوَاكَ",tr:"Allahumma-kfini bihalalika 'an haramika, wa **aghnini** bifadlika 'amman siwak",en:"O Allah, suffice me with what You've made lawful, instead of the unlawful, and **enrich me** by Your bounty, from all but You",src:"Tirmidhi, hasan — via Ali ibn Abi Talib"}},
+{n:90,tr:"Al-Mani'",ar:"الْمَانِع",meaning:"The Preventer of Harm",cat:"guardianship",
+ reflect:"Trust He shields you from harm you never even saw coming.",dua:null},
+{n:91,tr:"Ad-Darr",ar:"الضَّار",meaning:"The One Who Permits Harm as a Lesson",cat:"power",
+ reflect:"Reflect that even hardship passes through His permission, never His cruelty.",dua:null},
+{n:92,tr:"An-Nafi'",ar:"النَّافِع",meaning:"The Bringer of Benefit",cat:"guidance",
+ reflect:"Call when asking that something be made truly useful, not just present.",dua:null},
+{n:93,tr:"An-Nur",ar:"النُّور",meaning:"The Light",cat:"guidance",
+ reflect:"From the Prophet's ﷺ own long tahajjud dua, fitting for your night prayer.",
+ dua:{ar:"اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ **نُورُ السَّمَاوَاتِ وَالْأَرْضِ**",tr:"Allahumma lakal-hamd, anta **Nurus-samawati wal-ard**",en:"O Allah, praise is for You, You are **the Light of the heavens and the earth**",src:"Bukhari & Muslim — via Ibn Abbas, the Prophet's ﷺ tahajjud dua"}},
+{n:94,tr:"Al-Hadi",ar:"الْهَادِي",meaning:"The Guide",cat:"guidance",
+ reflect:"The single most repeated request in Islam, said in every rak'ah.",
+ dua:{ar:"**اهْدِنَا** الصِّرَاطَ الْمُسْتَقِيمَ",tr:"**Ihdinas**-siratal mustaqim",en:"**Guide us** to the straight path",src:"Qur'an 1:6, Al-Fatiha"}},
+{n:95,tr:"Al-Badi'",ar:"الْبَدِيع",meaning:"The Incomparable Originator",cat:"creation",
+ reflect:"Reflect on this when nothing about your situation has precedent — He's made a way before.",dua:null},
+{n:96,tr:"Al-Baqi",ar:"الْبَاقِي",meaning:"The Everlasting",cat:"life",
+ reflect:"Anchor yourself in what lasts when everything else feels temporary.",dua:null},
+{n:97,tr:"Al-Warith",ar:"الْوَارِث",meaning:"The Inheritor",cat:"life",
+ reflect:"Remember everything returns to Him in the end, so hold it loosely.",dua:null},
+{n:98,tr:"Ar-Rashid",ar:"الرَّشِيد",meaning:"The Guide to the Right Path",cat:"guidance",
+ reflect:"Call when you need not just an answer, but the wise path forward.",dua:null},
+{n:99,tr:"As-Sabur",ar:"الصَّبُور",meaning:"The Patient One",cat:"life",
+ reflect:"The short battlefield dua of those asking for steadiness under pressure.",
+ dua:{ar:"رَبَّنَا أَفْرِغْ عَلَيْنَا **صَبْرًا**",tr:"Rabbana afrigh 'alayna **sabran**",en:"Our Lord, pour upon us **patience**",src:"Qur'an 2:250"}}
+];
+
+/* Generated (non-narrated) supplications for the Dua Log.
+   [n]: [vocative transliteration, vocative Arabic, short basis used with a memo, general supplication] */
+const GEN = {
+1:["Ya Rahman","يَا رَحْمَٰنُ","by Your mercy","cover me and those I love with Your mercy, in this life and the next."],
+2:["Ya Rahim","يَا رَحِيمُ","by Your special mercy","let Your mercy reach me in every detail of my life today."],
+3:["Ya Malik","يَا مَلِكُ","as the true King","make me content with what You decree, and free my heart from seeking anyone but You."],
+4:["Ya Quddus","يَا قُدُّوسُ","by Your perfect holiness","purify my heart, my intentions, and my words from all that displeases You."],
+5:["Ya Salam","يَا سَلَامُ","by Your peace","fill my heart, my home, and my affairs with Your peace."],
+6:["Ya Mu'min","يَا مُؤْمِنُ","as the Granter of security","replace my fear with calm trust in You, and keep me safe."],
+7:["Ya Muhaymin","يَا مُهَيْمِنُ","by Your watchful care","watch over every detail of my life and keep it in Your care."],
+8:["Ya 'Aziz","يَا عَزِيزُ","by Your might","strengthen me when I feel small, and honour me through obedience to You."],
+9:["Ya Jabbar","يَا جَبَّارُ","as the One who mends","mend what is broken in me and restore what I cannot fix myself."],
+10:["Ya Mutakabbir","يَا مُتَكَبِّرُ","by Your supreme greatness","remove all arrogance from my heart and keep me humble before You."],
+11:["Ya Khaliq","يَا خَالِقُ","as my Creator","You created me — shape my life toward what pleases You."],
+12:["Ya Bari'","يَا بَارِئُ","by Your perfect design","bring order to my affairs and help me trust how You are unfolding them."],
+13:["Ya Musawwir","يَا مُصَوِّرُ","as the Fashioner","beautify my character as You beautified my form, and shape a good outcome for me."],
+14:["Ya Ghaffar","يَا غَفَّارُ","by Your endless forgiveness","forgive me again and again, and help me leave the sins I keep returning to."],
+15:["Ya Qahhar","يَا قَهَّارُ","by Your power over all things","subdue whatever overwhelms me — my fears, my bad habits, and my ego."],
+16:["Ya Wahhab","يَا وَهَّابُ","by Your giving","bestow on me gifts I could never earn, and make me grateful for them."],
+17:["Ya Razzaq","يَا رَزَّاقُ","as my Provider","provide for me from what is lawful and pure, and bless what You give me."],
+18:["Ya Fattah","يَا فَتَّاحُ","as the Opener","open the doors of good that are closed to me, and close the doors of harm."],
+19:["Ya 'Alim","يَا عَلِيمُ","by Your knowledge","help me understand, connect, and rightly use the knowledge You've given me."],
+20:["Ya Qabid","يَا قَابِضُ","by Your perfect measure","when You withhold, give me patience and certainty that it is for my good."],
+21:["Ya Basit","يَا بَاسِطُ","by Your abundance","expand my provision, my heart, and my relief."],
+22:["Ya Khafid","يَا خَافِضُ","by Your justice","lower the pride in me, and protect me from being brought low by my sins."],
+23:["Ya Rafi'","يَا رَافِعُ","as the One who raises","raise my rank with You through faith, knowledge, and good deeds."],
+24:["Ya Mu'izz","يَا مُعِزُّ","as the Giver of honour","honour me through obedience to You, and never let me seek honour elsewhere."],
+25:["Ya Mudhill","يَا مُذِلُّ","by Your justice","protect me from humiliation, and never let me humiliate others."],
+26:["Ya Sami'","يَا سَمِيعُ","as You hear me","hear my dua, spoken and unspoken, and answer it with what is best."],
+27:["Ya Basir","يَا بَصِيرُ","as You see my state","You see what I'm going through — help me act knowing You see me."],
+28:["Ya Hakam","يَا حَكَمُ","as the Judge","judge my affairs with fairness, and let me accept Your decision with contentment."],
+29:["Ya 'Adl","يَا عَدْلُ","by Your justice","make me just in my words and dealings, and help me trust Your fairness."],
+30:["Ya Latif","يَا لَطِيفُ","by Your gentleness","arrange my affairs gently, in ways I cannot see, and make the hard things easy."],
+31:["Ya Khabir","يَا خَبِيرُ","as You know my state","You know what I'm carrying — guide me through it with care."],
+32:["Ya Halim","يَا حَلِيمُ","by Your forbearance","be patient with my shortcomings, and give me patience with others."],
+33:["Ya 'Azim","يَا عَظِيمُ","by Your magnificence","fill my heart with awe of You so that every worry looks small."],
+34:["Ya Ghafur","يَا غَفُورُ","by Your forgiveness","forgive my sins, the ones I know and the ones I have forgotten."],
+35:["Ya Shakur","يَا شَكُورُ","as You value the smallest deed","accept my small deeds, and make me among the grateful."],
+36:["Ya 'Aliyy","يَا عَلِيُّ","as the Most High","lift my heart above what is low, and keep my aims high."],
+37:["Ya Kabir","يَا كَبِيرُ","by Your greatness","shrink my problems back to their true size before Your greatness."],
+38:["Ya Hafiz","يَا حَفِيظُ","by Your protection","preserve my faith, my health, and my family from all harm."],
+39:["Ya Muqit","يَا مُقِيتُ","as my Sustainer","nourish my body and soul, and give me what I need each day."],
+40:["Ya Hasib","يَا حَسِيبُ","as You are enough for me","be sufficient for me in all I face, and make my reckoning easy."],
+41:["Ya Jalil","يَا جَلِيلُ","by Your majesty","steady my heart with awe of Your majesty."],
+42:["Ya Karim","يَا كَرِيمُ","by Your generosity","give me beyond what I deserve, and make me generous with others."],
+43:["Ya Raqib","يَا رَقِيبُ","by Your watchful care","keep me mindful that You watch over me, in private and in public."],
+44:["Ya Mujib","يَا مُجِيبُ","as You answer those who call","answer my duas, and make me patient while I wait."],
+45:["Ya Wasi'","يَا وَاسِعُ","by Your boundless vastness","widen my heart, my provision, and my understanding."],
+46:["Ya Hakim","يَا حَكِيمُ","by Your wisdom","help me trust the wisdom in Your timing, and grant me wisdom in my choices."],
+47:["Ya Wadud","يَا وَدُودُ","by Your love","make me beloved to You, and fill my relationships with love and warmth."],
+48:["Ya Majid","يَا مَجِيدُ","by Your glory","let my heart find rest in glorifying You."],
+49:["Ya Ba'ith","يَا بَاعِثُ","as the One who raises the dead","revive my heart, and raise me among the righteous on the Day of Resurrection."],
+50:["Ya Shahid","يَا شَهِيدُ","as You witness all","make me sincere, knowing You witness what no one else sees."],
+51:["Ya Haqq","يَا حَقُّ","by Your truth","show me the truth as truth, and help me follow it."],
+52:["Ya Wakil","يَا وَكِيلُ","as I rely on You","I hand my affairs to You — take care of them, for You are enough."],
+53:["Ya Qawiyy","يَا قَوِيُّ","by Your strength","give me strength when I'm too weak to carry this alone."],
+54:["Ya Matin","يَا مَتِينُ","by Your firmness","make me firm in faith when my resolve wavers."],
+55:["Ya Waliyy","يَا وَلِيُّ","as my Protecting Friend","be my protector and friend, and never leave me to myself."],
+56:["Ya Hamid","يَا حَمِيدُ","as all praise is Yours","make me among those who praise You in every state."],
+57:["Ya Muhsi","يَا مُحْصِي","as You count all things","count my good deeds, overlook my faults, and help me make the most of my time."],
+58:["Ya Mubdi'","يَا مُبْدِئُ","as the Originator","begin something new and good for me where I see nothing."],
+59:["Ya Mu'id","يَا مُعِيدُ","as the Restorer","restore what I have lost, and bring me back to You whenever I drift."],
+60:["Ya Muhyi","يَا مُحْيِي","as the Giver of life","bring my heart, my hope, and my faith back to life."],
+61:["Ya Mumit","يَا مُمِيتُ","as all life returns to You","let me live in a way that pleases You, and take my soul while You are pleased with me."],
+62:["Ya Hayy","يَا حَيُّ","as the Ever-Living","bring my heart to life with Your remembrance."],
+63:["Ya Qayyum","يَا قَيُّومُ","as You sustain all things","uphold my affairs, and never leave me to myself for the blink of an eye."],
+64:["Ya Wajid","يَا وَاجِدُ","as the One who lacks nothing","find a way for me where I see none, and let me lack nothing I need."],
+65:["Ya Maajid","يَا مَاجِدُ","by Your noble glory","ennoble my character, and humble my asking before You."],
+66:["Ya Wahid","يَا وَاحِدُ","as the Only One","unite my heart on You alone, and free it from depending on anyone else."],
+67:["Ya Ahad","يَا أَحَدُ","as You are One","make my worship sincere for You alone."],
+68:["Ya Samad","يَا صَمَدُ","as my refuge","You are the One I turn to — meet my needs, for I depend on You alone."],
+69:["Ya Qadir","يَا قَادِرُ","by Your power","nothing is beyond You — make possible what seems impossible to me."],
+70:["Ya Muqtadir","يَا مُقْتَدِرُ","by Your perfect power","bring about what is good for me, however difficult it seems."],
+71:["Ya Muqaddim","يَا مُقَدِّمُ","by Your timing","bring forward what is good for me, and help me trust Your timing."],
+72:["Ya Mu'akhkhir","يَا مُؤَخِّرُ","by Your timing","delay what would harm me, and give me patience with what You postpone."],
+73:["Ya Awwal","يَا أَوَّلُ","as the First","make You the first thought in my heart and the first priority in my day."],
+74:["Ya Akhir","يَا آخِرُ","as the Last","make my last deeds my best, and my final words a testimony of faith."],
+75:["Ya Zahir","يَا ظَاهِرُ","as the Manifest","let me see Your signs in everything around me."],
+76:["Ya Batin","يَا بَاطِنُ","as You are nearest","You know what is hidden in me — purify my heart from within."],
+77:["Ya Wali","يَا وَالِي","as Governor of all affairs","take charge of my affairs and manage them better than I ever could."],
+78:["Ya Muta'ali","يَا مُتَعَالِي","by Your exaltedness","raise my thoughts of You above every limit I imagine."],
+79:["Ya Barr","يَا بَرُّ","by Your goodness","be good to me in ease and in hardship, and make me good to my parents."],
+80:["Ya Tawwab","يَا تَوَّابُ","as You accept repentance","turn to me in mercy, accept my repentance, and help me return to You sincerely."],
+81:["Ya Muntaqim","يَا مُنْتَقِمُ","by Your justice","I leave every wrong done to me with You — free my heart from seeking revenge."],
+82:["Ya 'Afuww","يَا عَفُوُّ","by Your pardon","erase my sins completely, as if they never were."],
+83:["Ya Ra'uf","يَا رَؤُوفُ","by Your kindness","treat me with tenderness, and soften my heart toward others."],
+84:["Ya Malik al-Mulk","يَا مَالِكَ الْمُلْكِ","as Owner of all sovereignty","give me what is good from Your dominion, and make me content with what You withhold."],
+85:["Ya Dhal-Jalali wal-Ikram","يَا ذَا الْجَلَالِ وَالْإِكْرَامِ","by Your majesty and generosity","honour me with Your generosity, and never let me despair of it."],
+86:["Ya Muqsit","يَا مُقْسِطُ","by Your fairness","make me fair to others, and set right every wrong in my affairs."],
+87:["Ya Jami'","يَا جَامِعُ","as the Gatherer","gather my scattered heart, and gather me with those I love in Jannah."],
+88:["Ya Ghaniyy","يَا غَنِيُّ","as You need nothing","make me content and free of need for anyone but You."],
+89:["Ya Mughni","يَا مُغْنِي","as the Enricher","enrich me by Your bounty, and free me from debt and dependence on others."],
+90:["Ya Mani'","يَا مَانِعُ","by Your protection","shield me from harm I can see and harm I cannot."],
+91:["Ya Darr","يَا ضَارُّ","as nothing harms without Your leave","protect me from harm, and help me find the lesson in every hardship."],
+92:["Ya Nafi'","يَا نَافِعُ","as all benefit is from You","make my knowledge, time, and wealth truly beneficial."],
+93:["Ya Nur","يَا نُورُ","by Your light","put light in my heart, my path, and my grave."],
+94:["Ya Hadi","يَا هَادِي","by Your guidance","guide me in every decision, and keep me on the straight path."],
+95:["Ya Badi'","يَا بَدِيعُ","as the Incomparable Originator","make a way for me where there has never been one before."],
+96:["Ya Baqi","يَا بَاقِي","as the Everlasting","attach my heart to what lasts, not to what fades."],
+97:["Ya Warith","يَا وَارِثُ","as all returns to You","help me hold this world loosely, and leave behind good that outlives me."],
+98:["Ya Rashid","يَا رَشِيدُ","by Your guidance","lead me to the wise and right course in all my affairs."],
+99:["Ya Sabur","يَا صَبُورُ","by Your patience","grant me patience and steadiness when I am tested."]
+};
+
+function hl(str){ return str.replace(/\*\*(.+?)\*\*/g, '<span class="hl">$1</span>'); }
+
+const BY_N = {}; NAMES.forEach(x => { BY_N[x.n] = x; });
+const CAT_BY_ID = {}; CATEGORIES.forEach(c => { CAT_BY_ID[c.id] = c; });
+
+const main = document.getElementById('main');
+const chipsEl = document.getElementById('chips');
+const noResults = document.getElementById('noResults');
+
+/* ---------- small DOM helper: user text always goes through textContent / value ---------- */
+function el(tag, attrs, children){
+  const node = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') node.className = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k === 'style') node.setAttribute('style', v);
+    else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v === true ? '' : v);
+  }
+  (children || []).forEach(c => { if (c != null) node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+  return node;
+}
+
+/* ---------- card component (shared by reference page, favourites and logs) ---------- */
+function buildCard(item, mode){ // mode: 'ref' | 'log'
+  const cat = CAT_BY_ID[item.cat];
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.setProperty('--dot', cat.color);
+  card.dataset.n = item.n;
+  card.tabIndex = 0;
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-expanded', 'false');
+  card.setAttribute('aria-label', item.tr + ', ' + item.meaning);
+  const searchBits = [item.tr, item.meaning, item.reflect, cat.label];
+  if (item.dua) searchBits.push(item.dua.en.replace(/\*\*/g,''));
+  card.dataset.search = searchBits.join(' ').toLowerCase();
+
+  let backContent = '<div class="back-reflect">' + item.reflect + '</div>';
+  if (item.dua) {
+    backContent += '<div class="back-dua-label">Dua</div>' +
+      '<div class="back-ar">' + hl(item.dua.ar) + '</div>' +
+      '<div class="back-tr">' + hl(item.dua.tr) + '</div>' +
+      '<div class="back-en">' + hl(item.dua.en) + '</div>' +
+      '<div class="back-src">' + item.dua.src + '</div>';
+  }
+  card.innerHTML =
+    '<span class="sel-check" aria-hidden="true"></span>' +
+    '<div class="card-inner">' +
+      '<div class="card-face front">' +
+        '<div class="card-top"><span class="card-num">' + item.n + ' / 99</span><span class="dot"></span></div>' +
+        '<div class="ar">' + item.ar + '</div>' +
+        '<div class="translit">' + item.tr + '</div>' +
+        '<div class="meaning">' + item.meaning + '</div>' +
+        (item.dua ? '<span class="flip-hint">\u21BB</span>' : '') +
+      '</div>' +
+      '<div class="card-face back">' + backContent + '</div>' +
+    '</div>';
+
+  function toggleFlip(){
+    const flipped = card.classList.toggle('flipped');
+    card.setAttribute('aria-expanded', flipped ? 'true' : 'false');
+  }
+  function activate(){
+    if (mode === 'ref' && selecting) toggleSelect(item.n);
+    else toggleFlip();
+  }
+  card.addEventListener('click', activate);
+  card.addEventListener('keydown', (e) => {
+    if (e.target !== card) return;
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+  });
+  if (mode === 'ref' && selected.has(item.n)) card.classList.add('selected');
+  return card;
+}
+
+function buildMiniCard(item){
+  const cat = CAT_BY_ID[item.cat];
+  const m = el('div', {class:'mini-card', style:'--dot:' + cat.color});
+  m.appendChild(el('div', {class:'ar', text:item.ar}));
+  m.appendChild(el('div', {class:'translit', text:item.tr}));
+  m.appendChild(el('div', {class:'meaning', text:item.meaning}));
+  return m;
+}
+
+/* ---------- state ---------- */
+const STORE_KEY = 'asmaDuaLog.v1';
+let selecting = false;
+const selected = new Set();
+let selectTarget = null;   // {logId, sessionId} when adding to an existing session
+let data = loadData();
+
+function loadData(){
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) { const d = JSON.parse(raw); if (d && Array.isArray(d.logs)) { if (!Array.isArray(d.favDuas)) d.favDuas = []; return d; } }
+  } catch (e) { console.warn('Could not read saved logs', e); }
+  return {version:1, logs:[], favDuas:[]};
+}
+let storageWarned = false;
+function saveData(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+  catch (e) { if (!storageWarned) { storageWarned = true; toast('Could not save on this device — use Export to back up.'); } }
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function pad(n){ return String(n).padStart(2, '0'); }
+function dayKey(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function fmtDate(d){ return d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric', year:'numeric'}); }
+function fmtTime(d){ return d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}); }
+function dateFromKey(k){ const p = k.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function findLog(id){ return data.logs.find(l => l.id === id); }
+
+/* ---------- supplication composer: turns a rough memo into one polished, concise line ---------- */
+const PEOPLE = {mom:'mother',mum:'mother',mama:'mother',mommy:'mother',ammi:'mother',ummi:'mother',mother:'mother',dad:'father',papa:'father',daddy:'father',abu:'father',abba:'father',father:'father',
+  grandma:'grandmother',nani:'grandmother',dadi:'grandmother',grandmother:'grandmother',grandpa:'grandfather',nana:'grandfather',grandfather:'grandfather',
+  kids:'children',kid:'child',children:'children',child:'child',son:'son',daughter:'daughter',husband:'husband',hubby:'husband',wife:'wife',
+  brother:'brother',bro:'brother',sister:'sister',sis:'sister',baby:'baby',family:'family',parents:'parents',friend:'friend',aunt:'aunt',uncle:'uncle',spouse:'spouse',cousin:'cousin'};
+const FEM = new Set(['mother','grandmother','daughter','wife','sister','aunt']);
+const MASC = new Set(['father','grandfather','son','husband','brother','uncle']);
+function personIn(m){
+  const r = m.match(/\b(?:my|our)\s+([a-z]+)(?:'s|s')?\b/);
+  if (r && PEOPLE[r[1]]) return 'my ' + PEOPLE[r[1]];
+  for (const w of m.split(/[^a-z']+/)) { const b = w.replace(/'s$/, ''); if (PEOPLE[b]) return 'my ' + PEOPLE[b]; }
+  return null;
+}
+function pron(p){ if (!p) return {obj:'me', pos:'my'}; const k = p.replace(/^my /, ''); if (FEM.has(k)) return {obj:'her', pos:'her'}; if (MASC.has(k)) return {obj:'him', pos:'his'}; return {obj:'them', pos:'their'}; }
+function cleanMemo(memo){
+  let m = ' ' + memo.replace(/[\u2019`]/g, "'").replace(/\s+/g, ' ') + ' ';
+  m = m.replace(/\b(pls|plz|please|kindly|inshallah|in sha allah|insha'?allah|ya allah|o allah|allah)\b/gi, ' ')
+       .replace(/[.!?,;:]+(\s|$)/g, ' ').replace(/\s+/g, ' ').trim();
+  for (let i = 0; i < 3; i++) {
+    m = m.replace(/^(i (want|need|would like|wish|hope|ask for|pray for)( to)?|give me( some)? help (in|with)|give me|grant me|help me (with|in)|help with|help in|i ask you for|for|to have|to)\s+/i, '');
+  }
+  m = m.trim();
+  // lower-case everything except words that look like names (capitalised mid-sentence)
+  return m.split(' ').map((w, i) => (i > 0 && /^[A-Z][a-z]+$/.test(w) && !/^(I|You|Your|My)$/.test(w)) ? w : w.toLowerCase()).join(' ');
+}
+function grammar(m){ // pronouns/possessives for the free-text fallback
+  return m.replace(/\bi'm\b/g, 'I am').replace(/\bi\b/g, 'I').replace(/\bim\b/g, 'I am').replace(/\bu\b/g, 'You').replace(/\byou\b/g, 'You').replace(/\byour\b/g, 'Your')
+          .replace(/\bmom\b|\bmum\b|\bammi\b/g, 'mother').replace(/\bdad\b/g, 'father').replace(/\bkids\b/g, 'children')
+          .replace(/\bgonna\b/g, 'going to').replace(/\bwanna\b/g, 'want to').replace(/\bcuz\b|\bbc\b/g, 'because');
+}
+const VERB_START = /^(help|make|let|grant|bless|guide|heal|protect|forgive|keep|open|bring|show|accept|increase|remove|ease|free|lift|strengthen|restore|fill|soften|purify|shield|relieve|settle|mend|teach|provide|cure|save|unite|reunite|give)\b/;
+const THEMES = [
+  {re:/synthes|connect(ing)? (ideas|knowledge|what i learn)|(use|using|apply|applying) (my |the )?knowledge/, f:() => "help me understand, connect, and rightly use the knowledge You've given me"},
+  {re:/memori[sz]|retain|remember what i (study|learn)/, f:() => 'help me learn, retain, and truly benefit from what I study'},
+  {re:/\b(exams?|tests?|finals|quiz(zes)?|interviews?|mcat|sat|boards?)\b/, f:(m) => {
+    const x = m.match(/\b((?:driving|final|job|math|chemistry|biology|bar|board|entrance|[a-z]+)\s+)?(exams?|tests?|finals|quiz(?:zes)?|interviews?|mcat|sat|boards?)\b/);
+    let thing = x ? x[0] : 'exam';
+    if (/^(pass|the|my|an?|in|for|with|on|ace|do|well|good)\s/.test(thing)) thing = x[2];
+    const verb = /interview/.test(thing) ? 'do well in' : 'pass';
+    return 'help me ' + verb + ' my ' + thing + ' with clarity, calm, and success';
+  }},
+  {re:/knowledge|learn|understand|study|studies|school|focus|concentrat/, f:(m) => /focus|concentrat/.test(m) ? 'grant me focus and clarity, and put barakah in my studies' : 'increase me in beneficial knowledge and help me understand it well'},
+  {re:/surgery|operation|procedure/, f:(m) => { const p = personIn(m); const q = pron(p); return p ? 'make ' + p + "'s surgery easy and successful, and grant " + q.obj + ' a full recovery' : 'make my surgery easy and successful, and grant me a full recovery'; }},
+  {re:/health|heal|healing|sick|illness|ill\b|recover|cure|pain|cancer|disease/, f:(m) => { const p = personIn(m); const q = pron(p); return p ? 'grant ' + p + ' complete healing and keep ' + q.obj + ' in lasting good health' : 'grant me complete healing and lasting good health'; }},
+  {re:/patien(t|ce)/, f:(m) => { const w = m.match(/patien(?:t|ce) (?:with|towards?) (.+)$/); if (w) { const who = grammar(w[1]).replace(/^(?!my |our |the |others|people|everyone)/, 'my '); return 'make me patient and gentle with ' + who + ', and fill my heart with calm'; } return 'grant me beautiful patience and steadiness in what I am facing'; }},
+  {re:/relationship|bond with|fight|argu|conflict|tension|get along/, f:(m) => { const p = personIn(m); return 'put love, mercy, and understanding between me and ' + (p || 'those around me'); }},
+  {re:/anxi|stress|worr|overwhelm|panic|fear|scared|depress|sad|grief|griev/, f:() => 'remove my anxiety and sadness, and fill my heart with calm trust in You'},
+  {re:/forgiv|sins?\b|repent|tawbah/, f:() => 'forgive my sins and help me return to You sincerely'},
+  {re:/debt|loan/, f:() => 'free me from my debts and provide for me from what is lawful'},
+  {re:/strength|strong|energy|tired|exhaust|burn ?out/, f:(m) => 'grant me strength and steadiness' + (/work|job/.test(m) ? ' at work' : '') + ', and help me carry what is in front of me'},
+  {re:/\b(job|career|work|promotion|business|income|money|rizq|provision|finances?)\b/, f:(m) => /business/.test(m) ? 'put barakah in my business and make it a source of lawful provision' : /promotion|career/.test(m) ? 'raise me in my career and make my work a source of barakah' : 'open the way to good, halal work and bless my provision'},
+  {re:/spouse|marriage|married|rishta|wife|husband/, f:(m) => /my (husband|wife|spouse|marriage)/.test(m) ? 'fill my marriage with love, mercy, and barakah' : 'bless me with a righteous spouse who brings me closer to You'},
+  {re:/decision|choice|choose|decide|direction|istikhara/, f:() => 'guide me to the best choice and make it easy for me'},
+  {re:/protect|safe|safety|travel|journey/, f:(m) => { const p = personIn(m); const q = pron(p); return /travel|journey/.test(m) ? (p ? 'keep ' + p + ' safe on ' + q.pos + ' journey and bring ' + q.obj + ' home well' : 'keep me safe on my journey and bring me home well') : (p ? 'protect ' + p + ' and keep ' + q.obj + ' safe from all harm' : 'protect me and those I love from all harm'); }},
+  {re:/pray|salah|salat|deen|iman|faith|closer to you|quran/, f:(m) => { const p = personIn(m); const q = pron(p); return p ? 'guide ' + p + ' back to You and make ' + q.pos + ' faith strong and sincere' : 'strengthen my faith, my prayer, and my connection to You'; }},
+];
+function memoClause(memo){
+  const m = cleanMemo(memo);
+  if (!m) return {clause:'', themed:false};
+  const lo = m.toLowerCase();
+  for (const t of THEMES) if (t.re.test(lo)) return {clause:t.f(lo), themed:true};
+  let c = grammar(m);
+  if (/^be\b|^become\b|^stay\b/.test(c)) c = 'help me ' + c;
+  else if (/^(that|so that)\b/.test(c)) c = 'grant ' + c.replace(/^so /, '');
+  else if (/^(stop|quit|overcome|get|find|pass|finish|do|become|reach|achieve|learn|understand|win|make it|keep|stay)\b/.test(c) && !VERB_START.test(c)) c = 'help me ' + c;
+  else if (VERB_START.test(c)) c = c.replace(/^give\b/, 'grant');
+  else if (/^(my|our|his|her|their)\b/.test(c)) c = 'bless ' + c + (personIn(lo) ? ' with goodness in this life and the next' : ' and put goodness in it');
+  else c = 'grant me ' + c;
+  const words = c.split(/\s+/);
+  if (words.length > 28) c = words.slice(0, 28).join(' ').replace(/[,;:\-–—\s]+$/, '');
+  return {clause:c, themed:false};
+}
+function composeDua(n, memo){
+  const g = GEN[n];
+  const head = g[0] + ' (' + g[1] + '), ';
+  const r = memo ? memoClause(memo) : {clause:''};
+  if (!r.clause) return {text: head + g[3], generic: true};
+  const short = r.clause.split(/\s+/).length < 7;
+  return {text: head + (short ? g[2] + ', ' : '') + r.clause + '.', generic: false};
+}
+
+/* ---------- reference page: categories, favourites, search ---------- */
+function makeChip(id, label, color, isFav){
+  const chip = document.createElement('button');
+  chip.className = 'chip';
+  chip.style.setProperty('--dot', color);
+  chip.dataset.cat = id;
+  chip.innerHTML = (isFav ? '<span class="fav-star">\u2605</span>' : '<span class="dot"></span>') + label;
+  chip.addEventListener('click', () => {
+    const s = document.getElementById('cat-' + id);
+    if (s) s.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  return chip;
+}
+CATEGORIES.forEach(cat => chipsEl.appendChild(makeChip(cat.id, cat.label, cat.color, false)));
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id.replace('cat-', '');
+      const chips = Array.from(chipsEl.querySelectorAll('.chip'));
+      chips.forEach(c => c.classList.toggle('active', c.dataset.cat === id));
+      const activeChip = chips.find(c => c.dataset.cat === id);
+      if (activeChip && !document.getElementById('view-reference').hidden) {
+        chipsEl.scrollTo({left: activeChip.offsetLeft - chipsEl.clientWidth / 2 + activeChip.clientWidth / 2, behavior:'smooth'});
+      }
+    }
+  });
+}, { rootMargin: '-180px 0px -65% 0px', threshold: 0 });
+
+function buildSection(id, label, color, items, opts){
+  const section = document.createElement('section');
+  section.className = 'category';
+  section.id = 'cat-' + id;
+  section.style.setProperty('--dot', color);
+  const head = document.createElement('div');
+  head.className = 'cat-head';
+  head.innerHTML = (opts && opts.fav ? '<span class="fav-star">\u2605</span>' : '<span class="dot"></span>') +
+    '<h3>' + label + '</h3><span class="count">' + (opts && opts.countLabel ? opts.countLabel : items.length) + '</span>';
+  section.appendChild(head);
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+  items.forEach(item => {
+    const card = buildCard(item, 'ref');
+    if (opts && opts.uses) {
+      const c = opts.uses[item.n];
+      const top = card.querySelector('.card-top');
+      top.insertBefore(el('span', {class:'use-count', text:'\u00D7' + c, title:'Used ' + c + ' time' + (c === 1 ? '' : 's')}), top.lastChild);
+    }
+    grid.appendChild(card);
+  });
+  section.appendChild(grid);
+  observer.observe(section);
+  return section;
+}
+CATEGORIES.forEach(cat => main.appendChild(buildSection(cat.id, cat.label, cat.color, NAMES.filter(i => i.cat === cat.id))));
+
+function usageCounts(){
+  const counts = {};
+  data.logs.forEach(l => l.sessions.forEach(s => s.entries.forEach(e => { if (e.n) counts[e.n] = (counts[e.n] || 0) + 1; })));
+  return counts;
+}
+const FAV_LIMIT = 10;
+function renderFavorites(){
+  const old = document.getElementById('cat-favorites');
+  if (old) { observer.unobserve(old); old.remove(); }
+  const oldChip = chipsEl.querySelector('.chip[data-cat="favorites"]');
+  if (oldChip) oldChip.remove();
+  const counts = usageCounts();
+  const top = Object.keys(counts).map(Number).sort((a, b) => counts[b] - counts[a] || a - b).slice(0, FAV_LIMIT);
+  if (!top.length) return;
+  const sec = buildSection('favorites', 'Favorites', '#e0b84a', top.map(n => BY_N[n]), {fav:true, uses:counts, countLabel:'your most-called Names'});
+  main.insertBefore(sec, main.firstChild);
+  chipsEl.insertBefore(makeChip('favorites', 'Favorites', '#e0b84a', true), chipsEl.firstChild);
+  applySearch();
+}
+
+const search = document.getElementById('search');
+function applySearch(){
+  const q = search.value.trim().toLowerCase();
+  let anyVisible = false;
+  document.querySelectorAll('#main section.category').forEach(section => {
+    let sectionHasVisible = false;
+    section.querySelectorAll('.card').forEach(card => {
+      const match = !q || card.dataset.search.includes(q);
+      card.style.display = match ? '' : 'none';
+      if (match) sectionHasVisible = true;
+    });
+    section.style.display = sectionHasVisible ? '' : 'none';
+    if (sectionHasVisible) anyVisible = true;
+  });
+  noResults.style.display = anyVisible ? 'none' : 'block';
+}
+search.addEventListener('input', applySearch);
+
+/* ---------- select mode ---------- */
+const selectBtn = document.getElementById('selectBtn');
+const selbar = document.getElementById('selbar');
+const selCount = document.getElementById('selCount');
+const selTarget = document.getElementById('selTarget');
+const selAdd = document.getElementById('selAdd');
+
+function setSelecting(on, target){
+  selecting = on;
+  selectTarget = on ? (target || null) : null;
+  if (!on) selected.clear();
+  document.body.classList.toggle('selecting', on);
+  selectBtn.textContent = on ? 'Done' : 'Select';
+  selectBtn.classList.toggle('on', on);
+  selectBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  if (on) document.querySelectorAll('#view-reference .card.flipped').forEach(c => { c.classList.remove('flipped'); c.setAttribute('aria-expanded', 'false'); });
+  syncSelectionUI();
+}
+function toggleSelect(n){
+  if (selected.has(n)) selected.delete(n); else selected.add(n);
+  syncSelectionUI();
+}
+function syncSelectionUI(){
+  document.querySelectorAll('#view-reference .card').forEach(c => {
+    const on = selected.has(Number(c.dataset.n));
+    c.classList.toggle('selected', on);
+    if (selecting) c.setAttribute('aria-pressed', on ? 'true' : 'false'); else c.removeAttribute('aria-pressed');
+  });
+  selbar.classList.toggle('show', selecting);
+  selbar.setAttribute('aria-hidden', selecting ? 'false' : 'true');
+  const k = selected.size;
+  selCount.innerHTML = '';
+  selCount.appendChild(el('b', {text:String(k)}));
+  selCount.appendChild(document.createTextNode(k === 1 ? ' Name selected' : ' Names selected'));
+  let tgt = 'Tap cards to choose Names';
+  if (selectTarget) { const l = findLog(selectTarget.logId); if (l) tgt = 'Adding to: ' + l.title; }
+  selCount.appendChild(el('span', {class:'target', text:tgt}));
+  selAdd.disabled = k === 0;
+  selAdd.textContent = selectTarget ? 'Add to this log' : 'Add to Dua Log';
+}
+selectBtn.addEventListener('click', () => {
+  if (selecting && selectTarget) { const t = selectTarget; setSelecting(false); location.hash = '#log/' + t.logId; return; }
+  setSelecting(!selecting);
+});
+document.getElementById('selCancel').addEventListener('click', () => {
+  const t = selectTarget;
+  setSelecting(false);
+  if (t) location.hash = '#log/' + t.logId;
+});
+selAdd.addEventListener('click', () => { if (selected.size) openMemoSheet(Array.from(selected), selectTarget); });
+
+/* ---------- memo sheet ---------- */
+const sheetWrap = document.getElementById('sheetWrap');
+function openMemoSheet(ns, target){
+  const body = document.getElementById('sheetBody');
+  body.innerHTML = '';
+  const now = new Date();
+  let tgtText;
+  if (target && findLog(target.logId)) tgtText = 'Saving to ' + findLog(target.logId).title;
+  else {
+    const today = data.logs.find(l => l.date === dayKey(now));
+    tgtText = today ? 'Adds a new ' + fmtTime(now) + ' session to ' + today.title : 'Starts Dua Log \u2014 ' + fmtDate(now);
+  }
+  document.getElementById('sheetTarget').textContent = tgtText;
+  ns.forEach((n, i) => {
+    const item = BY_N[n];
+    const fid = 'memo-' + n;
+    const ta = el('textarea', {class:'field', id:fid, rows:'2', 'data-n':String(n), placeholder:'e.g. ease in my exams, healing for my mother\u2026', maxlength:'400'});
+    ta.addEventListener('input', () => autoGrow(ta));
+    const label = el('label', {for:fid}, ['What are you calling on ', el('span', {class:'lbl-name', text:item.tr}), ' for?']);
+    const right = el('div', null, [label, ta, el('div', {class:'memo-hint', text:'Optional \u2014 leave blank for a general supplication.'})]);
+    const row = el('div', {class:'memo-item', style:'--dot:' + CAT_BY_ID[item.cat].color}, [buildMiniCard(item), right]);
+    body.appendChild(row);
+  });
+  sheetWrap.hidden = false;
+  document.body.style.overflow = 'hidden';
+  body.scrollTop = 0;
+  sheetWrap._target = target;
+  sheetWrap._ns = ns;
+  const first = body.querySelector('textarea');
+  if (first && window.matchMedia('(hover:hover)').matches) first.focus();
+}
+function closeSheet(){ sheetWrap.hidden = true; document.body.style.overflow = ''; }
+document.getElementById('sheetCancel').addEventListener('click', closeSheet);
+sheetWrap.addEventListener('click', (e) => { if (e.target === sheetWrap) closeSheet(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheetWrap.hidden) closeSheet(); });
+document.getElementById('sheetSave').addEventListener('click', () => {
+  const ns = sheetWrap._ns || [];
+  const entries = ns.map(n => {
+    const ta = document.getElementById('memo-' + n);
+    const memo = ta ? ta.value.trim() : '';
+    const d = composeDua(n, memo);
+    return {id:uid(), n:n, memo:memo, text:d.text, generic:d.generic, note:''};
+  });
+  const logId = addEntries(entries, sheetWrap._target);
+  closeSheet();
+  setSelecting(false);
+  renderFavorites();
+  location.hash = '#log/' + logId;
+  toast(entries.length + (entries.length === 1 ? ' Name' : ' Names') + ' added to your Dua Log');
+});
+
+function addEntries(entries, target){
+  const now = new Date();
+  if (target) {
+    const log = findLog(target.logId);
+    if (log) {
+      const s = log.sessions.find(x => x.id === target.sessionId);
+      if (s) s.entries.push(...entries);
+      else log.sessions.push({id:uid(), time:now.toISOString(), note:'', entries:entries});
+      log.updated = now.toISOString();
+      saveData();
+      return log.id;
+    }
+  }
+  const key = dayKey(now);
+  let log = data.logs.find(l => l.date === key);
+  if (!log) {
+    log = {id:uid(), date:key, title:'Dua Log \u2014 ' + fmtDate(now), created:now.toISOString(), sessions:[]};
+    data.logs.push(log);
+  }
+  log.sessions.push({id:uid(), time:now.toISOString(), note:'', entries:entries});
+  log.updated = now.toISOString();
+  saveData();
+  return log.id;
+}
+
+/* ---------- Dua Log views ---------- */
+const logsView = document.getElementById('view-logs');
+function sortedLogs(){ return data.logs.slice().sort((a, b) => (b.date + (b.created || '')).localeCompare(a.date + (a.created || ''))); }
+function entryCount(log){ return log.sessions.reduce((t, s) => t + s.entries.length, 0); }
+
+function renderLogList(){
+  logsView.innerHTML = '';
+  const wrap = el('div', {class:'logs-wrap'});
+  const head = el('div', {class:'logs-head'}, [
+    el('h1', {class:'title-ar', text:'سِجِلُّ الدُّعَاء'}),
+    el('h2', {class:'title-en', text:'Dua Log'}),
+    el('p', {class:'sub', text:'Your saved duas, one log per day. Saved only on this device \u2014 export a backup now and then.'}),
+  ]);
+  const fileIn = el('input', {type:'file', accept:'application/json,.json', hidden:true});
+  fileIn.addEventListener('change', () => { if (fileIn.files[0]) importFile(fileIn.files[0]); fileIn.value = ''; });
+  head.appendChild(el('div', {class:'logs-actions'}, [
+    el('button', {class:'btn gold', text:'+ New from Names', onclick:() => { location.hash = '#reference'; setTimeout(() => setSelecting(true), 0); }}),
+    el('button', {class:'btn', text:'Export', onclick:exportData, disabled:!data.logs.length && !data.favDuas.length}),
+    el('button', {class:'btn', text:'Import', onclick:() => fileIn.click()}),
+    el('button', {class:'btn ghost', text:'\u2605 Favorite Duas (' + data.favDuas.length + ')', onclick:() => { const f = document.getElementById('favDuas'); if (f) f.scrollIntoView({behavior:'smooth', block:'start'}); }}),
+    fileIn
+  ]));
+  wrap.appendChild(head);
+  const logs = sortedLogs();
+  if (!logs.length) {
+    wrap.appendChild(el('div', {class:'empty', text:'No logs yet. Go to Names, tap Select, choose the Names you want to call on, then tap Add to Dua Log.'}));
+  } else {
+    const list = el('div', {class:'log-list'});
+    logs.forEach(log => {
+      const names = el('div', {class:'names'});
+      const seen = [];
+      log.sessions.forEach(s => s.entries.forEach(e => { if (e.n && !seen.includes(e.n)) seen.push(e.n); }));
+      seen.slice(0, 8).forEach(n => {
+        const it = BY_N[n];
+        names.appendChild(el('span', {class:'pill', style:'--dot:' + CAT_BY_ID[it.cat].color}, [el('span', {class:'ar-s', text:it.ar}), it.tr]));
+      });
+      if (seen.length > 8) names.appendChild(el('span', {class:'pill', text:'+' + (seen.length - 8) + ' more'}));
+      const c = entryCount(log), sc = log.sessions.length;
+      list.appendChild(el('button', {class:'log-item', onclick:() => { location.hash = '#log/' + log.id; }}, [
+        el('div', {class:'t', text:log.title}),
+        el('div', {class:'m', text:fmtDate(dateFromKey(log.date)) + ' \u00B7 ' + c + (c === 1 ? ' dua' : ' duas') + ' \u00B7 ' + sc + (sc === 1 ? ' session' : ' sessions')}),
+        names
+      ]));
+    });
+    wrap.appendChild(list);
+  }
+  wrap.appendChild(renderFavDuas());
+  logsView.appendChild(wrap);
+}
+
+const DIVIDER_SVG = '<svg width="14" height="14" viewBox="0 0 100 100" fill="none" aria-hidden="true"><rect x="20" y="20" width="60" height="60" stroke="#c9a227" stroke-width="6"/><rect x="20" y="20" width="60" height="60" stroke="#c9a227" stroke-width="6" transform="rotate(45 50 50)"/></svg>';
+
+let saveTimer = null;
+function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveData, 300); }
+window.addEventListener('pagehide', () => { clearTimeout(saveTimer); saveData(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) { clearTimeout(saveTimer); saveData(); } });
+
+function autoGrow(ta){ ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; }
+let growTimer; window.addEventListener('resize', () => { clearTimeout(growTimer); growTimer = setTimeout(() => document.querySelectorAll('#view-logs textarea').forEach(t => { if (!t.hidden) autoGrow(t); }), 120); });
+
+function renderLogDetail(log, keepScroll){
+  const y = window.scrollY;
+  logsView.innerHTML = '';
+  const wrap = el('div', {class:'logs-wrap'});
+  wrap.appendChild(el('a', {class:'back-link', href:'#logs', text:'\u2039 All logs'}));
+  const title = el('input', {class:'log-title', type:'text', value:log.title, 'aria-label':'Log title', maxlength:'120'});
+  title.addEventListener('input', () => { log.title = title.value; saveSoon(); });
+  title.addEventListener('blur', () => { if (!title.value.trim()) { log.title = 'Dua Log \u2014 ' + fmtDate(dateFromKey(log.date)); title.value = log.title; saveData(); } });
+  title.addEventListener('keydown', (e) => { if (e.key === 'Enter') title.blur(); });
+  wrap.appendChild(title);
+  wrap.appendChild(el('div', {class:'rename-hint', text:'Tap the title to rename'}));
+  const c = entryCount(log);
+  wrap.appendChild(el('div', {class:'log-meta', id:'logMeta', text:logMetaText(log)}));
+  wrap.appendChild(el('div', {class:'log-tools'}, [
+    el('button', {class:'btn small', type:'button', text:'\u2197 Share log', onclick:() => shareLog(log)}),
+    el('button', {class:'btn small ghost', type:'button', text:'Download .txt', onclick:() => downloadLogTxt(log)})
+  ]));
+
+  if (!log.sessions.length) wrap.appendChild(el('div', {class:'empty', text:'This log is empty. Add Names below.'}));
+
+  log.sessions.forEach((s, si) => {
+    const div = el('div', {class:'divider', role:'separator'});
+    div.innerHTML = DIVIDER_SVG;
+    div.appendChild(document.createTextNode((si === 0 ? 'Started ' : 'Added ') + fmtTime(new Date(s.time))));
+    wrap.appendChild(div);
+
+    s.entries.forEach((e, ei) => wrap.appendChild(renderEntry(log, s, e, ei)));
+
+    wrap.appendChild(el('div', {class:'session-note-label', text:'Your own words for this session'}));
+    const sn = el('textarea', {class:'field note-field', rows:'2', placeholder:'Write anything you want to add to this dua\u2026', 'aria-label':'Session notes'});
+    sn.value = s.note || '';
+    sn.addEventListener('input', () => { s.note = sn.value; autoGrow(sn); saveSoon(); });
+    wrap.appendChild(sn);
+    wrap.appendChild(el('div', {class:'session-foot'}, [
+      el('button', {class:'btn small', text:'+ Add Names', onclick:() => startAddingTo(log, s)}),
+      el('button', {class:'btn small ghost', text:'+ Write your own dua', onclick:() => {
+        s.entries.push({id:uid(), n:null, memo:'', text:'', generic:false, note:'', custom:true});
+        saveData(); renderLogDetail(log, true);
+        const tas = logsView.querySelectorAll('.entry[data-sid="' + s.id + '"] .dua-text');
+        if (tas.length) tas[tas.length - 1].focus();
+      }})
+    ]));
+  });
+
+  wrap.appendChild(el('div', {class:'log-danger'}, [
+    el('button', {class:'btn small', text:'+ New session in this log', onclick:() => startAddingTo(log, null)}), ' ',
+    el('button', {class:'btn small danger', text:'Delete this log', onclick:() => {
+      if (!confirm('Delete "' + log.title + '"? This cannot be undone.')) return;
+      data.logs = data.logs.filter(l => l !== log);
+      saveData(); renderFavorites();
+      location.hash = '#logs';
+      toast('Log deleted');
+    }})
+  ]));
+  logsView.appendChild(wrap);
+  requestAnimationFrame(() => {
+    logsView.querySelectorAll('textarea').forEach(autoGrow);
+    if (keepScroll) window.scrollTo(0, y);
+  });
+}
+
+function logMetaText(log){
+  const c = entryCount(log);
+  const d = log.sessions.reduce((t, s) => t + s.entries.filter(e => e.done).length, 0);
+  return fmtDate(dateFromKey(log.date)) + ' \u00B7 ' + c + (c === 1 ? ' dua' : ' duas') + (c ? ' \u00B7 ' + d + ' made' : '');
+}
+function updateMadeMeta(log){ const m = document.getElementById('logMeta'); if (m) m.textContent = logMetaText(log); }
+
+function renderEntry(log, s, e, ei){
+  const item = e.n ? BY_N[e.n] : null;
+  const color = item ? CAT_BY_ID[item.cat].color : 'var(--gold)';
+  const box = el('div', {class:'entry' + (item ? '' : ' custom') + (e.done ? ' done' : ''), style:'--dot:' + color, 'data-sid':s.id});
+  if (item) box.appendChild(buildCard(item, 'log'));
+  const body = el('div', {class:'entry-body'});
+  const tag = el('span', {class:'tag' + (e.generic ? ' general' : ''), text: !item ? 'Your own dua' : e.generic ? 'General supplication' : (e.memo ? 'Your supplication' : 'Supplication')});
+  const check = el('input', {type:'checkbox', class:'made-box', 'aria-label':'Mark this dua as made'});
+  check.checked = !!e.done;
+  check.addEventListener('change', () => {
+    e.done = check.checked; e.doneAt = e.done ? new Date().toISOString() : '';
+    box.classList.toggle('done', e.done); saveData(); updateMadeMeta(log);
+  });
+  const made = el('label', {class:'made-check', title:'Mark as made'}, [check, el('span', {text:'Made'})]);
+  const star = el('button', {class:'icon-btn star', type:'button'});
+  function syncStar(){ const on = !!findFavDua(e); star.classList.toggle('on', on); star.textContent = on ? '\u2605' : '\u2606'; star.title = on ? 'Remove from Favorite Duas' : 'Save to Favorite Duas'; star.setAttribute('aria-label', star.title); star.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+  star.addEventListener('click', () => { toggleFavDua(e); syncStar(); });
+  syncStar();
+  const tools = el('div', {class:'tools'}, [
+    star,
+    el('button', {class:'icon-btn', title:'Move up', 'aria-label':'Move up', text:'\u2191', disabled:ei === 0, onclick:() => moveEntry(log, s, ei, -1)}),
+    el('button', {class:'icon-btn', title:'Move down', 'aria-label':'Move down', text:'\u2193', disabled:ei === s.entries.length - 1, onclick:() => moveEntry(log, s, ei, 1)}),
+    el('button', {class:'icon-btn del', title:'Delete', 'aria-label':'Delete this dua', text:'\u2715', onclick:() => deleteEntry(log, s, e)})
+  ]);
+  body.appendChild(el('div', {class:'entry-top'}, [made, tag, tools]));
+  if (e.memo) body.appendChild(el('p', {class:'memo-line'}, ['For: ', el('b', {text:e.memo})]));
+  const ta = el('textarea', {class:'field dua-text', rows:'1', 'aria-label':'Supplication text', placeholder: item ? 'Write your supplication\u2026' : 'Write your own dua\u2026'});
+  ta.value = e.text || '';
+  ta.addEventListener('input', () => {
+    e.text = ta.value; autoGrow(ta);
+    if (e.generic) { e.generic = false; e.edited = true; tag.className = 'tag'; tag.textContent = 'Edited supplication'; }
+    syncStar();
+    saveSoon();
+  });
+  body.appendChild(ta);
+  if (item) {
+    const note = el('textarea', {class:'field note-field', rows:'1', placeholder:'Add your own words\u2026', 'aria-label':'Your note for ' + item.tr});
+    note.value = e.note || '';
+    note.addEventListener('input', () => { e.note = note.value; autoGrow(note); saveSoon(); });
+    if (!e.note) {
+      note.hidden = true;
+      const addBtn = el('button', {class:'add-note', text:'+ Add your own words'});
+      addBtn.addEventListener('click', () => { addBtn.remove(); note.hidden = false; autoGrow(note); note.focus(); });
+      body.appendChild(addBtn);
+    }
+    body.appendChild(note);
+  }
+  box.appendChild(body);
+  return box;
+}
+
+function moveEntry(log, s, i, dir){
+  const j = i + dir;
+  if (j < 0 || j >= s.entries.length) return;
+  const t = s.entries[i]; s.entries[i] = s.entries[j]; s.entries[j] = t;
+  saveData(); renderLogDetail(log, true);
+}
+function deleteEntry(log, s, e){
+  const label = e.n ? BY_N[e.n].tr : 'this dua';
+  if (!confirm('Remove ' + label + ' from this log?')) return;
+  s.entries = s.entries.filter(x => x !== e);
+  if (!s.entries.length && !(s.note || '').trim()) log.sessions = log.sessions.filter(x => x !== s);
+  saveData(); renderFavorites(); renderLogDetail(log, true);
+}
+function startAddingTo(log, s){
+  location.hash = '#reference';
+  setTimeout(() => {
+    setSelecting(true, {logId:log.id, sessionId: s ? s.id : null});
+    const c = document.getElementById('controls');
+    if (c) window.scrollTo(0, c.offsetTop - 60);
+  }, 0);
+}
+
+/* ---------- Favorite Duas (saved dua lines, max 100) ---------- */
+const FAV_DUA_LIMIT = 100;
+function findFavDua(e){ const t = (e.text || '').trim(); return t ? data.favDuas.find(f => (f.n || null) === (e.n || null) && f.text === t) : null; }
+function toggleFavDua(e){
+  const ex = findFavDua(e);
+  if (ex) { data.favDuas = data.favDuas.filter(f => f !== ex); saveData(); toast('Removed from Favorite Duas'); return; }
+  const t = (e.text || '').trim();
+  if (!t) { toast('Write the dua first, then save it.'); return; }
+  if (data.favDuas.length >= FAV_DUA_LIMIT) { toast('You\u2019ve saved 100 Favorite Duas \u2014 the most it holds. Remove one to make room.'); return; }
+  data.favDuas.unshift({id:uid(), n:e.n || null, text:t, saved:new Date().toISOString()});
+  saveData(); toast('Saved to Favorite Duas (' + data.favDuas.length + '/' + FAV_DUA_LIMIT + ')');
+}
+function renderFavDuas(){
+  const sec = el('section', {class:'favduas', id:'favDuas'});
+  sec.appendChild(el('div', {class:'cat-head'}, [
+    el('span', {class:'fav-star', text:'\u2605'}), el('h3', {text:'Favorite Duas'}),
+    el('span', {class:'count', text:data.favDuas.length + ' / ' + FAV_DUA_LIMIT})
+  ]));
+  sec.appendChild(el('p', {class:'favduas-sub', text:'Dua lines you\u2019ve starred in any log. Insert one into a log to make it again. (Different from the Favorites Names on the reference page.)'}));
+  if (!data.favDuas.length) {
+    sec.appendChild(el('div', {class:'empty', text:'No Favorite Duas yet. Tap the \u2606 on any dua in a log to save it here.'}));
+    return sec;
+  }
+  data.favDuas.forEach(f => {
+    const item = f.n ? BY_N[f.n] : null;
+    const row = el('div', {class:'favdua', style:'--dot:' + (item ? CAT_BY_ID[item.cat].color : 'var(--gold)')});
+    if (item) row.appendChild(el('div', {class:'favdua-name'}, [el('span', {class:'ar-s', text:item.ar}), el('span', {class:'tr-s', text:item.tr}), el('span', {class:'mn-s', text:item.meaning})]));
+    else row.appendChild(el('div', {class:'favdua-name'}, [el('span', {class:'tr-s', text:'Your own dua'})]));
+    row.appendChild(el('p', {class:'favdua-text', text:f.text}));
+    row.appendChild(el('div', {class:'session-foot'}, [
+      el('button', {class:'btn small', type:'button', text:'+ Insert into a log', onclick:() => openPicker(f)}),
+      el('button', {class:'btn small danger', type:'button', text:'Remove', onclick:() => {
+        if (!confirm('Remove this from Favorite Duas?')) return;
+        data.favDuas = data.favDuas.filter(x => x !== f); saveData(); renderLogList();
+        const s2 = document.getElementById('favDuas'); if (s2) s2.scrollIntoView({block:'start'});
+        toast('Removed from Favorite Duas');
+      }})
+    ]));
+    sec.appendChild(row);
+  });
+  return sec;
+}
+function openPicker(f){
+  const wrap = el('div', {class:'sheet-wrap', id:'pickWrap'});
+  const close = () => { wrap.remove(); document.body.style.overflow = ''; };
+  const body = el('div', {class:'sheet-body'});
+  const now = new Date();
+  const today = data.logs.find(l => l.date === dayKey(now));
+  body.appendChild(el('button', {class:'log-item', type:'button', onclick:() => { close(); insertFavInto(f, today || null); }}, [
+    el('div', {class:'t', text:'Today\u2019s log'}),
+    el('div', {class:'m', text: today ? 'Adds to the latest session of ' + today.title : 'Starts Dua Log \u2014 ' + fmtDate(now)})
+  ]));
+  sortedLogs().filter(l => l !== today).forEach(l => body.appendChild(el('button', {class:'log-item', type:'button', onclick:() => { close(); insertFavInto(f, l); }}, [
+    el('div', {class:'t', text:l.title}), el('div', {class:'m', text:'Adds to its latest session'})
+  ])));
+  const sheet = el('div', {class:'sheet', role:'dialog', 'aria-modal':'true', 'aria-label':'Choose a log'}, [
+    el('div', {class:'sheet-head'}, [el('h2', {text:'Insert into which log?'}), el('p', {text:f.text})]),
+    body,
+    el('div', {class:'sheet-foot'}, [el('button', {class:'btn', type:'button', text:'Cancel', onclick:close})])
+  ]);
+  body.style.display = 'flex'; body.style.flexDirection = 'column'; body.style.gap = '8px';
+  wrap.appendChild(sheet);
+  wrap.addEventListener('click', ev => { if (ev.target === wrap) close(); });
+  document.body.appendChild(wrap); document.body.style.overflow = 'hidden';
+}
+function insertFavInto(f, log){
+  const entry = {id:uid(), n:f.n || null, memo:'', text:f.text, generic:false, note:'', custom:!f.n, fromFav:true};
+  let id;
+  if (log && log.sessions.length) { log.sessions[log.sessions.length - 1].entries.push(entry); log.updated = new Date().toISOString(); saveData(); id = log.id; }
+  else if (log) { log.sessions.push({id:uid(), time:new Date().toISOString(), note:'', entries:[entry]}); saveData(); id = log.id; }
+  else id = addEntries([entry], null);
+  renderFavorites();
+  location.hash = '#log/' + id;
+  toast('Favorite dua inserted');
+}
+
+/* ---------- share a log as plain text ---------- */
+function logToText(log){
+  const L = [log.title, fmtDate(dateFromKey(log.date)), ''];
+  log.sessions.forEach((s, si) => {
+    L.push('\u2014\u2014 ' + (si === 0 ? 'Started ' : 'Added ') + fmtTime(new Date(s.time)) + ' \u2014\u2014', '');
+    s.entries.forEach((e, i) => {
+      const it = e.n ? BY_N[e.n] : null;
+      L.push((i + 1) + '. ' + (it ? it.ar + ' \u00B7 ' + it.tr + ' \u2014 ' + it.meaning : 'Your own dua') + (e.done ? '  \u2713 made' : ''));
+      if (e.memo) L.push('   For: ' + e.memo);
+      if ((e.text || '').trim()) L.push('   ' + e.text.trim() + (e.generic ? '  (general supplication)' : ''));
+      if ((e.note || '').trim()) L.push('   Note: ' + e.note.trim());
+      L.push('');
+    });
+    if ((s.note || '').trim()) L.push('My words: ' + s.note.trim(), '');
+  });
+  L.push('\u2014 from my Asma al-Husna Dua Log');
+  return L.join('\n');
+}
+async function copyText(t){
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(t); return true; } } catch (e) {}
+  const ta = el('textarea', {style:'position:fixed;top:-1000px;opacity:0'}); ta.value = t; document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); return ok;
+}
+async function shareLog(log){
+  const text = logToText(log);
+  if (navigator.share) {
+    try { await navigator.share({title:log.title, text:text}); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  if (await copyText(text)) toast('Log copied \u2014 paste it anywhere to share');
+  else { downloadLogTxt(log); }
+}
+function downloadLogTxt(log){
+  const blob = new Blob([logToText(log)], {type:'text/plain;charset=utf-8'});
+  const a = el('a', {href:URL.createObjectURL(blob), download:(log.title.replace(/[\\/:*?"<>|]+/g, '').trim() || 'Dua Log') + '.txt'});
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Text file downloaded');
+}
+
+/* ---------- export / import ---------- */
+function exportData(){
+  const blob = new Blob([JSON.stringify({app:'asma-al-husna-dua-log', version:1, exported:new Date().toISOString(), logs:data.logs, favDuas:data.favDuas}, null, 2)], {type:'application/json'});
+  const a = el('a', {href:URL.createObjectURL(blob), download:'dua-log-backup-' + dayKey(new Date()) + '.json'});
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Backup downloaded');
+}
+function validLog(l){
+  return l && typeof l.id === 'string' && typeof l.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(l.date) && Array.isArray(l.sessions);
+}
+function cleanLog(l){
+  return {
+    id:String(l.id), date:l.date, title:String(l.title || ('Dua Log \u2014 ' + fmtDate(dateFromKey(l.date)))),
+    created:String(l.created || ''), updated:String(l.updated || ''),
+    sessions:l.sessions.filter(s => s && Array.isArray(s.entries)).map(s => ({
+      id:String(s.id || uid()), time:String(s.time || new Date().toISOString()), note:String(s.note || ''),
+      entries:s.entries.filter(e => e && (e.n == null || BY_N[e.n])).map(e => ({
+        id:String(e.id || uid()), n:e.n ? Number(e.n) : null, memo:String(e.memo || ''), text:String(e.text || ''),
+        generic:!!e.generic, note:String(e.note || ''), custom:!e.n, done:!!e.done, doneAt:String(e.doneAt || '')
+      }))
+    }))
+  };
+}
+function importFile(file){
+  const r = new FileReader();
+  r.onload = () => {
+    let incoming, favIn;
+    try {
+      const d = JSON.parse(r.result);
+      incoming = (Array.isArray(d) ? d : d.logs || []).filter(validLog).map(cleanLog);
+      favIn = (Array.isArray(d.favDuas) ? d.favDuas : []).filter(f => f && typeof f.text === 'string' && f.text.trim() && (f.n == null || BY_N[f.n]))
+        .map(f => ({id:String(f.id || uid()), n:f.n ? Number(f.n) : null, text:f.text.trim().slice(0, 2000), saved:String(f.saved || '')}));
+    }
+    catch (e) { alert('That file isn\u2019t a valid Dua Log backup.'); return; }
+    if (!incoming.length && !favIn.length) { alert('No logs found in that file.'); return; }
+    const clash = incoming.filter(l => findLog(l.id)).length;
+    if (!confirm('Import ' + incoming.length + ' log' + (incoming.length === 1 ? '' : 's') + (favIn.length ? ' and ' + favIn.length + ' Favorite Duas' : '') + '?' + (clash ? ' ' + clash + ' with the same ID will be replaced by the backup copy.' : '') + ' Your other logs are kept.')) return;
+    incoming.forEach(l => { const i = data.logs.findIndex(x => x.id === l.id); if (i >= 0) data.logs[i] = l; else data.logs.push(l); });
+    let skipped = 0;
+    favIn.forEach(f => {
+      if (data.favDuas.some(x => x.id === f.id || ((x.n || null) === f.n && x.text === f.text))) return;
+      if (data.favDuas.length >= FAV_DUA_LIMIT) { skipped++; return; }
+      data.favDuas.push(f);
+    });
+    saveData(); renderFavorites(); renderLogList();
+    toast('Imported ' + incoming.length + ' log' + (incoming.length === 1 ? '' : 's') + (skipped ? ' \u2014 ' + skipped + ' Favorite Duas skipped (100 limit)' : ''));
+  };
+  r.readAsText(file);
+}
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ---------- routing ---------- */
+const refView = document.getElementById('view-reference');
+let refScroll = 0;
+let currentView = 'reference';
+function route(){
+  const h = location.hash || '#reference';
+  let view = 'reference', logId = null;
+  if (h === '#logs') view = 'logs';
+  else if (h.startsWith('#log/')) { view = 'log'; logId = decodeURIComponent(h.slice(5)); }
+  const wasRef = currentView === 'reference';
+  if (wasRef && view !== 'reference') refScroll = window.scrollY;
+  if (!sheetWrap.hidden) closeSheet();
+  const pw = document.getElementById('pickWrap'); if (pw) { pw.remove(); document.body.style.overflow = ''; }
+  if (view === 'reference') {
+    refView.hidden = false; logsView.hidden = true; selectBtn.hidden = false;
+    if (!wasRef) window.scrollTo(0, refScroll);
+  } else {
+    if (selecting) setSelecting(false);
+    refView.hidden = true; logsView.hidden = false; selectBtn.hidden = true;
+    if (view === 'log') {
+      const log = findLog(logId);
+      if (log) renderLogDetail(log); else { location.replace('#logs'); return; }
+    } else renderLogList();
+    window.scrollTo(0, 0);
+  }
+  currentView = view === 'reference' ? 'reference' : 'logs';
+  document.querySelectorAll('.tab').forEach(t => {
+    const on = t.dataset.view === currentView;
+    t.classList.toggle('active', on);
+    if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
+  });
+}
+window.addEventListener('hashchange', route);
+window.addEventListener('storage', (e) => { if (e.key === STORE_KEY) { data = loadData(); renderFavorites(); if (currentView === 'logs') route(); } });
+
+renderFavorites();
+syncSelectionUI();
+route();
+
+/* ---------- home-screen icon (generated, so the file stays self-contained) ---------- */
+(function(){
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 180;
+    const x = c.getContext('2d');
+    x.fillStyle = '#0c1022'; x.fillRect(0, 0, 180, 180);
+    x.strokeStyle = '#c9a227'; x.lineWidth = 5;
+    x.save(); x.translate(90, 90);
+    x.strokeRect(-48, -48, 96, 96); x.rotate(Math.PI / 4); x.strokeRect(-48, -48, 96, 96);
+    x.restore();
+    x.fillStyle = '#c9a227'; x.beginPath(); x.arc(90, 90, 7, 0, Math.PI * 2); x.fill();
+    const link = document.createElement('link'); link.rel = 'apple-touch-icon'; link.href = c.toDataURL('image/png');
+    document.head.appendChild(link);
+    const ic = document.createElement('link'); ic.rel = 'icon'; ic.href = link.href; document.head.appendChild(ic);
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
