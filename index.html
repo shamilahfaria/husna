@@ -308,6 +308,12 @@
   .sheet.editing .memo-row .memo-item{ padding-left:56px; }
   .sheet-foot .btn[disabled]{ opacity:.4; }
   @media (prefers-reduced-motion: reduce){ .memo-row .memo-item{ transition:none !important; } }
+  /* flippable Name card on the memo sheet */
+  .memo-item .card-inner{ height:172px; }
+  .memo-item .card-face{ padding:11px 12px 9px; }
+  .memo-item .card .ar{ font-size:1.4rem; }
+  @media (max-width:480px){ .memo-item .card-inner{ height:142px; } .memo-item .card .meaning{ font-size:.76rem; } }
+  .memo-item .card, .memo-item .card-inner, .memo-item .card-face, .memo-item .field{ touch-action:pan-y; }
 </style>
 </head>
 <body>
@@ -892,6 +898,109 @@ function fmtTime(d){ return d.toLocaleTimeString('en-US', {hour:'numeric', minut
 function dateFromKey(k){ const p = k.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
 function findLog(id){ return data.logs.find(l => l.id === id); }
 
+/* Memo placeholders: a short, Name-specific prompt to jog thoughts */
+const PH = {
+1:"mercy for a loved one, softness in a hard season…",
+2:"mercy in my exact situation, a loved one who passed…",
+3:"contentment with my circumstances, an outcome out of my control…",
+4:"a purer heart, sincere intentions, cleansing from a habit…",
+5:"peace at home, calm before a hard conversation…",
+6:"feeling safe, relief from a fear, a worry about the future…",
+7:"my children while I'm away, a situation I can't watch over…",
+8:"strength before something intimidating, standing firm…",
+9:"a broken heart, something I can't fix, a hard loss…",
+10:"humility, letting go of ego in an argument…",
+11:"purpose in my life, a new chapter I'm starting…",
+12:"order in my chaotic schedule, trusting how things unfold…",
+13:"a good outcome taking shape, a project, my character…",
+14:"a sin I keep returning to, a habit I want to quit…",
+15:"overcoming anger, a fear, an addiction…",
+16:"a child, a gift I can't earn, a righteous spouse…",
+17:"a job, provision for my family, rizq in my studies…",
+18:"a closed door, a job offer, a way out of a dead end…",
+19:"clarity in a decision, understanding in my studies…",
+20:"patience while money is tight, accepting a no…",
+21:"more income, an open heart, relief after hardship…",
+22:"humbling my pride, being kept from arrogance…",
+23:"raising my rank, growth at work, rising in faith…",
+24:"respect at work, dignity, being believed…",
+25:"protection from humiliation, a bully or oppressor…",
+26:"a dua I've never said out loud, a quiet worry…",
+27:"something no one else sees me going through…",
+28:"a dispute, a fair decision, a custody or court matter…",
+29:"being treated unfairly, fairness in a conflict…",
+30:"gentleness in a delicate situation, a hard thing made easy…",
+31:"what I can't put into words, a hidden struggle…",
+32:"patience with my kids, with my own mistakes…",
+33:"awe in my prayer, perspective on a big worry…",
+34:"forgiveness for my past, a sin that weighs on me…",
+35:"acceptance of a small deed, gratitude for a blessing…",
+36:"lifting my aims, rising above pettiness…",
+37:"a problem that feels huge, overwhelming news…",
+38:"my health, my family's safety, my faith in a tough place…",
+39:"daily needs, energy, nourishment for body and soul…",
+40:"sufficiency in hardship, help against an injustice…",
+41:"steadiness, reverence in my worship…",
+42:"generosity beyond what I deserve, a need I'm shy to ask…",
+43:"staying mindful in private, guarding my eyes and tongue…",
+44:"a long-awaited dua, an answer I'm still waiting for…",
+45:"a bigger heart, more room in my rizq, open options…",
+46:"wisdom in a choice, trusting a delay, the right timing…",
+47:"love in my marriage, family warmth, being loved by Allah…",
+48:"finding rest in dhikr, a heart that glorifies Him…",
+49:"reviving my motivation, a good end, the Hereafter…",
+50:"sincerity, a good deed no one knows about…",
+51:"seeing the truth in a confusing situation, honesty…",
+52:"a matter I'm handing over to Him, a big decision…",
+53:"strength for caregiving, energy for a demanding week…",
+54:"staying firm on a good habit, steadfast faith…",
+55:"a friend in loneliness, protection, closeness to Him…",
+56:"gratitude in every state, praising Him in hardship…",
+57:"making the most of my time, good deeds counted…",
+58:"a fresh start, a new idea, a beginning from nothing…",
+59:"restoring a friendship, something I lost, returning to Him…",
+60:"reviving my faith, new hope, a dead dream…",
+61:"a good death, letting go, a loved one who is dying…",
+62:"a heart that feels alive, energy in my worship…",
+63:"holding my affairs together, not being left to myself…",
+64:"finding a way, finding what I need, a lost item…",
+65:"noble character, humility in my asking…",
+66:"relying on Him alone, freedom from people-pleasing…",
+67:"sincerity in my worship, purity of tawheed…",
+68:"a need only He can meet, a place to turn…",
+69:"something that seems impossible, a miracle…",
+70:"a difficult outcome, a situation beyond my control…",
+71:"bringing a good thing sooner, priorities in order…",
+72:"patience with a delay, keeping away harm…",
+73:"putting Him first in my day, a new beginning…",
+74:"a good ending, my last deeds being my best…",
+75:"seeing His signs, clarity, His help made clear…",
+76:"what's hidden in my heart, inner struggles…",
+77:"taking charge of an affair I can't manage…",
+78:"thinking well of Him, rising above my limits…",
+79:"kindness to my parents, goodness in a hard time…",
+80:"repenting from a sin, a fresh start with Him…",
+81:"justice for a wrong done to me, letting go of revenge…",
+82:"sins wiped clean, Laylat al-Qadr, a clean slate…",
+83:"tenderness, a softer heart, kindness toward others…",
+84:"a position, a title, being content with what He gives…",
+85:"honor, generosity, persistence in my duas…",
+86:"fairness among my children, setting a wrong right…",
+87:"reuniting my family, gathering my scattered thoughts…",
+88:"contentment, independence from people…",
+89:"paying off debt, being free of need for others…",
+90:"protection from harm, a danger I'm afraid of…",
+91:"a lesson in hardship, protection from harm…",
+92:"benefit in my knowledge, useful work, a good investment…",
+93:"light in my heart, a dark time, guidance in confusion…",
+94:"guidance in a decision, a loved one who's drifting…",
+95:"a creative solution, something without precedent…",
+96:"focusing on what lasts, a deed that outlives me…",
+97:"letting go of the world, a legacy, inheritance matters…",
+98:"the right path forward, wise counsel, a mentor…",
+99:"patience in a trial, steadiness under pressure…"
+};
+
 /* ---------- supplication composer: turns a rough memo into one polished, concise line ---------- */
 const PEOPLE = {mom:'mother',mum:'mother',mama:'mother',mommy:'mother',ammi:'mother',ummi:'mother',mother:'mother',dad:'father',papa:'father',daddy:'father',abu:'father',abba:'father',father:'father',
   grandma:'grandmother',nani:'grandmother',dadi:'grandmother',grandmother:'grandmother',grandpa:'grandfather',nana:'grandfather',grandfather:'grandfather',
@@ -1135,12 +1244,12 @@ function openMemoSheet(ns, target){
   ns.forEach((n, i) => {
     const item = BY_N[n];
     const fid = 'memo-' + n;
-    const ta = el('textarea', {class:'field', id:fid, rows:'2', 'data-n':String(n), placeholder:'e.g. ease in my exams, healing for my mother\u2026', maxlength:'400'});
+    const ta = el('textarea', {class:'field', id:fid, rows:'2', 'data-n':String(n), placeholder:'e.g. ' + (PH[n] || 'ease in my exams, healing for my mother\u2026'), maxlength:'400'});
     ta.addEventListener('input', () => autoGrow(ta));
     const label = el('label', {for:fid}, ['What are you calling on ', el('span', {class:'lbl-name', text:item.tr}), ' for?']);
     const right = el('div', null, [label, ta, el('div', {class:'memo-hint', text:'Optional \u2014 leave blank for a general supplication.'})]);
     const minus = el('button', {type:'button', class:'memo-minus', 'aria-label':'Remove ' + item.tr, tabindex:'-1'}, [el('span', {'aria-hidden':'true'})]);
-    const content = el('div', {class:'memo-item', style:'--dot:' + CAT_BY_ID[item.cat].color}, [minus, buildMiniCard(item), right]);
+    const content = el('div', {class:'memo-item', style:'--dot:' + CAT_BY_ID[item.cat].color}, [minus, buildCard(item, 'log'), right]); // tap flips; swipe deletes
     const del = el('button', {type:'button', class:'memo-del', text:'Delete', 'aria-label':'Delete ' + item.tr + ' from this list', tabindex:'-1'});
     const row = el('div', {class:'memo-row', 'data-n':String(n)}, [del, content]);
     minus.addEventListener('click', (e) => { e.stopPropagation(); if (row.classList.contains('open')) closeRow(row); else openRow(row); });
