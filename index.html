@@ -999,36 +999,46 @@ const IDB_NAME = 'asmaDuaLogBackup', IDB_STORE = 'kv';
 let selecting = false;
 const selected = new Set();
 const storageInfo = {lsState:'ok', lsOk:true, lsReadable:true, idb:null, persisted:null, restoredFrom:'', lastSaved:''};
-let reconciled = false, pendingSave = false, intentionalShrink = false, snaps = [];
+let reconciled = false, pendingSave = false, intentionalShrink = false, snaps = [], lastRaw = '';
+const objs = x => Array.isArray(x) ? x.filter(o => o && typeof o === 'object') : [];
 
 function countData(d){
   if (!d) return 0;
   let n = ['favDuas', 'duas', 'occ', 'notes'].reduce((t, k) => t + (Array.isArray(d[k]) ? d[k].length : 0), 0);
-  (d.logs || []).forEach(l => { n += 1; (l.sessions || []).forEach(s => { n += (s.entries || []).length; }); });
+  objs(d.logs).forEach(l => { n += 1; objs(l.sessions).forEach(s => { n += objs(s.entries).length; }); });
   return n;
 }
 function statsOf(d){
-  let e = 0; (d.logs || []).forEach(l => (l.sessions || []).forEach(s => { e += (s.entries || []).length; }));
+  let e = 0; objs(d.logs).forEach(l => objs(l.sessions).forEach(s => { e += objs(s.entries).length; }));
   const keepers = (d.duas || []).filter(x => x.status === 'keeper' || x.status === 'answered').length;
   return {logs:(d.logs || []).length, entries:e, favs:(d.favDuas || []).length, keepers:keepers, occ:(d.occ || []).length, v2:d.schema === 2};
 }
 function statLine(st){ return st.v2 ? st.keepers + ' duas \u00B7 ' + st.occ + ' times made' : st.logs + ' logs \u00B7 ' + st.entries + ' duas \u00B7 ' + st.favs + ' favs'; }
-function validData(d){ return !!d && typeof d === 'object' && Array.isArray(d.logs); }
-function normData(d){ ['favDuas', 'duas', 'occ', 'notes'].forEach(k => { if (!Array.isArray(d[k])) d[k] = []; }); return d; }
+function validData(d){ return !!d && typeof d === 'object' && !Array.isArray(d) && ['logs', 'favDuas', 'duas'].some(k => Array.isArray(d[k])); }
+function normData(d){ ['logs', 'favDuas', 'duas', 'occ', 'notes'].forEach(k => { if (!Array.isArray(d[k])) d[k] = []; }); return d; }
 function parseData(raw){ try { const d = JSON.parse(raw); return validData(d) ? normData(d) : null; } catch (e) { return null; } }
 function lsGet(k){ try { return localStorage.getItem(k); } catch (e) { storageInfo.lsOk = false; return null; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
-function mergeData(base, extra){
-  const out = normData(JSON.parse(JSON.stringify(base)));
-  (extra.logs || []).forEach(l => { const i = out.logs.findIndex(x => x.id === l.id); if (i < 0) out.logs.push(l); else if ((l.updated || '') > (out.logs[i].updated || '')) out.logs[i] = l; });
-  (extra.favDuas || []).forEach(f => { if (!out.favDuas.some(x => x.id === f.id || ((x.n || null) === (f.n || null) && x.text === f.text))) out.favDuas.push(f); });
-  unionByIdInto(out.duas, extra.duas || [], mergeDua);
-  unionByIdInto(out.occ, extra.occ || []);
-  unionByIdInto(out.notes, extra.notes || []);
+function mergeLog(ex, inc){
+  if (!Array.isArray(ex.sessions)) ex.sessions = [];
+  unionByIdInto(ex.sessions, objs(inc.sessions), (a, b) => { if (!Array.isArray(a.entries)) a.entries = []; unionByIdInto(a.entries, objs(b.entries)); });
+  if ((inc.updated || '') > (ex.updated || '')) { ex.title = inc.title; ex.updated = inc.updated; }
+}
+/* adds what `extra` has to `out` in place, by id; never removes anything and never lowers a dua's status */
+function mergeInto(out, extra){
+  normData(out);
+  unionByIdInto(out.logs, objs(extra.logs), mergeLog);
+  objs(extra.favDuas).forEach(f => { if (!out.favDuas.some(x => x && (x.id === f.id || ((x.n || null) === (f.n || null) && x.text === f.text)))) out.favDuas.push(f); });
+  unionByIdInto(out.duas, objs(extra.duas), mergeDua);
+  unionByIdInto(out.occ, objs(extra.occ));
+  unionByIdInto(out.notes, objs(extra.notes));
+  const gone = new Set((out.gone || []).concat(extra.gone || []));
+  if (gone.size) { out.gone = [...gone].slice(-300); for (let i = out.occ.length - 1; i >= 0; i--) if (gone.has(out.occ[i].id)) out.occ.splice(i, 1); }
   if (out.schema !== 2 && extra.schema === 2) out.schema = 2;
   if (!Array.isArray(out.themes) && Array.isArray(extra.themes)) out.themes = extra.themes;
   return out;
 }
+function mergeData(base, extra){ return mergeInto(normData(JSON.parse(JSON.stringify(base))), extra); }
 
 /* IndexedDB mirror (async; localStorage stays the synchronous primary) */
 let idbP = null;
@@ -1077,7 +1087,11 @@ function pushSnap(json, count, forceNew, tag){
   trimSnaps();
 }
 function persistSnaps(){
-  if (!lsSet(SNAP_KEY, JSON.stringify(snaps))) { const half = snaps.slice(Math.ceil(snaps.length / 2)); lsSet(SNAP_KEY, JSON.stringify(half)); }
+  const keep = [snaps, snaps.filter(x => x.tag).concat(snaps.filter(x => !x.tag).slice(-3)), snaps.filter(x => x.tag).concat(snaps.slice(-1)), snaps.filter(x => x.tag)];
+  for (const list of keep) {
+    const uniq = list.filter((x, i) => list.indexOf(x) === i);
+    if (uniq.length && lsSet(SNAP_KEY, JSON.stringify(uniq))) { snaps = uniq.sort((a, b) => a.t - b.t); break; }
+  }
   const copy = snaps.slice(); idbQueue(() => idbPut('snaps', copy));
 }
 
@@ -1093,15 +1107,15 @@ function legacyKey(e){
   if (e.n) return 'n' + e.n + (memo ? '|m:' + memo : text ? '|t:' + text : '|');
   return text ? 't:' + text : null;
 }
-function legacyWhen(log, s, e){
-  const iso = x => /^\d{4}-\d\d-\d\dT/.test(x || '');
-  return iso(e.doneAt) ? e.doneAt : iso(s.time) ? s.time : log.date + 'T12:00:00';
-}
+const DAY_RE = /^\d{4}-\d\d-\d\d$/, ISO_RE = /^\d{4}-\d\d-\d\dT/;
+function legacyDay(log, s){ return DAY_RE.test(log.date) ? log.date : ISO_RE.test(s.time) ? s.time.slice(0, 10) : null; }
+function legacyWhen(day, s, e){ return ISO_RE.test(e.doneAt) ? e.doneAt : ISO_RE.test(s.time) ? s.time : day + 'T12:00:00'; }
 function deriveV2(d){
   const byKey = new Map(), ids = new Set(), occ = [], notes = [], flat = [];
-  (d.logs || []).forEach(log => (log.sessions || []).forEach(s => {
-    if (String(s.note || '').trim()) notes.push({id:'ns' + s.id, kind:'session', duaId:null, at:legacyWhen(log, s, {}), day:log.date, text:String(s.note), src:{logId:log.id, sessionId:s.id}});
-    (s.entries || []).forEach(e => flat.push({log, s, e, at:legacyWhen(log, s, e)}));
+  objs(d.logs).forEach(log => objs(log.sessions).forEach(s => {
+    const day = legacyDay(log, s); if (!day) return;
+    if (String(s.note || '').trim()) notes.push({id:'ns' + s.id, kind:'session', duaId:null, at:legacyWhen(day, s, {}), day:day, text:String(s.note), src:{logId:log.id, sessionId:s.id}});
+    objs(s.entries).forEach(e => flat.push({log, s, day, e:Object.assign({}, e, {n:e.n && BY_N[e.n] ? Number(e.n) : null}), at:legacyWhen(day, s, e)}));
   }));
   flat.sort((a, b) => a.at.localeCompare(b.at));
   const dua = (key, n, memo, at) => {
@@ -1123,21 +1137,21 @@ function deriveV2(d){
     return id;
   };
   const occIds = new Set();
-  flat.forEach(({log, s, e, at}) => {
+  flat.forEach(({log, s, day, e, at}) => {
     const key = legacyKey(e);
     const src = {logId:log.id, sessionId:s.id, entryId:e.id};
-    if (!key) { if (String(e.note || '').trim()) notes.push({id:'no' + e.id, kind:'orphan-note', duaId:null, at, day:log.date, text:String(e.note), src}); return; }
+    if (!key) { if (String(e.note || '').trim()) notes.push({id:'no' + e.id, kind:'orphan-note', duaId:null, at, day:day, text:String(e.note), src}); return; }
     const x = dua(key, e.n, e.memo, at);
     const vid = wording(x, e.text, at);
-    x.days.add(log.date);
+    x.days.add(day);
     let oid = 'o' + e.id; while (occIds.has(oid)) oid += 'x';
     occIds.add(oid);
-    occ.push({id:oid, duaId:x.id, vid, at, day:log.date, prayer:null, made:!!e.done, note:String(e.note || ''), src});
+    occ.push({id:oid, duaId:x.id, vid, at, day:day, prayer:null, made:!!e.done, note:String(e.note || ''), src});
   });
-  (d.favDuas || []).forEach(f => {
-    const nt = normText(f.text);
-    let x = [...byKey.values()].find(y => (y.n || null) === (f.n || null) && y.versions.some(v => normText(v.text) === nt));
-    if (!x) { x = dua('fav|' + (f.n || '') + '|' + nt, f.n, '', f.saved || ''); wording(x, f.text, f.saved || ''); }
+  objs(d.favDuas).filter(f => typeof f.text === 'string' && f.text.trim()).forEach(f => {
+    const fn = f.n && BY_N[f.n] ? Number(f.n) : null, nt = normText(f.text);
+    let x = [...byKey.values()].find(y => (y.n || null) === fn && y.versions.some(v => normText(v.text) === nt));
+    if (!x) { x = dua('fav|' + (fn || '') + '|' + nt, fn, '', typeof f.saved === 'string' ? f.saved : ''); wording(x, f.text, x.created); }
     x.status = 'keeper';
   });
   byKey.forEach(x => { if (x.days.size >= 2) x.status = 'keeper'; });
@@ -1149,18 +1163,22 @@ function unionByIdInto(list, incoming, onClash){
   incoming.forEach(x => { const ex = m.get(x.id); if (!ex) { list.push(x); m.set(x.id, x); added++; } else if (onClash) onClash(ex, x, list); });
   return added;
 }
-function mergeDua(ex, inc, list){
-  inc.versions.forEach(v => { if (!ex.versions.some(x => x.id === v.id)) ex.versions.push(v); });
+function mergeDua(ex, inc){
+  objs(inc.versions).forEach(v => { if (!ex.versions.some(x => x.id === v.id)) ex.versions.push(v); });
+  const was = ex.status;
   if ((inc.updated || '') > (ex.updated || '')) {
     const keep = ex.versions;
     Object.assign(ex, inc, {versions:keep});
-  }
+    if (inc.status === 'oneoff' && was !== 'oneoff') ex.status = was;
+  } else if (was === 'oneoff' && (inc.status === 'keeper' || inc.status === 'answered')) ex.status = inc.status;
+  if (ex.status !== 'answered') delete ex.answered;
+  if (ex.status !== 'retired') delete ex.retiredAt;
 }
 function ensureV2(d){
   const f = deriveV2(d);
   let changed = d.schema !== 2;
   ['duas', 'occ', 'notes'].forEach(k => { if (!Array.isArray(d[k])) { d[k] = []; changed = true; } });
-  if (unionByIdInto(d.duas, f.duas, (ex, inc) => { const n = ex.versions.length; inc.versions.forEach(v => { if (!ex.versions.some(x => x.id === v.id)) ex.versions.push(v); }); if (ex.versions.length !== n) changed = true; })) changed = true;
+  if (unionByIdInto(d.duas, f.duas, (ex, inc) => { const n = ex.versions.length, st = ex.status; mergeDua(ex, {versions:inc.versions, status:inc.status === 'keeper' ? 'keeper' : ex.status, updated:''}); if (ex.versions.length !== n || ex.status !== st) changed = true; })) changed = true;
   if (unionByIdInto(d.occ, f.occ)) changed = true;
   if (unionByIdInto(d.notes, f.notes)) changed = true;
   d.schema = 2;
@@ -1171,6 +1189,7 @@ let data = loadData();
 function loadData(){
   const raw = lsGet(STORE_KEY);
   if (raw) {
+    lastRaw = raw;
     const d = parseData(raw);
     if (d) { storageInfo.lsState = 'ok'; return d; }
     keepUnreadable(raw); storageInfo.lsReadable = false; storageInfo.lsState = 'unreadable';   // present but unreadable: keep it, never overwrite it silently
@@ -1214,15 +1233,17 @@ async function reconcileStores(){
       idbSnaps.forEach(x => { if (x && typeof x.json === 'string' && !snaps.some(s => s.json === x.json)) snaps.push(x); });
       snaps.sort((a, b) => a.t - b.t); trimSnaps();
     }
-    if (countData(data) === 0 && storageInfo.lsState !== 'ok') {   // only when the main copy is missing/unreadable, never after a delete you chose
+    const mainD = typeof main === 'string' ? parseData(main) : null, here = countData(data), mc = mainD ? countData(mainD) : 0;
+    const lsBad = storageInfo.lsState !== 'ok', behind = !lsBad && mc > 0 && (here === 0 || (mc >= 8 && here * 2 < mc));
+    if ((lsBad && here === 0) || behind) {   // never after a delete you chose: that empties the mirror too
       const cands = [];
-      if (typeof main === 'string') { const d = parseData(main); if (d) cands.push({d:d, from:'the backup copy on this device'}); }
-      snaps.slice().reverse().forEach(s => { const d = parseData(s.json); if (d) cands.push({d:d, from:'an automatic snapshot'}); });
-      const best = cands.find(c => countData(c.d) > 0);
+      if (mainD) cands.push({d:mainD, from:'the backup copy on this device'});
+      if (lsBad) snaps.slice().reverse().forEach(s => { const d = parseData(s.json); if (d) cands.push({d:d, from:'an automatic snapshot'}); });
+      const best = cands.find(c => countData(c.d) > here);
       if (best) {
         data = reconciledMerge(best.d); ensureV2(data);
         storageInfo.restoredFrom = best.from;
-        lsSet(STORE_KEY, JSON.stringify(data));
+        putMain(JSON.stringify(data));
         try { renderFavorites(); if (typeof route === 'function') route(); toast('Your saved duas were restored from ' + best.from); } catch (e) {}
       }
     }
@@ -1231,25 +1252,35 @@ async function reconcileStores(){
   if (countData(data) > 0 || pendingSave) { pendingSave = false; writeAll(true); }
   persistSnaps();
 }
-function reconciledMerge(restored){ return countData(data) > 0 ? mergeData(restored, data) : restored; }   // keep anything she already added this session
-
+function reconciledMerge(restored){ return countData(data) > 0 ? mergeData(restored, data) : restored; }
+function putMain(json){ if (!lsSet(STORE_KEY, json)) return false; lastRaw = json; storageInfo.lastSaved = new Date().toISOString(); return true; }
+/* another tab may have saved since we last looked: fold its duas in rather than overwrite them */
+function pullOthers(){
+  const raw = lsGet(STORE_KEY);
+  if (!raw || raw === lastRaw) return false;
+  lastRaw = raw;
+  const d = parseData(raw);
+  if (!d) { keepUnreadable(raw); return false; }
+  mergeInto(data, d);
+  return countData(data) > countData(d);   // we hold something the other tab doesn't
+}
 function storedCount(){ const raw = lsGet(STORE_KEY); if (!raw) return 0; const d = parseData(raw); return d ? countData(d) : 0; }
 let storageWarned = false;
 function writeAll(skipLs){
   const json = JSON.stringify(data), c = countData(data);
   if (!skipLs) {
-    if (lsSet(STORE_KEY, json)) storageInfo.lastSaved = new Date().toISOString();
-    else if (!storageWarned) { storageWarned = true; toast('Could not save on this device \u2014 open Backup & restore to export.'); }
+    if (!putMain(json) && !storageWarned) { storageWarned = true; toast('Could not save on this device \u2014 open Backup & restore to export.'); }
   }
   if (c > 0) pushSnap(json, c);
   persistSnaps();
   idbQueue(() => idbPut('main', json));
 }
 function saveData(){
+  pullOthers();
   const c = countData(data), allow = intentionalShrink; intentionalShrink = false;
   // never replace saved duas with an empty list unless the user's own delete emptied it
   if (c === 0 && !allow && (!reconciled || storedCount() > 0)) { if (!reconciled) pendingSave = true; return; }
-  if (!reconciled) { pendingSave = true; const json = JSON.stringify(data); if (lsSet(STORE_KEY, json)) storageInfo.lastSaved = new Date().toISOString(); return; }
+  if (!reconciled) { pendingSave = true; putMain(JSON.stringify(data)); return; }
   writeAll(false);
   if (storageInfo.persisted !== true) askPersist();
 }
@@ -3288,6 +3319,7 @@ function logMade(ids, prayer, atMs){
 function unlogMade(occIds){
   const set = new Set(occIds);
   data.occ = data.occ.filter(o => !set.has(o.id));
+  data.gone = (data.gone || []).concat(occIds).slice(-300);
   intentionalShrink = true; saveData();
 }
 
@@ -3932,7 +3964,13 @@ function route(){
   });
 }
 window.addEventListener('hashchange', route);
-window.addEventListener('storage', (e) => { if (e.key === STORE_KEY) { data = loadData(); renderFavorites(); if (currentView !== 'reference') route(); } });
+window.addEventListener('storage', (e) => {
+  if (e.key !== STORE_KEY) return;
+  if (pullOthers()) saveData();
+  renderFavorites();
+  const typing = document.activeElement && /^(TEXTAREA|INPUT)$/.test(document.activeElement.tagName);
+  if (currentView !== 'reference' && !typing) route();
+});
 
 renderFavorites();
 syncSelectionUI();
