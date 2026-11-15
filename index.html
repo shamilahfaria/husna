@@ -3321,7 +3321,7 @@ function logMade(ids, prayer, atMs){
   const at = new Date(atMs).toISOString(), day = dayKey(new Date(atMs)), wk = winKey(prayer, atMs), made = [];
   ids.forEach(id => {
     const d = duaById(id); if (!d) return;
-    if (data.occ.some(o => o.duaId === id && occKey(o) === wk)) return;
+    if (data.occ.some(o => o.duaId === id && (occKey(o) === wk || (prayer !== 'isha' && o.day === day && atPrayer(o) === prayer)))) return;
     const o = {id:'o' + uid(), duaId:id, vid:d.cur, at:at, day:day, prayer:prayer, wk:wk, made:true, note:''};
     data.occ.push(o); made.push(o.id);
     if (d.status === 'oneoff') d.updated = at;
