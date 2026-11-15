@@ -3553,19 +3553,17 @@ function buildSuggested(prayerKey){
 }
 
 /* ---------- People: who she makes dua for, derived from her duas (nothing extra is stored) ---------- */
-const REL_SLANG = /\b(?:ammi|ummi|mama|mommy|papa|daddy|abu|abba|nani|dadi|nana|sis|bro|hubby|\w+inlaws?)\b/i;   // forms OTHER_PERSON does not cover
+const REL_SLANG = /\b(?:ammi|ummi|ami|amma|ammu|abbu|abbi|mama|mommy|papa|daddy|abu|abba|nani|dadi|nana|sis|bro|hubby|\w+inlaws?)\b/i;   // forms OTHER_PERSON does not cover
 const REL_SKIP = new Set(['family', 'cat', 'dog', 'pet']);
 const REL_MERGE = {child:'children', colleague:'coworker'};
 /* family words that stand for one person without "my" ("healing for mom"); the rest need my/our in front */
-const REL_FREE = new Set('sis bro hubby nani dadi mom mum mama mommy ammi ummi mother dad father papa daddy grandma grandmother grandpa grandfather brother sister son daughter husband wife aunt uncle parents'.split(' '));
+const REL_FREE = new Set('sis bro hubby nani dadi mom mum mama mommy ammi ummi abbu abbi abba ami amma ammu mother dad father papa daddy grandma grandmother grandpa grandfather brother sister son daughter husband wife aunt uncle parents'.split(' '));
 const REL_ADJ = new Set('dear close best beloved little big older younger elder eldest oldest youngest late old new only twin sick poor lovely precious'.split(' '));
 const REL_DET = new Set('his her their your its the a an this that whose any every each some another'.split(' '));
 const REL_SELF = new Set('a an the be being become becoming as like such'.split(' '));
 const NAME_VERBS = new Set('for heal cure help protect guide forgive bless about upon comfort ease'.split(' '));
-const NOT_PERSON = /^(Palestine|Gaza|Austin|Syria|Sudan|Yemen|Ummah|Ummat|Afghanistan|Iraq|Kashmir|Lebanon|Morocco|Algeria|Libya|Iran|Saudi|Arabia|Muslimeen|Muslimin|Believers|Rohingya|Uyghurs?|Satan|Shaytan|Iblis|Dajjal)$/i;
-/* words that are not people even when a name-spotter says so: body and feeling words, light, brands (this layer only filters; leadSubject/namedIn are consumed as they are) */
-const NOT_PERSON_WORDS = new Set(('heart hearts mind soul body head eyes eye hands hand tongue chest back stomach leg legs knee skin hair voice life death grave light darkness dream dreams ' +
-  'google microsoft amazon apple facebook meta instagram tiktok youtube twitter netflix uber lyft zoom tesla walmart target costco starbucks linkedin whatsapp snapchat openai chatgpt linux windows android iphone').split(' '));
+/* what leadSubject's stoplist does not already cover and a name-spotter still lets through: Islamic non-persons, tech names, body and light words (places, brands, Allah, hearts are in LEAD_STOP) */
+const NOT_PERSON_MORE = new Set('android arabia back believers body chatgpt chest dajjal darkness death dream dreams eye eyes grave hair hand hands head iblis iphone knee leg legs light linkedin linux lyft mind muslimeen muslimin rohingya satan shaytan skin snapchat stomach tongue ummat uyghur uyghurs voice whatsapp windows zoom'.split(' '));
 const NOOR_CTX = /\b(salah|salat|prayer|prayers|heart|hearts|quran|face|iman|light|grave|qabr|path|eyes?|dua|worship|fajr|dhuhr|asr|maghrib|isha|tahajjud)\b/i;
 const THEME_SHORT = {deceased:'mercy', health:'health', emotion:'calm', anger:'a soft heart', habit:'leaving a habit', forgiveness:'forgiveness', debt:'debt relief', job:'a good job', provision:'provision', study:'studies', knowledge:'knowledge', children:'children', marriage:'marriage', relationship:'a mended bond', patience:'patience', protection:'protection', faith:'faith', guidance:'guidance', home:'a home', virtue:'good character'};
 function nameKey(w){
@@ -3577,27 +3575,52 @@ function peopleTokens(text){
   while ((m = re.exec(s))) { const lo = m[0].toLowerCase(), poss = /'/.test(lo); out.push({w:m[0], lo:lo, base:lo.replace(/'(?:s)?$/, ''), poss:poss}); }
   return {s:s, toks:out};
 }
-/* [PersonRef] for the people a memo is about. Pure: no DOM, no stored data. */
+/* a title that is also a relation: "Aunty Fatima" is Fatima only if something says Fatima is your aunt (my aunt Fatima) */
+const TITLE_KIN = {aunty:'aunt', auntie:'aunt', aunt:'aunt', uncle:'uncle', sister:'sister', brother:'brother'};
+const KIN_CANON = k => { const c = PEOPLE[String(k).toLowerCase().replace(/-/g, '')] || String(k).toLowerCase(); return REL_MERGE[c] || c; };
+/* [PersonRef] for the people a memo is about. Pure: no DOM, no stored data.
+   leadSubject has already decided who a memo opens with (stoplist, person-only predicate); this only turns its subject into people.
+   kinds: 'rel' your mother | 'name' Sarah, Aunty Fatima (key n:fatima+aunt, base n:fatima) | "Sarah's mother" (key k:sara:mother, a different person from both Sarah and your mother) */
 function peopleIn(text){
   const out = [], T = peopleTokens(text), toks = T.toks;
   const add = p => { if (!out.some(x => x.key === p.key)) out.push(p); else if (p.via) { const o = out.find(x => x.key === p.key); if (!o.via) o.via = p.via; } };
-  const nameOk = t => {
+  const nameOk = t => {                      // for names found by the looser paths below (leadSubject names are already vetted)
     if (!t || t.base.length < 3 || t.base.length > 20 || /['.]/.test(t.base)) return false;
-    if (LEAD_STOP.has(t.base) || NOT_NAMES.test(t.w) || NOT_PERSON.test(t.base) || NOT_PERSON_WORDS.has(t.base)) return false;
+    if (LEAD_STOP.has(t.base) || NOT_PERSON_MORE.has(t.base) || NOT_NAMES.test(t.w)) return false;
     if (/^(?:noor|nur)$/.test(t.base) && (!/^[A-Z]/.test(t.w) || NOOR_CTX.test(T.s))) return false;   // noor = light, unless it is clearly a person
     return /^[A-Z]/.test(t.w) || !!leadGender(t.base);
   };
   const addName = (t, via) => add({key:'n:' + nameKey(t.base), kind:'name', label:LEAD_CAP(t.base), via:via || ''});
+  const addRel = k => { const c = KIN_CANON(k); if (!REL_SKIP.has(c)) add({key:'r:' + c, kind:'rel', label:'your ' + c, via:''}); };
+  const addPoss = (name, kin) => { const c = KIN_CANON(kin); add({key:'k:' + nameKey(name) + ':' + c, kind:'name', label:name + "'s " + c, via:'', poss:true}); };
   const claimed = new Set();
   const ls = leadSubject(T.s);
-  if (ls) ls.subject.split(' and ').forEach(n => { const t = peopleTokens(n).toks[0]; if (t && nameOk(t)) addName(t, ''); });
+  if (ls) {
+    ls.subject.split(/\s*,\s*|\s+and\s+/).forEach(part => {   // "Sarah, Omar and Ali" -> 3 | "Sarah's mother" | "Aunty Fatima" | "my son"
+      let m;
+      if ((m = part.match(/^my ([a-z-]+)$/))) return addRel(m[1]);
+      if ((m = part.match(/^(.+?)'s ([a-z-]+)$/))) { const t = peopleTokens(m[1]).toks[0]; if (t) addPoss(LEAD_CAP(t.base), m[2]); return; }
+      const tm = part.match(LEAD_TITLE_RE), t = peopleTokens(tm ? part.slice(tm[0].length) : part).toks[0];
+      if (!t) return;
+      const title = tm ? tm[1].toLowerCase().replace(/\.$/, '') : '', kin = TITLE_KIN[title] || '', base = 'n:' + nameKey(t.base);
+      if (NOT_PERSON_MORE.has(t.base)) return;
+      if (!title) return addName(t, '');
+      add({key:base + '+' + (kin || title), kind:'name', label:part, via:kin, base:base});
+    });
+    if (ls.possKin) { const k = toks.findIndex(t => KIN_CANON(t.base) === KIN_CANON(ls.possKin) && PEOPLE[t.base]); if (k >= 0) claimed.add(k); }   // her mother is not yours, even when it is written "sarahs mother"
+  }
+  toks.forEach((t, k) => {                      // "heal Sarah's mother"
+    if (t.poss && PEOPLE[toks[k + 1] && toks[k + 1].base] && !REL_SKIP.has(KIN_CANON(toks[k + 1].base)) && nameOk(t)) { addPoss(LEAD_CAP(t.base), toks[k + 1].base); claimed.add(k); claimed.add(k + 1); }
+  });
   toks.forEach((t, k) => {
+    if (claimed.has(k)) return;
     const canon = PEOPLE[t.base];
+    if (t.poss && leadGender(t.base) && nameOk(t)) addName(t, '');                    // "Hana's safe flight": a known first name, owning something
     if (canon && !REL_SKIP.has(canon) && nameOk(toks[k + 1])) {                       // "my friend Sarah"
       const a = toks[k - 1], b = toks[k - 2];
       if ((a && /^(my|our)$/.test(a.lo)) || (a && b && /^(my|our)$/.test(b.lo) && REL_ADJ.has(a.lo))) { addName(toks[k + 1], REL_MERGE[canon] || canon); claimed.add(k); claimed.add(k + 1); }
     }
-    if (NAME_VERBS.has(t.lo) && nameOk(toks[k + 1]) && !PEOPLE[toks[k + 1].base]) {   // "heal Sarah", "for Sarah and Omar"
+    if (NAME_VERBS.has(t.lo) && !claimed.has(k + 1) && nameOk(toks[k + 1]) && !PEOPLE[toks[k + 1].base]) {   // "heal Sarah", "for Sarah and Omar"
       let j = k + 1; addName(toks[j], '');
       while (toks[j + 1] && /^(and|&)$/.test(toks[j + 1].lo) && nameOk(toks[j + 2])) { addName(toks[j + 2], ''); j += 2; }
     }
@@ -3605,14 +3628,14 @@ function peopleIn(text){
   if (OTHER_PERSON.test(T.s) || REL_SLANG.test(T.s)) toks.forEach((t, k) => {
     if (claimed.has(k)) return;
     const canon0 = PEOPLE[t.base]; if (!canon0 || REL_SKIP.has(canon0)) return;
-    const canon = REL_MERGE[canon0] || canon0, a = toks[k - 1], b = toks[k - 2];
+    const a = toks[k - 1], b = toks[k - 2];
     const mine = (a && /^(my|our)$/.test(a.lo)) || (a && b && /^(my|our)$/.test(b.lo) && REL_ADJ.has(a.lo));
     if (!mine) {
       if (!REL_FREE.has(t.base)) return;
       if (a && (REL_DET.has(a.lo) || a.poss)) return;                                  // his mom, Sarah's mom, the mother of ...
       if (b && REL_SELF.has(b.lo)) return;                                             // be a good mother
     }
-    add({key:'r:' + canon, kind:'rel', label:'your ' + canon, via:''});
+    addRel(t.base);
   });
   return out;
 }
@@ -3644,8 +3667,11 @@ function peopleIndex(now){
     const rk = 'r:' + p.via; if (alias.has(rk) && alias.get(rk).key !== p.key) clash.add(rk); else alias.set(rk, {key:p.key, label:p.label});
   }));
   clash.forEach(k => alias.delete(k));
+  const seenVia = new Map();                 // "Aunty Fatima" joins "Fatima" only when something already says Fatima is your aunt ("my aunt Fatima"); otherwise she stays her own person
+  shown.forEach(d => duaPeople(d).forEach(p => { if (p.kind === 'name' && !p.base && p.via && !p.poss) { let e = seenVia.get(p.key); if (!e) seenVia.set(p.key, e = {label:p.label, vias:new Set()}); e.vias.add(p.via); } }));
+  shown.forEach(d => duaPeople(d).forEach(p => { const b = p.base && seenVia.get(p.base); if (b && b.vias.has(p.via) && !alias.has(p.key)) alias.set(p.key, {key:p.base, label:b.label, via:p.via}); }));
   shown.forEach(d => {
-    const ppl = []; duaPeople(d).forEach(p => { const a = alias.get(p.key), q = a ? {key:a.key, kind:'name', label:a.label, via:p.key.slice(2), raw:p.key} : p; if (!ppl.some(x => x.key === q.key)) ppl.push(q); });
+    const ppl = []; duaPeople(d).forEach(p => { const a = alias.get(p.key), q = a ? {key:a.key, kind:'name', label:a.label, via:a.via || p.key.slice(2), raw:p.key} : p; if (!ppl.some(x => x.key === q.key)) ppl.push(q); });
     if (!ppl.length) return;
     const r = occ.get(d.id) || {count:0, first:d.created, last:d.created, recent:0, week:false};
     const item = {d:d, count:r.count, first:r.first < d.created ? r.first : d.created, last:r.last > d.created ? r.last : d.created, theme:themeShort(d), recent:r.recent, week:r.week};
