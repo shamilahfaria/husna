@@ -588,7 +588,7 @@ const NAMES = [
 {n:11,tr:"Al-Khaliq",ar:"الْخَالِق",meaning:"The Creator",cat:"creation",
  reflect:"From Sayyidul-Istighfar, the greatest formula of seeking forgiveness.",
  dua:{ar:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ، **خَلَقْتَنِي** وَأَنَا عَبْدُكَ",tr:"Allahumma anta Rabbi la ilaha illa anta, **khalaqtani** wa ana 'abduk",en:"O Allah, You are my Lord, none has the right to be worshipped but You, **You created me** and I am Your servant",src:"Sahih al-Bukhari, via Shaddad ibn Aws"}},
-{n:12,tr:"Al-Bari'",ar:"الْبَارِئ",meaning:"The Evolver, Maker of Order",cat:"creation",
+{n:12,tr:"Al-Bari'",ar:"الْبَارِئ",meaning:"The Maker, the Originator of Forms",cat:"creation",
  reflect:"Trust His design in how your circumstances are unfolding.",dua:null},
 {n:13,tr:"Al-Musawwir",ar:"الْمُصَوِّر",meaning:"The Fashioner",cat:"creation",
  reflect:"Call when asking Him to shape a good outcome for you.",dua:null},
@@ -2053,7 +2053,7 @@ const SEARCH_NAME_WORDS = {
   jabbar: 'mender restorer compeller repair mend heal^2 comfort broken fix restore healing^2',
   mutakabbir: 'supreme greatness pride arrogance grandeur majestic dignity',
   khaliq: 'creator create creation maker made originate design',
-  bari: 'maker evolver creator create design order balance harmony life',
+  bari: 'maker originator creator create design form forms order balance harmony life',
   musawwir: 'fashioner shaper shape form image appearance design',
   ghaffar: 'forgive forgiving forgiveness forgiver sin sins pardon repeated  habitual covering^2',
   qahhar: 'subduer dominant overpowering victorious conqueror overwhelming subdue defeat',
@@ -3067,13 +3067,13 @@ const SUGGEST = {
     names:[['Al-Hamid', 'accept my day and make me thankful'], ['Al-Quddus', 'purify my heart and what I did today'], ['Al-Hafiz', 'protect me and my family until night'], ['As-Salam', 'grant me peace for the rest of the day'], ['Al-Latif', 'be gentle with me and ease what I am facing']], dua:null},
   maghrib: {label:'Maghrib \u00B7 evening', themes:['The good of the night', 'Protection', 'Forgiveness'],
     names:[['Al-Malik', 'make the coming night good for me'], ['Al-Hafiz', 'protect me and my family tonight'], ['Al-Muhaymin', 'watch over me and my family tonight'], ['Al-Ghafur', 'forgive me for what I did today'], ['Al-Hamid', 'accept my day and make me thankful']],
-    dua:{tr:"Allahumma bika amsayna, wa bika asbahna, wa bika nahya, wa bika namutu, wa ilaykal-masir", en:'O Allah, by You we have reached the evening, by You we reach the morning, by You we live, by You we die, and to You is the final return.', src:'Tirmidhi 3391'}},
+    dua:{tr:"Allahumma bika amsayna, wa bika asbahna, wa bika nahya, wa bika namutu, wa ilaykan-nushur", en:'O Allah, by You we have reached the evening, by You we reach the morning, by You we live, by You we die, and to You is the Resurrection.', src:'Tirmidhi 3391'}},
   isha: {label:'Isha \u00B7 night', themes:['Entrusting yourself to Allah', 'Protection', 'Sleep'],
     names:[['Al-Wakil', 'be enough for me and take care of my affairs'], ['Al-Hafiz', 'protect me while I sleep'], ['Al-Muhaymin', 'watch over me and my family tonight'], ['Al-Qayyum', 'take care of all my affairs'], ['As-Salam', 'grant me a peaceful, restful sleep']],
     dua:{tr:'Bismika Allahumma amutu wa ahya', en:'In Your name, O Allah, I die and I live.', src:'Bukhari 6324'}},
   last3: {label:'Last third of the night', themes:['Forgiveness', 'Any need'],
     names:[['Al-Ghafur', 'forgive my sins'], ['Al-Ghaffar', 'forgive me again and again'], ['At-Tawwab', 'accept my repentance'], ['Al-\u2018Afuww', 'pardon me and erase my mistakes'], ['Al-Mujib', 'answer my dua']],
-    dua:{tr:"Allahumma anta Rabbi la ilaha illa ant, khalaqtani wa ana \u2018abduk, wa ana \u2018ala \u2018ahdika wa wa\u2018dika mastata\u2018t, a\u2018udhu bika min sharri ma sana\u2018t, abu\u2019u laka bini\u2018matika \u2018alayya, wa abu\u2019u bidhanbi faghfir li, fa innahu la yaghfirudh-dhunuba illa ant", en:'O Allah, You are my Lord; there is no god but You. You created me and I am Your servant, and I keep Your covenant and promise as best I can. I seek refuge in You from the evil I have done. I acknowledge Your favor upon me and I acknowledge my sin, so forgive me, for none forgives sins but You.', src:'Bukhari 6306 \u00B7 Sayyid al-Istighfar'}}
+    dua:{tr:"Allahumma anta Rabbi la ilaha illa ant, khalaqtani wa ana \u2018abduk, wa ana \u2018ala \u2018ahdika wa wa\u2018dika mastata\u2018t, a\u2018udhu bika min sharri ma sana\u2018t, abu\u2019u laka bini\u2018matika \u2018alayya, wa abu\u2019u laka bidhanbi faghfir li, fa innahu la yaghfirudh-dhunuba illa ant", en:'O Allah, You are my Lord; there is no god but You. You created me and I am Your servant, and I keep Your covenant and promise as best I can. I seek refuge in You from the evil I have done. I acknowledge Your favor upon me and I acknowledge my sin, so forgive me, for none forgives sins but You.', src:'Bukhari 6306 \u00B7 Sayyid al-Istighfar'}}
 };
 function sugAddName(trName, memo){
   const n = nameNum(trName); if (!n) return;
