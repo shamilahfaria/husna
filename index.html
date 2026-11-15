@@ -3463,6 +3463,109 @@ function buildSuggested(prayerKey){
   return box;
 }
 
+/* ---------- People: who she makes dua for, derived from her duas (nothing extra is stored) ---------- */
+const REL_SLANG = /\b(?:ammi|ummi|mama|mommy|papa|daddy|abu|abba|nani|dadi|nana|sis|bro|hubby|\w+inlaws?)\b/i;   // forms OTHER_PERSON does not cover
+const REL_SKIP = new Set(['family', 'cat', 'dog', 'pet']);
+const REL_MERGE = {child:'children', colleague:'coworker'};
+/* family words that stand for one person without "my" ("healing for mom"); the rest need my/our in front */
+const REL_FREE = new Set('sis bro hubby nani dadi mom mum mama mommy ammi ummi mother dad father papa daddy grandma grandmother grandpa grandfather brother sister son daughter husband wife aunt uncle parents'.split(' '));
+const REL_ADJ = new Set('dear close best beloved little big older younger elder eldest oldest youngest late old new only twin sick poor lovely precious'.split(' '));
+const REL_DET = new Set('his her their your its the a an this that whose any every each some another'.split(' '));
+const REL_SELF = new Set('a an the be being become becoming as like such'.split(' '));
+const NAME_VERBS = new Set('for heal cure help protect guide forgive bless about upon comfort ease'.split(' '));
+const NOT_PERSON = /^(Palestine|Gaza|Syria|Sudan|Yemen|Ummah|Ummat|Afghanistan|Iraq|Kashmir|Lebanon|Morocco|Algeria|Libya|Iran|Saudi|Arabia|Muslimeen|Muslimin|Believers|Rohingya|Uyghurs?|Satan|Shaytan|Iblis|Dajjal)$/i;
+const THEME_SHORT = {deceased:'mercy', health:'health', emotion:'calm', anger:'a soft heart', habit:'leaving a habit', forgiveness:'forgiveness', debt:'debt relief', job:'a good job', provision:'provision', study:'studies', knowledge:'knowledge', children:'children', marriage:'marriage', relationship:'a mended bond', patience:'patience', protection:'protection', faith:'faith', guidance:'guidance', home:'a home', virtue:'good character'};
+function nameKey(w){
+  return String(w).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/'(?:s)?$/, '').replace(/[^a-z-]/g, '').replace(/(.)\1+/g, '$1').replace(/h$/, '');
+}
+function peopleTokens(text){
+  const s = String(text).replace(/[\u2018\u2019]/g, "'").replace(/\b(mother|father|brother|sister)[- ]in[- ]law\b/gi, '$1inlaw').replace(/\bin[- ]laws?\b/gi, 'inlaws').replace(/\bco-worker/gi, 'coworker');
+  const out = [], re = /[A-Za-z]+(?:'[A-Za-z]*)?(?:-[A-Za-z]+)*/g; let m;
+  while ((m = re.exec(s))) { const lo = m[0].toLowerCase(), poss = /'/.test(lo); out.push({w:m[0], lo:lo, base:lo.replace(/'(?:s)?$/, ''), poss:poss}); }
+  return {s:s, toks:out};
+}
+/* [PersonRef] for the people a memo is about. Pure: no DOM, no stored data. */
+function peopleIn(text){
+  const out = [], T = peopleTokens(text), toks = T.toks;
+  const add = p => { if (!out.some(x => x.key === p.key)) out.push(p); else if (p.via) { const o = out.find(x => x.key === p.key); if (!o.via) o.via = p.via; } };
+  const nameOk = t => {
+    if (!t || t.base.length < 3 || t.base.length > 20 || /['.]/.test(t.base)) return false;
+    if (LEAD_STOP.has(t.base) || NOT_NAMES.test(t.w) || NOT_PERSON.test(t.base)) return false;
+    return /^[A-Z]/.test(t.w) || !!leadGender(t.base);
+  };
+  const addName = (t, via) => add({key:'n:' + nameKey(t.base), kind:'name', label:LEAD_CAP(t.base), via:via || ''});
+  const claimed = new Set();
+  const ls = leadSubject(T.s);
+  if (ls) ls.subject.split(' and ').forEach(n => { const t = peopleTokens(n).toks[0]; if (t) addName(t, ''); });
+  toks.forEach((t, k) => {
+    const canon = PEOPLE[t.base];
+    if (canon && !REL_SKIP.has(canon) && nameOk(toks[k + 1])) {                       // "my friend Sarah"
+      const a = toks[k - 1], b = toks[k - 2];
+      if ((a && /^(my|our)$/.test(a.lo)) || (a && b && /^(my|our)$/.test(b.lo) && REL_ADJ.has(a.lo))) { addName(toks[k + 1], REL_MERGE[canon] || canon); claimed.add(k); claimed.add(k + 1); }
+    }
+    if (NAME_VERBS.has(t.lo) && nameOk(toks[k + 1]) && !PEOPLE[toks[k + 1].base]) {   // "heal Sarah", "for Sarah and Omar"
+      let j = k + 1; addName(toks[j], '');
+      while (toks[j + 1] && /^(and|&)$/.test(toks[j + 1].lo) && nameOk(toks[j + 2])) { addName(toks[j + 2], ''); j += 2; }
+    }
+  });
+  if (OTHER_PERSON.test(T.s) || REL_SLANG.test(T.s)) toks.forEach((t, k) => {
+    if (claimed.has(k)) return;
+    const canon0 = PEOPLE[t.base]; if (!canon0 || REL_SKIP.has(canon0)) return;
+    const canon = REL_MERGE[canon0] || canon0, a = toks[k - 1], b = toks[k - 2];
+    const mine = (a && /^(my|our)$/.test(a.lo)) || (a && b && /^(my|our)$/.test(b.lo) && REL_ADJ.has(a.lo));
+    if (!mine) {
+      if (!REL_FREE.has(t.base)) return;
+      if (a && (REL_DET.has(a.lo) || a.poss)) return;                                  // his mom, Sarah's mom, the mother of ...
+      if (b && REL_SELF.has(b.lo)) return;                                             // be a good mother
+    }
+    add({key:'r:' + canon, kind:'rel', label:'your ' + canon, via:''});
+  });
+  return out;
+}
+const PEOPLE_CACHE = new Map();
+function duaPeople(d){
+  const src = (d.memo || curText(d) || '');
+  let r = PEOPLE_CACHE.get(src);
+  if (!r) { r = peopleIn(src); if (PEOPLE_CACHE.size > 800) PEOPLE_CACHE.clear(); PEOPLE_CACHE.set(src, r); }
+  return r;
+}
+function themeShort(d){
+  const k = themeKey(d); if (!k) return '';
+  if (THEME_SHORT[k]) return THEME_SHORT[k];
+  const dom = DOMAINS.find(x => x.k === k); return dom ? dom.label.split(' & ')[0].toLowerCase() : '';
+}
+/* every person with at least one live or answered dua, best first */
+function peopleIndex(now){
+  const t0 = now || Date.now(), occ = new Map();
+  data.occ.forEach(o => {
+    let r = occ.get(o.duaId); if (!r) occ.set(o.duaId, r = {count:0, first:o.at, last:o.at, recent:0, week:false});
+    r.count++; if (o.at < r.first) r.first = o.at; if (o.at > r.last) r.last = o.at;
+    const age = t0 - Date.parse(o.at); if (age <= 30 * MS_DAY) r.recent++; if (age <= 7 * MS_DAY) r.week = true;
+  });
+  const map = new Map();
+  data.duas.forEach(d => {
+    if (!(isLive(d) || d.status === 'answered')) return;
+    const ppl = duaPeople(d); if (!ppl.length) return;
+    const r = occ.get(d.id) || {count:0, first:d.created, last:d.created, recent:0, week:false};
+    const item = {d:d, count:r.count, first:r.first < d.created ? r.first : d.created, last:r.last > d.created ? r.last : d.created, theme:themeShort(d), recent:r.recent, week:r.week};
+    ppl.forEach(p => {
+      let e = map.get(p.key);
+      if (!e) map.set(p.key, e = {key:p.key, kind:p.kind, label:p.label, rels:new Set(), duas:[], live:[], answered:[], first:item.first, last:item.last, count:0, score:0});
+      if (p.via) e.rels.add(p.via);
+      e.duas.push(item); (d.status === 'answered' ? e.answered : e.live).push(item);
+      if (item.first < e.first) e.first = item.first; if (item.last > e.last) e.last = item.last;
+      e.count += item.count; e.score += item.recent * 2 + item.count + (item.week ? 3 : 0);
+    });
+  });
+  const list = Array.from(map.values());
+  list.forEach(e => {
+    const byUse = (a, b) => (b.last.localeCompare(a.last)) || (b.count - a.count);
+    e.duas.sort(byUse); e.live.sort(byUse); e.answered.sort(byUse);
+    const seen = new Set(); e.themes = e.live.concat(e.answered).map(i => i.theme).filter(x => x && !seen.has(x) && seen.add(x));
+  });
+  return list.sort((a, b) => (b.score - a.score) || b.last.localeCompare(a.last) || a.label.localeCompare(b.label));
+}
+
 /* ---------- Backup & restore sheet ---------- */
 function backupJson(){ return JSON.stringify({app:'asma-al-husna-dua-log', version:1, schema:2, exported:new Date().toISOString(), logs:data.logs, favDuas:data.favDuas, duas:data.duas, occ:data.occ, notes:data.notes, themes:getThemes()}, null, 2); }
 function downloadText(name, text, type){
