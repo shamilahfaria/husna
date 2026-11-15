@@ -1421,13 +1421,14 @@ function personIn(m, orig){
 }
 function pron(p){ if (!p) return {obj:'me', pos:'my'}; const k = p.replace(/^my /, ''); if (/^(cat|dog|pet)$/.test(k)) return {obj:'it', pos:'its'}; if (FEM.has(k)) return {obj:'her', pos:'her'}; if (MASC.has(k)) return {obj:'him', pos:'his'}; return {obj:'them', pos:'their'}; }
 const TYPO = [[/\bakirah|akhira\b|aakhirah|akhirat\b/gi,'akhirah'],[/\bbarak(a|at|ah)\b|\bbarkat\b/gi,'barakah'],[/\bumma\b/gi,'ummah'],[/\bdunia\b/gi,'dunya'],[/\bdeen\b|\bdin\b/gi,'deen'],[/\bimaan\b/gi,'iman'],
-  [/\bbring my closer\b/gi,'bring me closer'],[/\bkids\b/gi,'children'],[/\bmom\b|\bmum\b/gi,'mother'],[/\bdad\b/gi,'father'],[/\bmake my trials\b/gi,'make my trials'],[/\bive\b/gi,"I've"],[/\bim\b/gi,"I'm"],[/\bdont\b/gi,"don't"],[/\bcant\b/gi,"can't"],[/\bu\b/g,'you'],[/\bur\b/g,'your'],[/\balot\b/gi,'a lot'],[/\bthru\b/gi,'through']];
+  [/\bbring my closer\b/gi,'bring me closer'],[/\bkids\b/gi,'children'],[/\bmom\b|\bmum\b/gi,'mother'],[/\bdad\b/gi,'father'],[/\bmake my trials\b/gi,'make my trials'],[/\bive\b/gi,"I've"],[/\bim\b/gi,"I'm"],[/\bdont\b/gi,"don't"],[/\bcant\b/gi,"can't"],[/\bu\b/g,'you'],[/\bur\b/g,'your'],[/\balot\b/gi,'a lot'],[/\bthru\b/gi,'through'],
+  [/\b(gratful|gratefull|greatful|grateul|gratefl)\b/gi,'grateful'],[/\b(thankfull|thnkful|thankfl)\b/gi,'thankful'],[/\bfam\b/gi,'family'],[/\b(thx|thnx|tnx)\b/gi,'thanks'],[/\b(tmrw|tomorow)\b/gi,'tomorrow']];
 const OTHER_PERSON = /\b(mom|mum|mother|dad|father|brother|sister|son|daughter|husband|wife|friend|boss|coworker|co-worker|colleague|manager|teacher|uncle|aunt|cousin|neighbou?r|grandma|grandpa|grandmother|grandfather|baby|child|children|kid|kids|family|parents?|in-?laws?|partner|spouse|classmate|roommate|student|patient|mentor|he's my|my (?:ex|fiance|fianc\u00e9))\b/i;
 const CLAUSE_VERB = /^(open|respond|answer|hear|make|forgive|pardon|accept|grant|give|help|guide|protect|heal|cure|bless|let|keep|increase|remove|ease|bring|permeate|put|fill|purify|raise|provide|show|teach|strengthen|soften|free|lift|relieve|settle|mend|restore|unite|reunite|save|shield|cover|turn|write|choose|allow|send|return|enable|count|clear|calm|replace|take|unlock|expand|widen|honou?r|preserve|draw|guard|steady|correct|fix|inspire|reward|have|be|use)\b/i;
 function tidy(m){
   let t = ' ' + m + ' ';
   TYPO.forEach(([re, to]) => { t = t.replace(re, to); });
-  t = t.replace(/\b(pls|plz|kindly|inshallah|in sha allah|insha'?allah)\b/gi, ' ').replace(/\bplease\b(?!\s+(allah|you|him|god)\b)/gi, ' ');
+  t = t.replace(/\bin\s*sha+'?\s*a?llah\b/gi, ' ').replace(/\b(pls|plz|kindly)\b/gi, ' ').replace(/\bplease\b(?!\s+(allah|you|him|god)\b)/gi, ' ');
   t = t.replace(/^\s*(ya|o) allah\b,?/i, ' ');
   // Allah in third person -> You (we are speaking to Him)
   t = t.replace(/\b(to please|pleasing|for the sake of|for|from|to|with|by|of|near|closer to) allah\b/gi, (x, p) => p + ' You').replace(/\ballah's\b/gi, 'Your').replace(/\ballah\b/gi, 'You');
@@ -1500,7 +1501,7 @@ const DOMAINS = [
       'heal ' + c.obj + ' with a healing that leaves no illness behind, and grant ' + c.obj + ' strength',
       'cure ' + c.obj + ', ease ' + c.pos + ' pain, and restore ' + c.obj + ' to full health'], s, 1); }},
   {k:'emotion', label:'Calm & relief', re:/\b(anxiety|anxious|stress(ed)?|worry|worries|worried|fear|fears|scared|afraid|depress\w+|sadness|sad|grief|grieving|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|hopeless\w*|nervous\w*)\b/, build:(c, s) => {
-    const m = c.lo.match(/\b(anxiety|anxious|stress|worry|worries|worried|fear|scared|afraid|depress\w+|sadness|sad|grief|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|hopeless\w*|nervous\w*)\b/); const w = (m && m[1]) || 'worry';
+    const m = c.lo.match(/\b(anxiety|anxious|stress(?:ed)?|worry|worries|worried|fear|scared|afraid|depress\w+|sadness|sad|grief|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|hopeless\w*|nervous\w*)\b/); const w = (m && m[1]) || 'worry';
     const noun = /anx/.test(w) ? 'anxiety' : /stress/.test(w) ? 'stress' : /worr/.test(w) ? 'worry' : /fear|scar|afraid/.test(w) ? 'fear' : /depress|sad/.test(w) ? 'sadness' : /grie/.test(w) ? 'grief' : /lonel/.test(w) ? 'loneliness' : /overthink/.test(w) ? 'overthinking' : /panic/.test(w) ? 'panic' : /overwhelm/.test(w) ? 'feeling overwhelmed' : /hopeless/.test(w) ? 'hopelessness' : /heartbr/.test(w) ? 'heartache' : 'worry';
     const topic = (c.lo.match(/\b(?:about|over|of|with|because of|regarding)\s+(.+)$/) || [])[1];
     return pickOf([
@@ -1570,7 +1571,39 @@ function pickDomain(lo){
   }
   return null;
 }
-function domainOf(text){ return pickDomain(tidy(text).toLowerCase()); }
+/* Well-known duas typed in Arabic letters or transliteration are kept, with their meaning, instead of being rewritten */
+const KNOWN_DUAS = [
+  {re:/\brabbi zidni (?:i|a)?lma\b/, tr:'Rabbi zidni \u2018ilma', en:'my Lord, increase me in knowledge', k:'knowledge'},
+  {re:/\bas ?aluka(?: ?al)? ?afiyah\b/, tr:'Allahumma inni as\u2019aluka al-\u2018afiyah', en:'O Allah, I ask You for well-being', k:'health'},
+  {re:/\bas ?alukal ?afwa wal ?afiyah\b/, tr:'Allahumma inni as\u2019alukal-\u2018afwa wal-\u2018afiyah', en:'O Allah, I ask You for pardon and well-being', k:'health'},
+  {re:/\brabbana atina fi ?d ?dunya hasanah\b/, tr:'Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina \u2018adhaban-nar', en:'our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire', k:'faith'},
+  {re:/\bhasbunallahu? wa ni ?mal wakeel\b/, tr:'Hasbunallahu wa ni\u2018mal-wakil', en:'Allah is enough for us, and the best disposer of affairs', k:'emotion'},
+  {re:/\bla hawla wa la quwwata illa billah\b/, tr:'La hawla wa la quwwata illa billah', en:'there is no power and no strength except with Allah', k:'patience'},
+  {re:/\brabbi ishrah li sadri\b/, tr:'Rabbi ishrah li sadri wa yassir li amri', en:'my Lord, expand my chest for me and ease my task for me', k:'emotion'},
+  {re:/\b(?:rabbi|rabbighfir|allahumma) ?i?ghfir li\b/, tr:'Rabbighfir li', en:'my Lord, forgive me', k:'forgiveness'},
+  {re:/\bastaghfirullah\b/, tr:'Astaghfirullah', en:'I ask Allah for forgiveness', k:'forgiveness'},
+  {re:/\bya muqallib(?:al| al)? ?qulub thabbit qalbi ala dinik\b/, tr:'Ya muqallibal-qulub, thabbit qalbi \u2018ala dinik', en:'O Turner of hearts, keep my heart firm on Your religion', k:'faith'},
+  {re:/\brabbi inni lima anzalta ilayya min khayrin faqir\b/, tr:'Rabbi inni lima anzalta ilayya min khayrin faqir', en:'my Lord, I am in need of whatever good You send down to me', k:'provision'},
+  {re:/\ballahumma inni a ?udhu bika minal ?hammi wal ?hazan\b/, tr:'Allahumma inni a\u2018udhu bika minal-hammi wal-hazan', en:'O Allah, I seek refuge in You from worry and grief', k:'emotion'}
+];
+const ARABIC_KEYS = [[/غفر|توب/, 'forgiveness'], [/شف|عافي/, 'health'], [/رزق/, 'provision'], [/هد[ىي]|اهد/, 'guidance'], [/علم/, 'knowledge'], [/صبر/, 'patience'], [/حفظ|احفظ|احم/, 'protection'], [/فرج|همي|حزن|كرب|قلبي/, 'emotion'], [/ذري|ولد/, 'children'], [/زوج/, 'marriage'], [/ثبت|ايمان|إيمان/, 'faith']];
+function isArabicOnly(raw){ return !/[a-z]/i.test(raw) && /[\u0600-\u06FF]/.test(raw); }
+function knownDua(raw){
+  const flat = raw.toLowerCase().replace(/['\u2019\u2018`\-]/g, '').replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  for (const e of KNOWN_DUAS) {
+    const m = flat.match(e.re); if (!m) continue;
+    if (!flat.replace(m[0], ' ').replace(/\b(ya|oh?|allah|allahumma|ameen|amin|aameen|dua|please|my|dear|lord|inni|inna|ana)\b/g, ' ').trim()) return e;
+  }
+  return null;
+}
+function inherentKey(text){
+  if (isArabicOnly(text)) { const a = ARABIC_KEYS.find(x => x[0].test(text)); return a ? a[1] : ''; }
+  const k = knownDua(text); return k ? k.k : '';
+}
+function domainOf(text){
+  const key = inherentKey(text);
+  return (key && DOMAINS.find(d => d.k === key)) || pickDomain(tidy(text).toLowerCase());
+}
 function nounRequest(np, seed, seen){
   np = np.replace(/^(a|an|some|more of|the)\s+/i, (m) => /^(more of)/i.test(m) ? m : '').trim() || np;
   const lo = np.toLowerCase();
@@ -1615,11 +1648,35 @@ function splitMemo(t){
     const parts = c.split(/\s+(?=(?:he|she|they) (?:has|is|have|are|was|had|got)\b)|\s+(?=(?:because|since|cuz) )|\s+(?:and also|and|also|plus|&)\s+(?=(?:i (?:want|need|wanna|would|wish|hope|am|feel)|help|make|let|grant|give|forgive|guide|protect|heal|cure|bless|keep|open|bring|ease|increase|remove|accept|please|that|you)\b)/i);
     parts.forEach(p => out2.push(p.trim()));
   });
-  return out2.filter(Boolean);
+  // "...tired and stressed and i have a deadline and my dad is in the hospital": each statement is its own clause
+  const NEW_CLAUSE = /\s+(?:and also|and|also|plus|&)\s+(?=(?:(?:i|we) (?:have|had|got|keep|can't|cannot|don't|just|passed|failed|lost)|(?:my|our|the) [a-z-]+(?: [a-z]+)? (?:is|are|has|have|was|had|needs?|got)|(?:he|she|they|it) (?:is|has|are|was|needs?))\b)/i;
+  const SELF_STATEMENT = /\b(?:i|im|i'm|we|am|is|are|was|were|feel|feeling|have|has|had|need|needs|want|wants|keep|got)\b/i;
+  const out3 = [];
+  out2.forEach(c => {
+    let rest = c;
+    for (;;) {
+      const m = rest.match(NEW_CLAUSE);
+      if (!m || !SELF_STATEMENT.test(rest.slice(0, m.index))) break;
+      out3.push(rest.slice(0, m.index)); rest = rest.slice(m.index + m[0].length);
+    }
+    const why = rest.match(/^((?:why|how come) .+?)\s+((?:make|help|let|grant|give|ease|forgive)\b.*)$/i);
+    if (why) { out3.push(why[1]); out3.push(why[2]); return; }
+    const imp = rest.match(/^((?:forgive|help|guide|protect|grant|give|heal|cure|bless|keep|make|let|ease|accept|have mercy on) (?:me|us)(?: please)?)\s+(i (?:keep|always|constantly|can't|cannot|don't|never|have|had|am|was|feel|failed|lost)\b.*)$/i);
+    if (imp) { out3.push(imp[1]); out3.push(imp[2]); } else out3.push(rest);
+  });
+  return out3.map(x => x.trim()).filter(Boolean);
 }
 const FEELINGS = /^(?:i am|i'm|im|i feel|i'?ve been feeling|i have been feeling|i keep feeling|feeling|i get|i was)\s+(?:so |very |really |too |extremely |just |a bit |a little |kinda )*(.+)$/;
-/* one clause -> {t:'req'|'stmt'|'thanks', s} */
+const FEEL_KEYS = ['emotion', 'anger', 'forgiveness', 'guidance'];
+/* one clause -> {t:'req'|'stmt'|'thanks', s}; a trailing "alhamdulillah" is kept as praise */
 function clauseToRequest(c, seed, first, st){
+  const praised = /[,\s]+al ?hamd\w*\W*$/i.test(c) && /\S\s+al ?hamd\w*\W*$/i.test(c);
+  const r = clauseCore(praised ? c.replace(/[,\s]+al ?hamd\w*\W*$/i, '') : c, seed, first, st);
+  if (!praised) return r;
+  const arr = [].concat(r || []);
+  return arr.some(x => x && x.t === 'thanks') ? arr : [{t:'thanks', s:'all praise is Yours'}].concat(arr);
+}
+function clauseCore(c, seed, first, st){
   st = st || {};
   c = c.trim().replace(/^(and|also|plus|&|so|but)\s+/i, '').replace(/\s+/g, ' ');
   if (!c) return null;
@@ -1643,7 +1700,14 @@ function clauseToRequest(c, seed, first, st){
   }
   // statements about Allah
   if (/^you (are|know|have|see|hear|alone|can|created|gave|made|love|forgive|answer|decree)\b/i.test(c)) return {t:'stmt', s: ucFirst(c)};
-  // negative wishes
+  // success already given: thanks, not a request
+  if ((m = cm(/^(i|we) ((?:passed|won|graduated|finished|completed|received|was accepted|got (?:accepted|hired|promoted|into|married|engaged|the|my|a|an)\b).*)$/))) return {t:'thanks', s:'all praise is Yours that ' + (m[1].toLowerCase() === 'i' ? 'I' : 'we') + ' ' + m[2]};
+  // "why is everything so hard" is how it feels, not something to ask for
+  if ((m = cm(/^(?:why|how come) (is|are|was|were) (\w+) (.+)$/))) return {t:'ctx', s: m[2].toLowerCase() + ' ' + m[1].toLowerCase() + ' ' + m[3], then:'make this easy for me and bring good out of it'};
+  if ((m = cm(/^make (it|this|things|everything|that) (easy|easier|simple|simpler|better|lighter)$/))) return {t:'req', s:'make ' + m[1].toLowerCase() + ' ' + m[2].toLowerCase() + ' for me'};
+  // negative wishes become positive requests
+  if ((m = cm(/^(?:please )?(?:don't|do not|dont) let me (give up|fail|\w+)(?: (.+))?$/))) return {t:'req', s: /^fail$/i.test(m[1]) ? 'grant me success and keep me from failing' + (m[2] ? ' ' + m[2] : '') : /^give up$/i.test(m[1]) ? 'keep me steadfast and never let me give up' : 'keep me from ' + gerund(m[1].toLowerCase()) + (m[2] ? ' ' + m[2] : '')};
+  if ((m = cm(/^i keep ((?:\w+)ing\b.*)$/)) && !pickDomain(lo)) return {t:'req', s:'help me stop ' + m[1]};
   if ((m = cm(/^(?:i )?(?:don't|do not|dont|never) want to (\w+)(?: (.+))?$/))) return {t:'req', s:'keep me from ' + gerund(m[1]) + (m[2] ? ' ' + m[2] : '')};
   if ((m = cm(/^(?:help me |let me )?(?:not|never) (?:to )?(\w+)(?: (.+))?$/))) return {t:'req', s:'help me not to ' + m[1] + (m[2] ? ' ' + m[2] : '')};
   // I can't stop X / I can't X
@@ -1662,12 +1726,13 @@ function clauseToRequest(c, seed, first, st){
     return {t:'req', s:'help me ' + vp};
   }
   // feelings
-  if ((m = cm(FEELINGS)) && (DOMAINS.some(d => (d.k === 'emotion' || d.k === 'anger' || d.k === 'forgiveness' || d.k === 'guidance') && d.re.test(m[1].toLowerCase())) || /\b(tired|exhausted|burn(ed|t)? ?out|drained|stuck|lost|jealous|unmotivated|weak)\b/.test(m[1]))) {
-    const f = m[1];
-    if (/\b(tired|exhausted|burn(ed|t)? ?out|drained|weak|unmotivated)\b/.test(f)) return {t:'req', s:'grant me strength, rest, and renewed energy, and help me carry what is in front of me'};
-    if (/\bjealous\b/.test(f)) return {t:'req', s:'cleanse my heart of envy and make me content with what You have given me'};
-    const d = DOMAINS.find(x => x.re.test(f)); const sj = subj(null);
-    return {t:'req', s: d.build({lo:f, self:true, obj:'me', pos:'my', name:'me'}, seed)};
+  if ((m = cm(FEELINGS)) && (DOMAINS.some(d => FEEL_KEYS.includes(d.k) && d.re.test(m[1].toLowerCase())) || /\b(tired|exhausted|burn(ed|t)? ?out|drained|stuck|lost|jealous|unmotivated|weak)\b/.test(m[1]))) {
+    const f = m[1], asks = [];
+    if (/\b(tired|exhausted|burn(ed|t)? ?out|drained|weak|unmotivated)\b/.test(f)) asks.push({t:'req', s:'grant me strength, rest, and renewed energy, and help me carry what is in front of me'});
+    if (/\bjealous\b/.test(f)) asks.push({t:'req', s:'cleanse my heart of envy and make me content with what You have given me'});
+    const d = DOMAINS.find(x => FEEL_KEYS.includes(x.k) && x.re.test(f));
+    if (d) asks.push({t:'req', s: d.build({lo:f, self:true, obj:'me', pos:'my', name:'me'}, seed)});
+    return asks;
   }
   // struggling with X
   if ((m = cm(/^(?:i am|i'm|im|i have been|i've been)? ?struggl(?:e|ing) with (.+)$/))) return {t:'req', s:'ease my struggle with ' + m[1] + ' and make a way out for me'};
@@ -1689,6 +1754,9 @@ function clauseToRequest(c, seed, first, st){
     if (DOMAINS.some(d => d.re.test(lo))) return nounRequests(c, seed).map(x => ({t:'req', s:x}));
     return {t:'ctx', s:c, then:'ease this for me and bring good out of it'};
   }
+  // a statement about my situation: say it to Allah and ask for ease
+  if ((m = cm(/^(?:i|we) (?:have|had|got) (?:a |an |my |the )?(?:huge |big |tough |hard |difficult )?(deadline|exam|test|interview|presentation|meeting|surgery|appointment)\b/))) return {t:'req', s:'make my ' + m[1].toLowerCase() + ' easy for me'};
+  if (/^(?:i|we) (?:have|had|got)\b/i.test(c) && !CLAUSE_VERB.test(c)) return {t:'ctx', s:c, then:'make this easy for me and bring good out of it'};
   // imperative to Allah already
   if (/^help$/i.test(c)) return {t:'req', s:'help me, and make my affairs easy'};
   if ((CLAUSE_VERB.test(c) && !/^(be|use|have|let me)\b/i.test(c)) || /^(watch over|be (enough|my|with|merciful|gentle|kind|pleased)|take care|look after|cleanse|pardon|erase)\b/i.test(c)) return {t:'req', s: lcFirst(c.replace(/^give\b/i, 'grant'))};
@@ -1701,7 +1769,9 @@ function hasFrame(raw){
   const t = raw.trim();
   return /^(ya|yaa|oh?|ey)\s+(allah|rabb|rabbi|rab|ar-?|al-?|as-?|ash-?|an-?|at-?|ad-?|adh-?)/i.test(t) || /^(allahumma|allahuma|rabbi|rabbana|rabbanaa|my lord|dear allah|oh? my (lord|god))\b/i.test(t) || /\b(ameen|amin|aameen)\W*$/i.test(t);
 }
+const RUN_ON = /\b(?:me|us)\s+(?:i|we)\s+(?:keep|always|constantly|can't|cannot|don't|never|have|had|am|was|feel|failed|lost)\b/i;   // "forgive me i keep messing up": two thoughts, no punctuation
 function alreadyDua(raw){
+  if (RUN_ON.test(raw)) return false;
   const rem = stripDuaFrame(raw);
   return (hasFrame(raw) && (CLAUSE_VERB.test(rem) || /^(you|your|i seek|i ask|i beg|i have|forgive|grant)\b/i.test(rem))) || /^(you|allah)\b/i.test(rem) && wcount(rem) > 6;
 }
@@ -1735,7 +1805,10 @@ function composeDua(n, memo, ctx){
   const raw = (memo || '').replace(/[\u2019`]/g, "'").replace(/\s+/g, ' ').trim();
   const seed = hashStr(n + '|' + raw.toLowerCase()) + (ctx.variant || 0) * 31 + (ctx.salt || 0);
   const AMEEN = ' Ameen.';
+  if (isArabicOnly(raw)) return {text: voc + ' (' + ar + '): ' + raw.replace(/\s*(?:\u0622\u0645\u064a\u0646|\u0627\u0645\u064a\u0646)\s*$/, '') + '.' + AMEEN, generic: false};
   if (!/[a-z]/i.test(raw)) return {text: voc + ' (' + ar + '), ' + g[3] + AMEEN, generic: true};
+  const kd = knownDua(raw);
+  if (kd) return {text: voc + ' (' + ar + '), \u201C' + kd.tr + '\u201D: ' + kd.en + '.' + AMEEN, generic: false};
   // safety: never turn a memo into a dua for harm; reframe
   const lo0 = raw.toLowerCase();
   const harm = HARMWISH.test(lo0) || HOPEHARM.test(lo0) || (AGAINST.test(lo0) && /\b(my|the|this|that|a|someone|people|they|he|she)\b/.test(lo0) && !/\bhelp me (not|stop|avoid)\b/.test(lo0));
@@ -1752,9 +1825,10 @@ function composeDua(n, memo, ctx){
     if (!parts.length) return {text: voc + ' (' + ar + '), ' + g[3] + AMEEN, generic: true};
     const stmts = parts.filter(p => p.t === 'stmt' || p.t === 'thanks'), ctxs = parts.filter(p => p.t === 'ctx'), reqs = parts.filter(p => p.t === 'req').map(p => p.s);
     ctxs.forEach(p => { if (p.then && !reqs.length) reqs.push(p.then); });
+    const thanksOnly = !reqs.length && stmts.length > 0 && stmts.every(p => p.t === 'thanks');
     stmts.forEach(p => { if (p.then) reqs.push(p.then); if (p.t === 'thanks' && !reqs.length) reqs.push('keep me grateful and never let me take this blessing for granted'); });
-    // standing-theme tail (at most one), only when it fits
-    const probe = pickTail(raw, ctx);
+    // standing-theme tail (at most one), only when it fits; none after pure thanks
+    const probe = thanksOnly ? null : pickTail(t, ctx);
     if (probe) { if (wcount(reqs.join(' ')) + wcount(probe.text) <= 38) { if (probe.imp) reqs.push(probe.text); else reqs[reqs.length - 1] += ' ' + probe.text; } else ctx.used.delete(probe.key); }
     if (reqs.length === 1 && wcount(reqs[0]) <= 7) { const dd = domainOf(raw); if (dd && dd.k === 'study' && /^help me /.test(reqs[0])) reqs[0] += ', and grant me clarity, calm, and success'; else if (dd && dd.k === 'job' && /^help me /.test(reqs[0])) reqs[0] += ', and open the doors of halal provision for me'; }
     const lead = stmts.map(p => p.s);
