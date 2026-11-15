@@ -1500,9 +1500,9 @@ const DOMAINS = [
       'grant ' + c.obj + ' complete healing and lasting good health',
       'heal ' + c.obj + ' with a healing that leaves no illness behind, and grant ' + c.obj + ' strength',
       'cure ' + c.obj + ', ease ' + c.pos + ' pain, and restore ' + c.obj + ' to full health'], s, 1); }},
-  {k:'emotion', label:'Calm & relief', re:/\b(anxiety|anxious|stress(ed)?|worry|worries|worried|fear|fears|scared|afraid|depress\w+|sadness|sad|grief|grieving|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|hopeless\w*|nervous\w*)\b/, build:(c, s) => {
-    const m = c.lo.match(/\b(anxiety|anxious|stress(?:ed)?|worry|worries|worried|fear|scared|afraid|depress\w+|sadness|sad|grief|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|hopeless\w*|nervous\w*)\b/); const w = (m && m[1]) || 'worry';
-    const noun = /anx/.test(w) ? 'anxiety' : /stress/.test(w) ? 'stress' : /worr/.test(w) ? 'worry' : /fear|scar|afraid/.test(w) ? 'fear' : /depress|sad/.test(w) ? 'sadness' : /grie/.test(w) ? 'grief' : /lonel/.test(w) ? 'loneliness' : /overthink/.test(w) ? 'overthinking' : /panic/.test(w) ? 'panic' : /overwhelm/.test(w) ? 'feeling overwhelmed' : /hopeless/.test(w) ? 'hopelessness' : /heartbr/.test(w) ? 'heartache' : 'worry';
+  {k:'emotion', label:'Calm & relief', re:/\b(anxiety|anxious|stress(ed)?|worry|worries|worried|fear|fears|scared|afraid|depress\w+|sadness|sad|grief|grieving|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|heart (?:is |was )?broke\w*|hopeless\w*|nervous\w*)\b/, build:(c, s) => {
+    const m = c.lo.match(/\b(anxiety|anxious|stress(?:ed)?|worry|worries|worried|fear|scared|afraid|depress\w+|sadness|sad|grief|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|heart (?:is |was )?broke\w*|hopeless\w*|nervous\w*)\b/); const w = (m && m[1]) || 'worry';
+    const noun = /anx/.test(w) ? 'anxiety' : /stress/.test(w) ? 'stress' : /worr/.test(w) ? 'worry' : /fear|scar|afraid/.test(w) ? 'fear' : /depress|sad/.test(w) ? 'sadness' : /grie/.test(w) ? 'grief' : /lonel/.test(w) ? 'loneliness' : /overthink/.test(w) ? 'overthinking' : /panic/.test(w) ? 'panic' : /overwhelm/.test(w) ? 'feeling overwhelmed' : /hopeless/.test(w) ? 'hopelessness' : /heartbr|heart/.test(w) ? 'heartache' : 'worry';
     const topic = (c.lo.match(/\b(?:about|over|of|with|because of|regarding)\s+(.+)$/) || [])[1];
     return pickOf([
       'ease ' + c.pos + ' ' + noun + (topic ? ' about ' + topic : '') + ' and fill ' + c.pos + ' heart with calm and trust in You',
@@ -1614,7 +1614,7 @@ function nounRequest(np, seed, seen){
   const fin = (str) => { if (s.self || seen) return str; let k = 0; return str.replace(/\u0001([OP])/g, (x, w) => { const first = k++ === 0; return w === 'O' ? (first ? s.name : s.obj) : (first ? s.name + "'s" : s.pos); }); };
   const d = pickDomain(lo);
   const why = (lo.match(/\bso (?:that )?(?:i|we) can (.+)$/) || [])[1];
-  if (d) return fin(d.build(c, seed)) + (why && s.self ? ', so that I can ' + why : '');
+  if (d) { const built = fin(d.build(c, seed)); return why && s.self ? built.replace(/(, and [^,]*)?$/, (tail) => ', so that I can ' + why + tail) : built; }
   if (person) return 'grant ' + s.name + ' ease and goodness in ' + (lo.replace(/\bmy \w+('s|s')?\s*/, '').trim() || 'this matter') + ', and make it good for ' + s.obj;
   if (/\b(my|our|the|this|that)\b/.test(lo)) return pickOf(['make ' + np + ' easy for me, and grant me goodness in it', 'ease ' + np + ' for me, and let it end in good'], seed, 13);
   return pickOf(['grant me ' + withArticle(np), 'bless me with ' + withArticle(np)], seed, 14);
@@ -1750,7 +1750,7 @@ function clauseCore(c, seed, first, st){
     return nounRequests(np, seed).map(x => ({t:'req', s:x}));
   }
   // "my mom is sick" style statements
-  if ((m = cm(/^((?:my|our|the) [a-z-]+(?: [a-z]+)?) (is|are|was|were|has|have|had|got|lost|keeps|passed|died|ends?|starts?|won't|isn't|aren't|needs?|feels?|seems?|doesn't|can't)\b(.*)$/)) || (wcount(c) >= 5 && /^(my|our|the|it|this|that)\b/i.test(c) && STMT_VERB.test(c))) {
+  if ((m = cm(/^((?:my|our|the) [a-z-]+(?: [a-z]+)?) (is|are|was|were|has|have|had|got|lost|keeps|passed|died|broke|broken|crashed|failed|stopped|ends?|starts?|won't|isn't|aren't|needs?|feels?|seems?|doesn't|can't)\b(.*)$/)) || (wcount(c) >= 5 && /^(my|our|the|it|this|that)\b/i.test(c) && STMT_VERB.test(c))) {
     if (DOMAINS.some(d => d.re.test(lo))) return nounRequests(c, seed).map(x => ({t:'req', s:x}));
     return {t:'ctx', s:c, then:'ease this for me and bring good out of it'};
   }
@@ -1829,7 +1829,8 @@ function composeDua(n, memo, ctx){
     stmts.forEach(p => { if (p.then) reqs.push(p.then); if (p.t === 'thanks' && !reqs.length) reqs.push('keep me grateful and never let me take this blessing for granted'); });
     // standing-theme tail (at most one), only when it fits; none after pure thanks
     const probe = thanksOnly ? null : pickTail(t, ctx);
-    if (probe) { if (wcount(reqs.join(' ')) + wcount(probe.text) <= 38) { if (probe.imp) reqs.push(probe.text); else reqs[reqs.length - 1] += ' ' + probe.text; } else ctx.used.delete(probe.key); }
+    if (probe && reqs.some(r => r.includes(probe.text))) ctx.used.delete(probe.key);
+    else if (probe) { if (wcount(reqs.join(' ')) + wcount(probe.text) <= 38) { if (probe.imp) reqs.push(probe.text); else reqs[reqs.length - 1] += ' ' + probe.text; } else ctx.used.delete(probe.key); }
     if (reqs.length === 1 && wcount(reqs[0]) <= 7) { const dd = domainOf(raw); if (dd && dd.k === 'study' && /^help me /.test(reqs[0])) reqs[0] += ', and grant me clarity, calm, and success'; else if (dd && dd.k === 'job' && /^help me /.test(reqs[0])) reqs[0] += ', and open the doors of halal provision for me'; }
     const lead = stmts.map(p => p.s);
     const ctxText = ctxs.length ? ', for You know ' + ctxs.map(p => /^(my|our|i|the|it)\b/i.test(p.s) ? 'that ' + p.s : p.s).join(' and ') : '';
