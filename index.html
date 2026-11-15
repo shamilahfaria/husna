@@ -953,6 +953,7 @@ function buildMiniCard(item){
 const STORE_KEY = 'asmaDuaLog.v1';
 const SNAP_KEY = 'asmaDuaLog.v1.snaps';
 const BAD_KEY = 'asmaDuaLog.v1.unreadable';
+const PRE_KEY = 'asmaDuaLog.v1.preUpgrade';
 const IDB_NAME = 'asmaDuaLogBackup', IDB_STORE = 'kv';
 let selecting = false;
 const selected = new Set();
@@ -960,10 +961,20 @@ let selectTarget = null;   // {logId, sessionId} when adding to an existing sess
 const storageInfo = {lsState:'ok', lsOk:true, lsReadable:true, idb:null, persisted:null, restoredFrom:'', lastSaved:''};
 let reconciled = false, pendingSave = false, intentionalShrink = false, snaps = [];
 
-function countData(d){ if (!d) return 0; let n = Array.isArray(d.favDuas) ? d.favDuas.length : 0; (d.logs || []).forEach(l => { n += 1; (l.sessions || []).forEach(s => { n += (s.entries || []).length; }); }); return n; }
-function statsOf(d){ let e = 0; (d.logs || []).forEach(l => (l.sessions || []).forEach(s => { e += (s.entries || []).length; })); return {logs:(d.logs || []).length, duas:e, favs:(d.favDuas || []).length}; }
+function countData(d){
+  if (!d) return 0;
+  let n = ['favDuas', 'duas', 'occ', 'notes'].reduce((t, k) => t + (Array.isArray(d[k]) ? d[k].length : 0), 0);
+  (d.logs || []).forEach(l => { n += 1; (l.sessions || []).forEach(s => { n += (s.entries || []).length; }); });
+  return n;
+}
+function statsOf(d){
+  let e = 0; (d.logs || []).forEach(l => (l.sessions || []).forEach(s => { e += (s.entries || []).length; }));
+  const keepers = (d.duas || []).filter(x => x.status === 'keeper' || x.status === 'answered').length;
+  return {logs:(d.logs || []).length, entries:e, favs:(d.favDuas || []).length, keepers:keepers, occ:(d.occ || []).length, v2:d.schema === 2};
+}
+function statLine(st){ return st.v2 ? st.keepers + ' duas \u00B7 ' + st.occ + ' times made' : st.logs + ' logs \u00B7 ' + st.entries + ' duas \u00B7 ' + st.favs + ' favs'; }
 function validData(d){ return !!d && typeof d === 'object' && Array.isArray(d.logs); }
-function normData(d){ if (!Array.isArray(d.favDuas)) d.favDuas = []; return d; }
+function normData(d){ ['favDuas', 'duas', 'occ', 'notes'].forEach(k => { if (!Array.isArray(d[k])) d[k] = []; }); return d; }
 function parseData(raw){ try { const d = JSON.parse(raw); return validData(d) ? normData(d) : null; } catch (e) { return null; } }
 function lsGet(k){ try { return localStorage.getItem(k); } catch (e) { storageInfo.lsOk = false; return null; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
@@ -971,6 +982,10 @@ function mergeData(base, extra){
   const out = normData(JSON.parse(JSON.stringify(base)));
   (extra.logs || []).forEach(l => { const i = out.logs.findIndex(x => x.id === l.id); if (i < 0) out.logs.push(l); else if ((l.updated || '') > (out.logs[i].updated || '')) out.logs[i] = l; });
   (extra.favDuas || []).forEach(f => { if (!out.favDuas.some(x => x.id === f.id || ((x.n || null) === (f.n || null) && x.text === f.text))) out.favDuas.push(f); });
+  unionByIdInto(out.duas, extra.duas || [], mergeDua);
+  unionByIdInto(out.occ, extra.occ || []);
+  unionByIdInto(out.notes, extra.notes || []);
+  if (out.schema !== 2 && extra.schema === 2) out.schema = 2;
   if (!Array.isArray(out.themes) && Array.isArray(extra.themes)) out.themes = extra.themes;
   return out;
 }
@@ -1006,20 +1021,110 @@ function keepUnreadable(raw){
 function unreadableCopies(){ try { const l = JSON.parse(lsGet(BAD_KEY) || '[]'); return Array.isArray(l) ? l.filter(x => x && typeof x.raw === 'string') : []; } catch (e) { return []; } }
 
 function loadSnaps(){ try { const a = JSON.parse(lsGet(SNAP_KEY) || '[]'); return Array.isArray(a) ? a.filter(x => x && typeof x.json === 'string' && x.t) : []; } catch (e) { return []; } }
-function pushSnap(json, count, forceNew){
+function trimSnaps(){
+  if (snaps.length <= 8) return;
+  const peak = snaps.reduce((a, b) => b.c >= a.c ? b : a);
+  const pin = [peak].concat(snaps.filter(x => x.tag)).filter((x, i, arr) => arr.indexOf(x) === i);
+  const rest = snaps.filter(x => !pin.includes(x));
+  snaps = pin.concat(rest.slice(Math.max(0, rest.length - Math.max(0, 8 - pin.length)))).sort((a, b) => a.t - b.t);
+}
+function pushSnap(json, count, forceNew, tag){
   const last = snaps[snaps.length - 1], now = Date.now();
-  if (last && last.json === json) return;
-  if (!forceNew && last && now - last.t < 10 * 60 * 1000 && count >= last.c) snaps[snaps.length - 1] = {t:now, c:count, json:json};   // keep editing bursts as one snapshot
-  else snaps.push({t:now, c:count, json:json});                                                                        // a shrink always keeps the fuller one before it
-  if (snaps.length > 8) {
-    const peak = snaps.reduce((a, b) => b.c >= a.c ? b : a);
-    const keep = snaps.slice(-8); if (!keep.includes(peak)) keep[0] = peak;
-    snaps = keep.sort((a, b) => a.t - b.t);
-  }
+  if (last && last.json === json) { if (tag && !last.tag) last.tag = tag; return; }
+  const snap = {t:now, c:count, json:json}; if (tag) snap.tag = tag;
+  if (!forceNew && !tag && last && !last.tag && now - last.t < 10 * 60 * 1000 && count >= last.c) snaps[snaps.length - 1] = snap;   // keep editing bursts as one snapshot
+  else snaps.push(snap);                                                                                                          // a shrink always keeps the fuller one before it
+  trimSnaps();
 }
 function persistSnaps(){
   if (!lsSet(SNAP_KEY, JSON.stringify(snaps))) { const half = snaps.slice(Math.ceil(snaps.length / 2)); lsSet(SNAP_KEY, JSON.stringify(half)); }
   const copy = snaps.slice(); idbQueue(() => idbPut('snaps', copy));
+}
+
+/* ---------- v2 model: duas (with their wordings), occurrences (each time one was made), notes ----------
+   Additive on top of v1: logs / favDuas / themes are never changed or dropped, so an older copy of the app can still read the file.
+   Ids derived from old data are content-based, so running this again (after a restore or import) adds only what is missing. */
+const PRAYER_KEYS = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+const PRAYER_NAME = {fajr:'Fajr', dhuhr:'Dhuhr', asr:'Asr', maghrib:'Maghrib', isha:'Isha'};
+function normText(s){ return String(s || '').toLowerCase().replace(/\s+/g, ' ').replace(/[\s.!,;:]+$/g, '').trim(); }
+function h36(s){ return hashStr(s).toString(36); }
+function legacyKey(e){
+  const memo = normText(e.memo), text = normText(e.text);
+  if (e.n) return 'n' + e.n + (memo ? '|m:' + memo : text ? '|t:' + text : '|');
+  return text ? 't:' + text : null;
+}
+function legacyWhen(log, s, e){
+  const iso = x => /^\d{4}-\d\d-\d\dT/.test(x || '');
+  return iso(e.doneAt) ? e.doneAt : iso(s.time) ? s.time : log.date + 'T12:00:00';
+}
+function deriveV2(d){
+  const byKey = new Map(), ids = new Set(), occ = [], notes = [], flat = [];
+  (d.logs || []).forEach(log => (log.sessions || []).forEach(s => {
+    if (String(s.note || '').trim()) notes.push({id:'ns' + s.id, kind:'session', duaId:null, at:legacyWhen(log, s, {}), day:log.date, text:String(s.note), src:{logId:log.id, sessionId:s.id}});
+    (s.entries || []).forEach(e => flat.push({log, s, e, at:legacyWhen(log, s, e)}));
+  }));
+  flat.sort((a, b) => a.at.localeCompare(b.at));
+  const dua = (key, n, memo, at) => {
+    let x = byKey.get(key);
+    if (!x) {
+      let id = 'm' + h36(key); while (ids.has(id)) id += 'x';
+      ids.add(id);
+      x = {id, n:n || null, memo:memo || '', versions:[], cur:'', status:'oneoff', created:at, updated:at, days:new Set()};
+      byKey.set(key, x);
+    }
+    return x;
+  };
+  const wording = (x, text, at) => {
+    const t = String(text || '').trim();
+    if (!t) return x.cur;
+    const id = 'v' + h36(normText(t));
+    if (!x.versions.some(v => v.id === id)) x.versions.push({id, text:t, at, how:'migrated'});
+    x.cur = id; x.updated = at;
+    return id;
+  };
+  const occIds = new Set();
+  flat.forEach(({log, s, e, at}) => {
+    const key = legacyKey(e);
+    const src = {logId:log.id, sessionId:s.id, entryId:e.id};
+    if (!key) { if (String(e.note || '').trim()) notes.push({id:'no' + e.id, kind:'orphan-note', duaId:null, at, day:log.date, text:String(e.note), src}); return; }
+    const x = dua(key, e.n, e.memo, at);
+    const vid = wording(x, e.text, at);
+    x.days.add(log.date);
+    let oid = 'o' + e.id; while (occIds.has(oid)) oid += 'x';
+    occIds.add(oid);
+    occ.push({id:oid, duaId:x.id, vid, at, day:log.date, prayer:null, made:!!e.done, note:String(e.note || ''), src});
+  });
+  (d.favDuas || []).forEach(f => {
+    const nt = normText(f.text);
+    let x = [...byKey.values()].find(y => (y.n || null) === (f.n || null) && y.versions.some(v => normText(v.text) === nt));
+    if (!x) { x = dua('fav|' + (f.n || '') + '|' + nt, f.n, '', f.saved || ''); wording(x, f.text, f.saved || ''); }
+    x.status = 'keeper';
+  });
+  byKey.forEach(x => { if (x.days.size >= 2) x.status = 'keeper'; });
+  const duas = [...byKey.values()].filter(x => x.versions.length || x.n).map(x => { delete x.days; if (!x.cur && x.versions.length) x.cur = x.versions[x.versions.length - 1].id; return x; });
+  return {duas, occ, notes};
+}
+function unionByIdInto(list, incoming, onClash){
+  const m = new Map(list.map(x => [x.id, x])); let added = 0;
+  incoming.forEach(x => { const ex = m.get(x.id); if (!ex) { list.push(x); m.set(x.id, x); added++; } else if (onClash) onClash(ex, x, list); });
+  return added;
+}
+function mergeDua(ex, inc, list){
+  inc.versions.forEach(v => { if (!ex.versions.some(x => x.id === v.id)) ex.versions.push(v); });
+  if ((inc.updated || '') > (ex.updated || '')) {
+    const keep = ex.versions;
+    Object.assign(ex, inc, {versions:keep});
+  }
+}
+function ensureV2(d){
+  const f = deriveV2(d);
+  let changed = d.schema !== 2;
+  ['duas', 'occ', 'notes'].forEach(k => { if (!Array.isArray(d[k])) { d[k] = []; changed = true; } });
+  if (unionByIdInto(d.duas, f.duas, (ex, inc) => { const n = ex.versions.length; inc.versions.forEach(v => { if (!ex.versions.some(x => x.id === v.id)) ex.versions.push(v); }); if (ex.versions.length !== n) changed = true; })) changed = true;
+  if (unionByIdInto(d.occ, f.occ)) changed = true;
+  if (unionByIdInto(d.notes, f.notes)) changed = true;
+  d.schema = 2;
+  return changed;
 }
 
 let data = loadData();
@@ -1034,11 +1139,26 @@ function loadData(){
 }
 (function initStorage(){
   snaps = loadSnaps();
-  if (countData(data) > 0) { pushSnap(JSON.stringify(data), countData(data)); persistSnaps(); }   // keep today's data as a snapshot before anything else runs
+  upgradeStorage();
   askPersist();
   idbQueue(reconcileStores);
 })();
 
+/* First open after the redesign: keep the untouched old data in three places, then add the v2 collections. */
+function upgradeStorage(){
+  const c = countData(data), pre = data.schema !== 2 && c > 0;
+  if (pre) {
+    const json = (storageInfo.lsState === 'ok' && lsGet(STORE_KEY)) || JSON.stringify(data);   // the stored text itself, byte for byte
+    if (!lsGet(PRE_KEY) && !lsSet(PRE_KEY, json)) {
+      snaps = snaps.filter(x => x.tag); persistSnaps();                      // make room, then try once more
+      if (!lsSet(PRE_KEY, json)) { storageInfo.upgrade = 'blocked'; return; }
+    }
+    pushSnap(json, c, true, 'before-upgrade');
+    idbQueue(() => idbGet('preUpgrade').then(v => v ? null : idbPut('preUpgrade', json)));
+  } else if (c > 0) pushSnap(JSON.stringify(data), c);
+  persistSnaps();
+  if (ensureV2(data)) { storageInfo.upgrade = pre ? 'done' : 'synced'; saveData(); }
+}
 function askPersist(){
   try {
     if (navigator.storage && navigator.storage.persisted) {
@@ -1052,7 +1172,7 @@ async function reconcileStores(){
     storageInfo.idb = true;
     if (Array.isArray(idbSnaps)) { // fold the IndexedDB snapshot list into ours
       idbSnaps.forEach(x => { if (x && typeof x.json === 'string' && !snaps.some(s => s.json === x.json)) snaps.push(x); });
-      snaps.sort((a, b) => a.t - b.t); if (snaps.length > 8) snaps = snaps.slice(-8);
+      snaps.sort((a, b) => a.t - b.t); trimSnaps();
     }
     if (countData(data) === 0 && storageInfo.lsState !== 'ok') {   // only when the main copy is missing/unreadable, never after a delete you chose
       const cands = [];
@@ -1060,7 +1180,7 @@ async function reconcileStores(){
       snaps.slice().reverse().forEach(s => { const d = parseData(s.json); if (d) cands.push({d:d, from:'an automatic snapshot'}); });
       const best = cands.find(c => countData(c.d) > 0);
       if (best) {
-        data = reconciledMerge(best.d);
+        data = reconciledMerge(best.d); ensureV2(data);
         storageInfo.restoredFrom = best.from;
         lsSet(STORE_KEY, JSON.stringify(data));
         try { renderFavorites(); if (typeof route === 'function') route(); toast('Your saved duas were restored from ' + best.from); } catch (e) {}
@@ -3016,7 +3136,7 @@ function buildSuggested(){
 }
 
 /* ---------- Backup & restore sheet ---------- */
-function backupJson(){ return JSON.stringify({app:'asma-al-husna-dua-log', version:1, exported:new Date().toISOString(), logs:data.logs, favDuas:data.favDuas, themes:getThemes()}, null, 2); }
+function backupJson(){ return JSON.stringify({app:'asma-al-husna-dua-log', version:1, schema:2, exported:new Date().toISOString(), logs:data.logs, favDuas:data.favDuas, duas:data.duas, occ:data.occ, notes:data.notes, themes:getThemes()}, null, 2); }
 function downloadText(name, text, type){
   const blob = new Blob([text], {type:type || 'application/json'});
   const a = el('a', {href:URL.createObjectURL(blob), download:name});
@@ -3027,9 +3147,9 @@ function restoreSnap(sn){
   const d = parseData(sn.json);
   if (!d) { toast('That snapshot could not be read.'); return false; }
   const s = statsOf(d);
-  if (!confirm('Restore the backup from ' + new Date(sn.t).toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}) + ' (' + s.logs + ' logs, ' + s.duas + ' duas)?\n\nWhat\u2019s on screen now is kept as a backup too, so you can switch back.')) return false;
+  if (!confirm('Restore the backup from ' + new Date(sn.t).toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}) + ' (' + statLine(s) + ')?\n\nWhat\u2019s on screen now is kept as a backup too, so you can switch back.')) return false;
   if (countData(data) > 0) pushSnap(JSON.stringify(data), countData(data), true);
-  data = d; intentionalShrink = true; saveData(); renderFavorites(); route();
+  data = d; ensureV2(data); intentionalShrink = true; saveData(); renderFavorites(); route();
   toast('Backup restored');
   return true;
 }
@@ -3044,7 +3164,7 @@ function openBackup(){
   const persistTxt = storageInfo.persisted === true ? 'Protected \u2014 the browser has promised not to clear it automatically.' : storageInfo.persisted === 'unsupported' ? 'This browser can\u2019t promise to keep it \u2014 download a backup now and then.' : 'Not guaranteed \u2014 an iPhone may clear Safari\u2019s data if you don\u2019t visit for about a week. Adding the app to your Home Screen helps; downloading a backup is the sure way.';
   const body = el('div', {class:'sheet-body set-body'}, [
     el('h3', {class:'set-h', text:'Your saved duas'}),
-    el('p', {class:'set-p', text:st.logs + ' logs \u00B7 ' + st.duas + ' duas \u00B7 ' + st.favs + ' favorite duas, on this device.' + (storageInfo.restoredFrom ? ' They were restored from ' + storageInfo.restoredFrom + ' when the app opened.' : '')}),
+    el('p', {class:'set-p', text:statLine(st) + ', on this device.' + (storageInfo.restoredFrom ? ' They were restored from ' + storageInfo.restoredFrom + ' when the app opened.' : '')}),
     el('ul', {class:'bk-list'}, [
       el('li', {text:'Second copy (IndexedDB): ' + (storageInfo.idb === true ? 'working' : storageInfo.idb === false ? 'not available in this browser' : 'checking\u2026')}),
       el('li', {text:'Automatic snapshots: ' + snaps.length + ' (a new one is kept as you save)'}),
@@ -3054,7 +3174,7 @@ function openBackup(){
       el('button', {type:'button', class:'btn small gold', text:'Download backup file', onclick:() => { exportData(); }}),
       el('button', {type:'button', class:'btn small', text:'Copy backup', onclick:async () => { if (await copyText(backupJson())) toast('Backup copied \u2014 paste it somewhere safe (Notes, email to yourself)'); else { paste.value = backupJson(); paste.select(); toast('Select and copy the text in the box'); } }})
     ]),
-    el('p', {class:'set-p small', text:'A backup is a small .json file with every log, favorite, and your standing themes. It never contains your Gemini key.'}),
+    el('p', {class:'set-p small', text:'A backup is a small .json file with all your duas, when you made them, your reflections, and your standing themes. It never contains your Gemini key.'}),
     el('h3', {class:'set-h', text:'Restore'}),
     el('div', {class:'session-foot bk-row'}, [el('button', {type:'button', class:'btn small', text:'Choose backup file\u2026', onclick:() => fileIn.click()}), fileIn]),
     paste,
@@ -3069,7 +3189,7 @@ function openBackup(){
     list.forEach(sn => {
       const d = parseData(sn.json), s = d ? statsOf(d) : null;
       body.appendChild(el('div', {class:'bk-snap'}, [
-        el('div', {class:'bk-snap-t'}, [el('b', {text:new Date(sn.t).toLocaleString('en-US', {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'})}), s ? el('span', {text:s.logs + ' logs \u00B7 ' + s.duas + ' duas \u00B7 ' + s.favs + ' favs'}) : el('span', {text:'unreadable'})]),
+        el('div', {class:'bk-snap-t'}, [el('b', {text:new Date(sn.t).toLocaleString('en-US', {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'})}), s ? el('span', {text:(sn.tag ? 'Before the upgrade \u00B7 ' : '') + statLine(s)}) : el('span', {text:'unreadable'})]),
         s ? el('button', {type:'button', class:'btn small', text:'Restore', onclick:() => { if (restoreSnap(sn)) close(); }}) : null
       ]));
     });
@@ -3458,32 +3578,53 @@ function cleanLog(l){
     }))
   };
 }
+const DUA_STATUSES = ['oneoff', 'keeper', 'answered', 'retired'];
+function cleanDua(x){
+  if (!x || typeof x.id !== 'string' || !Array.isArray(x.versions) || !DUA_STATUSES.includes(x.status) || (x.n != null && !BY_N[x.n])) return null;
+  const versions = x.versions.filter(v => v && typeof v.id === 'string' && typeof v.text === 'string').map(v => ({id:v.id, text:v.text.slice(0, 4000), at:String(v.at || ''), how:String(v.how || 'imported')}));
+  if (!versions.length && !x.n) return null;
+  const out = {id:x.id, n:x.n ? Number(x.n) : null, memo:String(x.memo || ''), versions:versions, cur:versions.some(v => v.id === x.cur) ? x.cur : (versions.length ? versions[versions.length - 1].id : ''),
+    status:x.status, created:String(x.created || ''), updated:String(x.updated || '')};
+  if (x.answered && typeof x.answered === 'object') out.answered = {at:String(x.answered.at || ''), note:String(x.answered.note || '')};
+  if (x.retiredAt) out.retiredAt = String(x.retiredAt);
+  if (x.themeOverride) out.themeOverride = String(x.themeOverride);
+  return out;
+}
+function cleanOcc(o){
+  if (!o || typeof o.id !== 'string' || typeof o.duaId !== 'string' || typeof o.at !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(o.day || '')) return null;
+  const out = {id:o.id, duaId:o.duaId, vid:String(o.vid || ''), at:o.at, day:o.day, prayer:PRAYER_KEYS.includes(o.prayer) ? o.prayer : null, made:!!o.made, note:String(o.note || '')};
+  if (o.src && typeof o.src === 'object') out.src = o.src;
+  return out;
+}
+function cleanNote(n){
+  if (!n || typeof n.id !== 'string' || typeof n.text !== 'string') return null;
+  const out = {id:n.id, kind:String(n.kind || 'reflection'), duaId:n.duaId ? String(n.duaId) : null, at:String(n.at || ''), day:String(n.day || ''), text:n.text.slice(0, 4000)};
+  if (n.promptId) out.promptId = String(n.promptId);
+  if (n.src && typeof n.src === 'object') out.src = n.src;
+  return out;
+}
 function importFile(file){ const r = new FileReader(); r.onload = () => importText(String(r.result)); r.readAsText(file); }
 function importText(text){
-  {
-    let incoming, favIn, themesIn = null;
-    try {
-      const d = JSON.parse(text);
-      incoming = (Array.isArray(d) ? d : d.logs || []).filter(validLog).map(cleanLog);
-      favIn = (Array.isArray(d.favDuas) ? d.favDuas : []).filter(f => f && typeof f.text === 'string' && f.text.trim() && (f.n == null || BY_N[f.n]))
-        .map(f => ({id:String(f.id || uid()), n:f.n ? Number(f.n) : null, text:f.text.trim().slice(0, 2000), saved:String(f.saved || '')}));
-      if (Array.isArray(d.themes)) themesIn = cleanThemes(d.themes);
-    }
-    catch (e) { alert('That file isn\u2019t a valid Dua Log backup.'); return; }
-    if (!incoming.length && !favIn.length && !themesIn) { alert('No logs found in that file.'); return; }
-    const clash = incoming.filter(l => findLog(l.id)).length;
-    if (!confirm('Import ' + incoming.length + ' log' + (incoming.length === 1 ? '' : 's') + (favIn.length ? ' and ' + favIn.length + ' Favorite Duas' : '') + (themesIn ? ' (your standing themes will be replaced by the backup\u2019s)' : '') + '?' + (clash ? ' ' + clash + ' with the same ID will be replaced by the backup copy.' : '') + ' Your other logs are kept.')) return;
-    incoming.forEach(l => { const i = data.logs.findIndex(x => x.id === l.id); if (i >= 0) data.logs[i] = l; else data.logs.push(l); });
-    if (themesIn) data.themes = themesIn;
-    let skipped = 0;
-    favIn.forEach(f => {
-      if (data.favDuas.some(x => x.id === f.id || ((x.n || null) === f.n && x.text === f.text))) return;
-      if (data.favDuas.length >= FAV_DUA_LIMIT) { skipped++; return; }
-      data.favDuas.push(f);
-    });
-    saveData(); renderFavorites(); renderLogList();
-    toast('Imported ' + incoming.length + ' log' + (incoming.length === 1 ? '' : 's') + (skipped ? ' \u2014 ' + skipped + ' Favorite Duas skipped (100 limit)' : ''));
-  }
+  let inc, themesIn = null;
+  try {
+    const d = JSON.parse(text), arr = k => Array.isArray(d[k]) ? d[k] : [];
+    inc = {
+      logs:(Array.isArray(d) ? d : d.logs || []).filter(validLog).map(cleanLog),
+      favDuas:arr('favDuas').filter(f => f && typeof f.text === 'string' && f.text.trim() && (f.n == null || BY_N[f.n]))
+        .map(f => ({id:String(f.id || uid()), n:f.n ? Number(f.n) : null, text:f.text.trim().slice(0, 2000), saved:String(f.saved || '')})),
+      duas:arr('duas').map(cleanDua).filter(Boolean), occ:arr('occ').map(cleanOcc).filter(Boolean), notes:arr('notes').map(cleanNote).filter(Boolean)
+    };
+    if (Array.isArray(d.themes)) themesIn = cleanThemes(d.themes);
+  } catch (e) { alert('That file isn\u2019t a valid Dua Log backup.'); return; }
+  if (!inc.logs.length && !inc.favDuas.length && !inc.duas.length && !themesIn) { alert('No duas found in that file.'); return; }
+  const what = inc.duas.length ? inc.duas.length + ' dua' + (inc.duas.length === 1 ? '' : 's') + ' and ' + inc.occ.length + ' times made' : inc.logs.length + ' log' + (inc.logs.length === 1 ? '' : 's');
+  if (!confirm('Add ' + what + ' from this backup to what you have?' + (themesIn ? ' (Your standing themes will be replaced by the backup\u2019s.)' : '') + ' Nothing you have now is deleted.')) return;
+  if (countData(data) > 0) { pushSnap(JSON.stringify(data), countData(data), true); persistSnaps(); }
+  data = mergeData(data, inc);
+  if (themesIn) data.themes = themesIn;
+  ensureV2(data);
+  saveData(); renderFavorites(); route();
+  toast('Backup added');
 }
 
 /* ---------- toast ---------- */
