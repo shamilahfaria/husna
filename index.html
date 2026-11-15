@@ -353,6 +353,10 @@
   .my-fold{ margin-top:18px; color:var(--ink-dim); font-size:.82rem; }
   .my-fold > summary{ font:600 .72rem 'Inter',sans-serif; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); }
   .my-guide .logs-guide{ margin-top:6px; }
+  .refl-dua{ margin:10px 0 0; font-family:'Cormorant Garamond',serif; font-size:1.1rem; line-height:1.4; color:var(--ink-dim); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .refl .pr-tag{ display:inline-block; }
+  .refl-q{ margin:14px 0 12px; font-family:'Cormorant Garamond',serif; font-size:1.45rem; line-height:1.35; color:var(--ink); }
+  .refl-closing{ margin:14px 4px 0; font-size:.78rem; line-height:1.5; color:var(--ink-faint); font-style:italic; text-align:center; }
   .hist-day{ margin-top:22px; }
   .hist-head{ display:flex; align-items:center; justify-content:space-between; }
   .hist-head h3{ margin:0; font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--gold); font-weight:600; }
@@ -472,6 +476,7 @@
 
 <div id="view-pray" class="view" hidden></div>
 <div id="view-duas" class="view" hidden></div>
+<div id="view-reflect" class="view" hidden></div>
 
 <template id="duaGuide"><div class="logs-guide">
 <div class="guide-tip"><p class="tip">Prefix any name with <em>Ya</em> — يا — when calling upon Allah in dua.</p></div>
@@ -529,6 +534,7 @@
   <a class="tab active" href="#reference" data-view="reference">Names</a>
   <a class="tab" href="#pray" data-view="pray">Pray</a>
   <a class="tab" href="#duas" data-view="duas">My Duas</a>
+  <a class="tab" href="#reflect" data-view="reflect">Reflect</a>
 </nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -3500,7 +3506,12 @@ const NO_ANSWER = ['forgiveness', 'deceased'];
 function versionById(d, vid){ return d.versions.find(v => v.id === vid) || curVersion(d); }
 function lastTouch(d, idx){ const r = idx.get(d.id); return r && r.last > d.created ? r.last : d.created; }
 function themeKey(d){ if (d.themeOverride) return d.themeOverride; const x = domainOf(d.memo || curText(d)); return x ? x.k : ''; }
-function canAnswer(d){ return NO_ANSWER.indexOf(themeKey(d)) < 0 && !/grateful|gratitude|thank/i.test(d.memo || ''); }
+const ABOUT_OTHERS = /\b(mother|mom|mum|father|dad|brother|sister|son|daughter|husband|wife|friend|aunt|uncle|grand\w*|child|children|baby|him|her|them)\b/i;
+function canAnswer(d){
+  const k = themeKey(d), txt = (d.memo || '') + ' ' + curText(d);
+  if (NO_ANSWER.indexOf(k) >= 0 || /grateful|gratitude|thankful/i.test(txt)) return false;
+  return !(k === 'health' && ABOUT_OTHERS.test(txt));
+}
 function agoText(iso){
   const days = Math.floor((Date.now() - Date.parse(iso)) / MS_DAY);
   return days <= 0 ? 'today' : days === 1 ? 'yesterday' : days < 14 ? days + ' days ago' : days < 60 ? Math.round(days / 7) + ' weeks ago' : Math.round(days / 30) + ' months ago';
@@ -3508,7 +3519,8 @@ function agoText(iso){
 function duaMeta(d, idx){
   const r = idx.get(d.id), bits = [];
   if (d.n && BY_N[d.n]) bits.push(BY_N[d.n].tr);
-  bits.push(r ? 'made ' + r.count + '\u00D7 \u00B7 last ' + agoText(r.last) : 'not made yet');
+  if (d.status === 'answered' && d.answered) bits.push('answered ' + shortDay(dayKey(new Date(d.answered.at))) + (d.answered.note ? ' \u00B7 ' + d.answered.note : ''));
+  else bits.push(r ? 'made ' + r.count + '\u00D7 \u00B7 last ' + agoText(r.last) : 'not made yet');
   return bits.join(' \u00B7 ');
 }
 function setDuaStatus(d, status){
@@ -3564,7 +3576,7 @@ function answeredSheet(d){
         const at = new Date().toISOString(), note = ta.value.trim();
         setDuaStatus(d, 'answered'); d.answered = {at:at, note:note};
         if (note) data.notes.push({id:'n' + uid(), kind:'answer', duaId:d.id, at:at, day:dayKey(new Date()), text:note});
-        saveData(); close(); renderDuas(); toast('Marked as answered');
+        saveData(); close(); renderHere(); toast('Marked as answered');
       }})
     ])
   ]);
@@ -3605,6 +3617,7 @@ function duaCard(d, idx){
   setTimeout(() => autoGrow(ta), 0);
   return card;
 }
+const reflectView = document.getElementById('view-reflect');
 function prayAddNow(id){
   const today = dayKey(new Date());
   if (PRAY.day !== today) { PRAY.day = today; PRAY.logged = null; prayReset(currentPrayer(Date.now())); }
@@ -3669,6 +3682,82 @@ function renderDuas(){
   wrap.querySelectorAll('textarea').forEach(autoGrow);
 }
 
+/* ======================================================================
+   Reflect: notice and give thanks. Never keeps score, never asks "was it answered?"
+   ====================================================================== */
+const REFLECT_DAYS = 60, REFLECT_MIN = 3, REFLECT_GAP = 14;
+const REFLECT_CLOSING = 'Duas may be answered in ways we don\u2019t always notice. This is a place to notice and give thanks, not to keep score.';
+const RQ = {
+  provision:['What has been steady in your provision lately, even if it is small?', 'Has anything about the way you spend, save or ask for help shifted since you began asking?', 'Is there a door, a person or a skill that came your way that you did not plan for?'],
+  healing:['What ease, big or small, has shown up for them or for you in this season?', 'Who has been showing up with care, and have you been able to thank them?', 'What has this taught you about gentleness with yourself?'],
+  guidance:['Where did you feel more clear this month than before?', 'What small decision did you make with more peace than you expected?', 'Whose advice or what moment steered you somewhere better?'],
+  forgiveness:['What has felt lighter in your heart since you began asking?', 'Is there a habit you have been able to move away from, even a little?', 'Is there someone you could now forgive or ask forgiveness from?'],
+  gratitude:['What was one thing today you almost took for granted?', 'Which blessing on this list did you once ask for?', 'Who could you thank this week?'],
+  patience:['When did you stay calm this week when you might not have before?', 'What helped you pause?', 'Where could you offer yourself the patience you give others?'],
+  protection:['What worry did not become the thing you feared?', 'Where did you notice a quiet safety you usually overlook?', 'Who would you like to thank for helping keep your family safe?'],
+  care:['Who has been showing up with care, and have you been able to thank them?', 'What small kindness have you noticed lately?']
+};
+const RQ_GROUP = {provision:'provision', debt:'provision', job:'provision', home:'provision', health:'healing', guidance:'guidance', knowledge:'guidance', study:'guidance', faith:'guidance',
+  forgiveness:'forgiveness', habit:'forgiveness', patience:'patience', emotion:'patience', anger:'patience', protection:'protection', children:'protection',
+  marriage:'care', relationship:'care', deceased:'care'};
+const REFL = {skip:new Set(), n:0};
+function reflGroup(d){
+  if (/grateful|gratitude|thankful/i.test((d.memo || '') + ' ' + curText(d))) return 'gratitude';
+  return RQ_GROUP[themeKey(d)] || '';
+}
+function reflPrompts(d, firstAt){
+  const g = reflGroup(d), fact = {id:'first', q:'You first asked this on ' + shortDay(dayKey(new Date(firstAt))) + '. What is different about how you ask it now?'};
+  const own = g ? RQ[g].map((q, i) => ({id:g + i, q:q})) : [];
+  return own.concat(fact);
+}
+function reflectCandidates(now){
+  const idx = new Map(), cut = now - REFLECT_DAYS * MS_DAY;
+  data.occ.forEach(o => { const t = Date.parse(o.at); if (t >= cut) { const r = idx.get(o.duaId) || {c:0}; r.c++; idx.set(o.duaId, r); } });
+  const last = new Map();
+  data.notes.forEach(n => { if ((n.kind === 'reflection' || n.kind === 'reflection-skip') && n.duaId && n.at > (last.get(n.duaId) || '')) last.set(n.duaId, n.at); });
+  return data.duas.filter(d => d.status === 'keeper' && (idx.get(d.id) || {c:0}).c >= REFLECT_MIN && !REFL.skip.has(d.id) && !(last.get(d.id) && now - Date.parse(last.get(d.id)) < REFLECT_GAP * MS_DAY))
+    .map(d => ({d:d, c:idx.get(d.id).c, score:idx.get(d.id).c + (last.get(d.id) ? (now - Date.parse(last.get(d.id))) / MS_DAY / 7 : 10)}))
+    .sort((a, b) => b.score - a.score);
+}
+function renderHere(){ if (currentView === 'reflect') renderReflect(); else renderDuas(); }
+function renderReflect(){
+  const now = Date.now(), wrap = el('div', {class:'my-wrap'});
+  reflectView.innerHTML = ''; reflectView.appendChild(wrap);
+  wrap.appendChild(el('div', {class:'my-head'}, [el('div', null, [el('h1', {text:'Reflect'}), el('p', {text:'A quiet minute to notice, and to give thanks.'})])]));
+  const cands = reflectCandidates(now), pick = cands[0];
+  if (!pick) {
+    wrap.appendChild(el('div', {class:'empty', text:'A dua shows up here once it has become part of your routine, made ' + REFLECT_MIN + ' or more times in ' + REFLECT_DAYS + ' days. Nothing to do for now.'}));
+  } else {
+    const d = pick.d, first = data.occ.filter(o => o.duaId === d.id).map(o => o.at).sort()[0] || d.created;
+    const prompts = reflPrompts(d, first), used = new Set(data.notes.filter(n => n.duaId === d.id && n.promptId).map(n => n.promptId));
+    const fresh = prompts.filter(p => !used.has(p.id)), pool = fresh.length ? fresh : prompts, q = pool[REFL.n % pool.length];
+    const ta = el('textarea', {class:'field', id:'reflText', rows:'3', maxlength:'600', placeholder:'Only if you feel like writing\u2026'});
+    ta.addEventListener('input', () => autoGrow(ta));
+    const done = (kind, text) => { data.notes.push({id:'n' + uid(), kind:kind, duaId:d.id, at:new Date().toISOString(), day:dayKey(new Date()), promptId:q.id, text:text}); saveData(); REFL.n = 0; renderReflect(); };
+    const acts = el('div', {class:'my-row'}, [
+      el('button', {type:'button', class:'btn gold', id:'reflSave', text:'Save', onclick:() => { const t = ta.value.trim(); if (t) { done('reflection', t); toast('Saved. Alhamdulillah.'); } else { done('reflection-skip', ''); } }}),
+      cands.length > 1 || pool.length > 1 ? el('button', {type:'button', class:'btn ghost', id:'reflOther', text:'Another', onclick:() => { if (pool.length > 1 && REFL.n < pool.length - 1) REFL.n++; else { REFL.skip.add(d.id); REFL.n = 0; } renderReflect(); }}) : null,
+      canAnswer(d) ? el('button', {type:'button', class:'btn ghost', id:'reflAnswered', text:'Mark as answered', onclick:() => answeredSheet(d)}) : null
+    ]);
+    wrap.appendChild(el('div', {class:'my-composer refl'}, [
+      el('div', {class:'pr-tag', text:'made ' + pick.c + '\u00D7 in the last ' + REFLECT_DAYS + ' days'}),
+      el('p', {class:'refl-dua', text:curText(d)}),
+      el('p', {class:'refl-q', id:'reflQ', text:q.q}), ta, acts]));
+    wrap.appendChild(el('p', {class:'refl-closing', text:REFLECT_CLOSING}));
+  }
+  const past = data.notes.filter(n => n.kind === 'reflection' && n.text).sort((a, b) => b.at.localeCompare(a.at));
+  if (past.length) {
+    wrap.appendChild(el('h3', {class:'my-h', style:'margin-top:26px', text:'Your earlier reflections'}));
+    past.slice(0, 20).forEach(n => { const d = duaById(n.duaId); wrap.appendChild(el('div', {class:'my-card keep-q'}, [el('div', {class:'my-m', text:shortDay(n.day) + (d ? ' \u00B7 ' + (d.n && BY_N[d.n] ? BY_N[d.n].tr : curText(d).slice(0, 40)) : '')}), el('p', {class:'my-t', style:'display:block;margin-top:4px', text:n.text})])); });
+  }
+  const answered = data.duas.filter(d => d.status === 'answered');
+  if (answered.length) {
+    wrap.appendChild(el('h3', {class:'my-h', style:'margin-top:26px', text:'Answered, to re-read'}));
+    answered.sort((a, b) => ((b.answered || {}).at || '').localeCompare((a.answered || {}).at || '')).forEach(d => wrap.appendChild(el('div', {class:'my-card keep-q'}, [el('p', {class:'my-t', text:curText(d)}), (d.answered || {}).note ? el('div', {class:'my-m', text:d.answered.note}) : null])));
+  }
+  wrap.querySelectorAll('textarea').forEach(autoGrow);
+}
+
 /* ---------- History: what you said, when ---------- */
 function dayNotes(day){ return data.notes.filter(n => n.day === day && n.kind === 'session'); }
 function historyDays(){
@@ -3728,7 +3817,7 @@ document.getElementById('updateBtn').addEventListener('click', () => {
 document.addEventListener('visibilitychange', () => { if (document.hidden) { clearTimeout(saveTimer); saveData(); } });
 
 function autoGrow(ta){ ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; }
-let growTimer; window.addEventListener('resize', () => { clearTimeout(growTimer); growTimer = setTimeout(() => document.querySelectorAll('#view-duas textarea').forEach(t => { if (!t.hidden) autoGrow(t); }), 120); });
+let growTimer; window.addEventListener('resize', () => { clearTimeout(growTimer); growTimer = setTimeout(() => document.querySelectorAll('#view-duas textarea, #view-reflect textarea').forEach(t => { if (!t.hidden) autoGrow(t); }), 120); });
 
 async function copyText(t){
   try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(t); return true; } } catch (e) {}
@@ -3821,19 +3910,19 @@ const refView = document.getElementById('view-reference');
 let refScroll = 0;
 let currentView = 'reference';
 function route(){
-  const h = location.hash || '#reference';
+  const h = location.hash || '#pray';
   if (h === '#logs' || h.startsWith('#log/')) { location.replace('#duas/history'); return; }
-  const view = h === '#pray' ? 'pray' : h === '#duas' ? 'duas' : h === '#duas/history' ? 'history' : 'reference';
+  const view = h === '#pray' ? 'pray' : h === '#duas' ? 'duas' : h === '#duas/history' ? 'history' : h === '#reflect' ? 'reflect' : 'reference';
   const wasRef = currentView === 'reference';
   if (wasRef && view !== 'reference') refScroll = window.scrollY;
   if (!sheetWrap.hidden) closeSheet();
   ['pickWrap', 'settingsWrap', 'backupWrap', 'answeredWrap'].forEach(id => { const w = document.getElementById(id); if (w) { w.remove(); document.body.style.overflow = ''; } });
-  refView.hidden = view !== 'reference'; prayView.hidden = view !== 'pray'; duasView.hidden = view !== 'duas' && view !== 'history';
+  refView.hidden = view !== 'reference'; prayView.hidden = view !== 'pray'; duasView.hidden = view !== 'duas' && view !== 'history'; reflectView.hidden = view !== 'reflect';
   selectBtn.hidden = view !== 'reference';
   if (view === 'reference') { if (!wasRef) window.scrollTo(0, refScroll); }
   else {
     if (selecting) setSelecting(false);
-    if (view === 'pray') renderPray(); else if (view === 'duas') renderDuas(); else renderHistory();
+    if (view === 'pray') renderPray(); else if (view === 'duas') renderDuas(); else if (view === 'reflect') renderReflect(); else renderHistory();
     window.scrollTo(0, 0);
   }
   currentView = view === 'history' ? 'duas' : view;
