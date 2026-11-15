@@ -1477,8 +1477,12 @@ function subj(person){  // who the request is about: {obj, pos, name}
   const q = pron(person); return {name:person, obj:q.obj, pos:q.pos, self:false};
 }
 /* Domains: matched against the lower-cased phrase; build() returns imperative request(s) addressed to Allah. */
+const DEATH_SURE = /\b(passed away|passed on|passing away|deceased|late (?:mother|father|grand\w+|husband|wife|brother|sister)|in jannah|grave|funeral|janazah|buried)\b/;
+const DEATH_WHO = '(?:(?:my|our|his|her|their|the late)\\s+(?:[a-z]+\\s+)?(?:mother|father|mom|mum|dad|brother|sister|son|daughter|husband|wife|grand\\w+|aunt|uncle|cousin|friend|baby|child|children|parents?|mentor|teacher|neighbou?r|colleague|coworker|spouse|boss|cat|dog|pet|nani|dadi|nana)|he|she|they|who|someone)';
+const DEATH_VERB = new RegExp('\\b' + DEATH_WHO + '[^.,;]*?\\b(?:died|dies|dead|(?:has |have |had |just |recently )?passed)\\b(?!\\s+(?:my|the|his|her|their|our|an?|this|that|it|your|all|every|to|with|him|them|me|us|\\d))');
+function deathIn(lo){ return DEATH_SURE.test(lo) || DEATH_VERB.test(lo); }
 const DOMAINS = [
-  {k:'deceased', label:'Mercy for the departed', re:/\b(passed away|passed on|passed|died|deceased|late (mother|father|grand\w+|husband|wife|brother|sister)|in jannah|grave)\b/, build:(c) => {
+  {k:'deceased', label:'Mercy for the departed', re:{test:deathIn}, build:(c) => {
     const o = c.self ? 'those who have passed' : c.obj, p = c.self ? 'them' : c.obj; return 'forgive ' + o + ', have mercy on ' + p + ', and grant ' + p + ' the highest ranks of Jannah'; }},
   {k:'health', label:'Health & healing', re:/\b(surgery|operation|procedure|health|healing|heal|healthy|sick|sickness|ill|illness|cancer|disease|cure|recover(y)?|injur(y|ed)|diagnos\w+|chemo\w*|fever|infection|pain|hospital|sugar|diabet\w+|headache|migraine)\b/, build:(c, s) => {
     if (/surgery|operation|procedure/.test(c.lo)) return 'make ' + c.pos + ' surgery easy and successful, and grant ' + c.obj + ' a full and swift recovery';
@@ -1501,7 +1505,7 @@ const DOMAINS = [
   {k:'forgiveness', label:'Forgiveness', re:/\b(forgiv\w*|sins?|repent\w*|tawbah|mistakes?|wrongdoing|guilt\w*|ashamed|pardon)\b/, build:(c, s) => c.self
     ? pickOf(['forgive my sins, the hidden and the seen, and accept my repentance', 'forgive me, pardon my mistakes, and help me return to You sincerely'], s, 4)
     : 'forgive ' + c.name + ' and accept ' + c.pos + ' repentance'},
-  {k:'debt', label:'Debt relief', re:/\b(debts?|loans?|owe|mortgage|broke)\b/, build:(c) => 'free ' + c.obj + ' from ' + c.pos + ' debts, settle what is due, and provide for ' + c.obj + ' from Your lawful bounty'},
+  {k:'debt', label:'Debt relief', re:/\b(debts?|loans?|owe|mortgage|(?:i'?m|i am|we'?re|we are|flat|so|totally|completely|stone|dead) broke)\b/, build:(c) => 'free ' + c.obj + ' from ' + c.pos + ' debts, settle what is due, and provide for ' + c.obj + ' from Your lawful bounty'},
   {k:'job', label:'Work & career', re:/\b(jobs?|career|interviews?|promotion|raise|hired|hiring|resume|unemployed|laid off|work|workplace|boss|coworkers?|internship|offer letter)\b/, build:(c, s) => {
     if (/interview/.test(c.lo)) return 'make ' + c.pos + ' interview easy, put calm and clarity in ' + c.pos + ' words, and open the door for ' + c.obj;
     if (/promotion|raise/.test(c.lo)) return 'raise ' + c.obj + ' in ' + c.pos + ' work, and bless ' + c.pos + ' provision';
@@ -1527,12 +1531,12 @@ const DOMAINS = [
     if (/\bmy (husband|wife|spouse|marriage|partner)\b|divorce/.test(c.lo)) return /divorce/.test(c.lo) ? 'ease this matter, guide us to what is best, and bring good out of it' : 'fill my marriage with love, mercy, and barakah, and bring our hearts together';
     return pickOf(['bless me with a righteous spouse who brings me closer to You', 'grant me a good, kind spouse and make the way to marriage easy'], s, 9); }},
   {k:'relationship', label:'Mending relationships', re:/\b(fight|fighting|argu\w+|conflict|tension|relationship|friendship|get along|reconcil\w+|misunderstanding|distance|strained)\b/, build:(c) => 'mend what is between ' + (c.self ? 'me and those I love' : 'me and ' + c.name) + ', and fill our hearts with mercy and understanding'},
-  {k:'patience', label:'Patience', re:/\b(patien(t|ce)|sabr|endure|enduring|bear with|tolerance)\b/, build:(c, s) => {
-    const w = c.lo.match(/patien(?:t|ce)? (?:with|towards?|for) (.+)$/); const who = w ? w[1].replace(/^(?!my |our |the |others|people|everyone)/, 'my ') : '';
+  {k:'patience', label:'Patience', re:/\b(patien(t|ce)|sabr|endure|enduring|bear with|tolerance|driving (?:me|us) (?:crazy|nuts|mad|insane)|on my nerves|losing (?:my )?patience)\b/, build:(c, s) => {
+    const w = c.lo.match(/patien(?:t|ce)? (?:with|towards?|for) (.+)$/); const who = w ? w[1].replace(/^(?!my |our |the |others|people|everyone)/, 'my ') : c.self ? '' : c.name;
     if (who) return pickOf(['make me more patient and gentle with ' + who + ', and fill my heart with calm', 'grant me beautiful patience with ' + who + ', and soften my words'], s, 10);
     return pickOf(['grant me beautiful patience and steadiness in what I am facing', 'fill me with patience, and make me steadfast through this test'], s, 10); }},
-  {k:'protection', label:'Protection & safety', re:/\b(protect\w*|safe|safety|travel\w*|journey|trip|flight|driving|drive|harm|evil|envy|evil eye|danger|surround\w*)\b/, build:(c, s) => {
-    if (/travel|journey|trip|flight|driving|drive/.test(c.lo)) return 'keep ' + c.obj + ' safe on ' + c.pos + ' journey and bring ' + c.obj + ' home well';
+  {k:'protection', label:'Protection & safety', re:/\b(protect\w*|safe|safety|travel\w*|journey|trip|flight|driv(?:e|ing)(?!\s+(?:me|us|him|her|them)\b)|harm|evil|envy|evil eye|danger|surround\w*)\b/, build:(c, s) => {
+    if (/travel|journey|trip|flight|driv(?:e|ing)(?!\s+(?:me|us|him|her|them)\b)/.test(c.lo)) return 'keep ' + c.obj + ' safe on ' + c.pos + ' journey and bring ' + c.obj + ' home well';
     return c.self ? 'protect me and those I love from all harm' : 'protect ' + c.name + ' and keep ' + c.obj + ' safe from all harm'; }},
   {k:'faith', label:'Faith & worship', re:/\b(faith|iman|imaan|deen|prayers?|salah|salat|tahajjud|quran|qur'an|closer to (you|allah)|hijab|fasting|ramadan|worship|dhikr|khushu\w*|sincer\w+|ikhlas|taqwa|steadfast\w*|spiritual\w*)\b/, build:(c, s) => {
     if (/prayer|salah|salat|tahajjud/.test(c.lo)) return c.self ? 'help me establish my prayer, be consistent in it, and pray with a present heart' : 'help ' + c.obj + ' establish ' + c.pos + ' prayer and be consistent in it';
@@ -1545,10 +1549,19 @@ const DOMAINS = [
     const V = [[/gratitude|grateful|thankful/,'make me truly grateful, and let me never take Your blessings for granted'],[/humil|humble/,'fill my heart with humility and protect me from pride'],[/content/,'make me content with what You have decreed and free my heart from wanting what is not mine'],[/calm|peace|tranquil/,'fill my heart with calm and peace, and make me steady through whatever comes'],[/happi|happy/,'fill my life with true happiness and my heart with contentment'],[/confiden|courage|brave/,'grant me courage and a confident, steady heart'],[/strength|strong|energy/,'grant me strength and steadiness, and help me carry what is in front of me'],[/kind|gentle|manners|character/,'beautify my character with kindness and gentleness'],[/discipline/,'grant me discipline and consistency, and make good habits easy for me'],[/hope/,'restore my hope in You and let me never despair of Your mercy'],[/sleep|rest/,'grant me restful sleep and ease my mind and body'],[/barakah/,'put barakah in my time, my work, and what I have'],[/success|ease/,'grant me success and make what I am facing easy']];
     const f = V.find(v => v[0].test(c.lo)); return f ? f[1] : 'grant me goodness and ease'; }}
 ];
-function domainOf(text){
-  const lo = tidy(text).toLowerCase();
-  return DOMAINS.find(d => d.re.test(lo)) || null;
+const ASK_DOMAINS = new Set(['patience', 'anger', 'emotion', 'forgiveness', 'habit']);   // what is being asked beats who or where it is about
+/* The domain of the request: judged on the head of the phrase (before "so that / because"), and an ask like patience beats the subject it is about. */
+function pickDomain(lo){
+  const head = lo.split(/\s+(?:so that|so (?:i|we|he|she|they)|in order to|because|since)\b/)[0];
+  for (const text of head === lo ? [lo] : [head, lo]) {
+    const bare = text.replace(/\b(?:to|from) (?:work|school|college|university|class)\b/g, '');   // a destination is not the ask
+    let hits = DOMAINS.filter(d => d.re.test(bare));
+    if (!hits.length) hits = DOMAINS.filter(d => d.re.test(text));
+    if (hits.length) return hits.find(d => ASK_DOMAINS.has(d.k)) || hits[0];
+  }
+  return null;
 }
+function domainOf(text){ return pickDomain(tidy(text).toLowerCase()); }
 function nounRequest(np, seed, seen){
   np = np.replace(/^(a|an|some|more of|the)\s+/i, (m) => /^(more of)/i.test(m) ? m : '').trim() || np;
   const lo = np.toLowerCase();
@@ -1557,8 +1570,9 @@ function nounRequest(np, seed, seen){
   const s = subj(person);
   const c = {lo:lo, self:s.self, obj:s.self || seen ? s.obj : '\u0001O', pos:s.self || seen ? s.pos : '\u0001P', name:s.name};
   const fin = (str) => { if (s.self || seen) return str; let k = 0; return str.replace(/\u0001([OP])/g, (x, w) => { const first = k++ === 0; return w === 'O' ? (first ? s.name : s.obj) : (first ? s.name + "'s" : s.pos); }); };
-  const d = DOMAINS.find(x => x.re.test(lo));
-  if (d) return fin(d.build(c, seed));
+  const d = pickDomain(lo);
+  const why = (lo.match(/\bso (?:that )?(?:i|we) can (.+)$/) || [])[1];
+  if (d) return fin(d.build(c, seed)) + (why && s.self ? ', so that I can ' + why : '');
   if (person) return 'grant ' + s.name + ' ease and goodness in ' + (lo.replace(/\bmy \w+('s|s')?\s*/, '').trim() || 'this matter') + ', and make it good for ' + s.obj;
   if (/\b(my|our|the|this|that)\b/.test(lo)) return pickOf(['make ' + np + ' easy for me, and grant me goodness in it', 'ease ' + np + ' for me, and let it end in good'], seed, 13);
   return pickOf(['grant me ' + withArticle(np), 'bless me with ' + withArticle(np)], seed, 14);
@@ -1566,7 +1580,7 @@ function nounRequest(np, seed, seen){
 function nounRequests(np, seed, seen){
   const items = np.split(/\s*(?:,|\band\b|&)\s*/).map(x => x.trim()).filter(Boolean);
   if (items.length > 1 && items.length <= 5) {
-    const keys = items.map(i => { const d = DOMAINS.find(x => x.re.test(i.toLowerCase())); return d ? d.k : null; });
+    const keys = items.map(i => { const d = pickDomain(i.toLowerCase()); return d ? d.k : null; });
     if (new Set(keys.filter(Boolean)).size >= 2) return items.map((i, ix) => nounRequest(i, seed + ix, seen).split(/,\s+(?:and\s+)?(?=(?:grant|make|fill|bless|restore|put|keep|help|let|ease|forgive|open|bring|settle|replace|soften|guide|protect|provide|take|cure|heal|raise)\b)|\s+and\s+(?=(?:grant|make|fill|bless|restore|put|keep|help|let|ease|forgive|open|bring|settle|replace|soften|guide|protect|provide|take|cure|heal|raise)\b)/)[0]);
   }
   return [nounRequest(np, seed, seen)];
