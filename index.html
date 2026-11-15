@@ -1400,6 +1400,7 @@ const PEOPLE = {mom:'mother',mum:'mother',mama:'mother',mommy:'mother',ammi:'mot
   kids:'children',kid:'child',children:'children',child:'child',son:'son',daughter:'daughter',husband:'husband',hubby:'husband',wife:'wife',
   brother:'brother',bro:'brother',sister:'sister',sis:'sister',baby:'baby',family:'family',parents:'parents',friend:'friend',aunt:'aunt',uncle:'uncle',spouse:'spouse',cousin:'cousin',cat:'cat',dog:'dog',pet:'pet',
   coworker:'coworker',colleague:'colleague',boss:'boss',manager:'manager',teacher:'teacher',neighbor:'neighbor',neighbour:'neighbor',partner:'partner',classmate:'classmate',roommate:'roommate',student:'student',patient:'patient',mentor:'mentor',fiance:'fiance',
+  aunty:'aunt',auntie:'aunt',abbu:'father',abbi:'father',baba:'father',ami:'mother',amma:'mother',ammu:'mother',khala:'aunt',khalu:'uncle',phupho:'aunt',phuppo:'aunt',chacha:'uncle',chachu:'uncle',mamu:'uncle',mami:'aunt',chachi:'aunt',bhai:'brother',bhaijan:'brother',bhaiya:'brother',apa:'sister',baji:'sister',didi:'sister',dada:'grandfather',dadu:'grandfather',beti:'daughter',bhabhi:'sister-in-law',
   parent:'parents',inlaw:'in-laws',inlaws:'in-laws',motherinlaw:'mother-in-law',fatherinlaw:'father-in-law',brotherinlaw:'brother-in-law',sisterinlaw:'sister-in-law'};
 const FEM = new Set(['mother','grandmother','daughter','wife','sister','aunt','mother-in-law','sister-in-law']);
 const MASC = new Set(['father','grandfather','son','husband','brother','uncle','father-in-law','brother-in-law']);
@@ -1413,33 +1414,125 @@ const LEAD_STOP = new Set(('i me my mine myself we us our you your yours he him 
   'is are was were be been being am has have had do does did will would can could should may might must let please help make give grant forgive guide protect heal cure bless keep open bring ease increase remove accept show teach strengthen soften free lift relieve settle mend restore fill purify raise provide save unite shield calm replace take unlock expand preserve guard inspire reward use fix set clear find pass become stop quit thank thanks need needs want wish hope pray ask feel grateful thankful alhamdulillah ya oh o ameen amin allahumma ' +
   'everything nothing something anything everyone everybody nobody someone anyone somebody people life work school money time today tomorrow yesterday tonight now rent traffic weather health job jobs career business exam exams test tests homework class college university study studies fasting prayer prayers sleep food home house car phone laptop wifi internet marriage family relationship relationships friends friend parents kids children baby ' +
   'faith grace joy mercy love peace patience gratitude kindness anxiety stress anger sadness grief fear pain illness cancer surgery cold flu fever headache ' +
-  'allah god lord rabb rabbi rabbana dua duas quran qur islam muslim muslims iman imaan deen din dunya akhirah akhira jannah jahannam sunnah hadith sabr shukr tawbah taqwa ihsan barakah rizq qadr tawakkul hajj umrah zakat sadaqah qiyamah salah salat ramadan eid jummah jumuah jumua jumma friday ' +
+  'allah god lord rabb rabbi rabbana dua duas quran qur islam muslim muslims deen din dunya akhirah akhira jannah jahannam sunnah hadith sabr shukr tawbah taqwa ihsan barakah rizq qadr tawakkul hajj umrah zakat sadaqah qiyamah salah salat ramadan eid jummah jumuah jumua jumma friday ' +
   'fajr dhuhr zuhr duhr asr maghrib isha ishaa tahajjud witr taraweeh ' +
   'america usa uk canada london texas chicago houston dallas pakistan india bangladesh egypt turkey somalia nigeria makkah mecca madinah medina jerusalem ' +
+  'doctor doctors nurse nurses landlord landlady client customer tenant employee employer driver lawyer officer stranger infant project person man woman boy girl guy lady ours theirs whoever whatever nobody ummah umma masjid masjids mosque mosques earth world heart hearts soul souls battery team company garden gardens humanity nature climate economy government community society country city town village school fish bird birds plant plants tree trees flower flowers horse cow goat sheep rabbit chicken ' +
+  'gaza palestine rafah sudan yemen syria lebanon iraq iran afghanistan kashmir ukraine russia china israel jordan morocco algeria tunisia libya saudi qatar kuwait dubai riyadh karachi lahore dhaka delhi mumbai toronto boston seattle austin florida california ohio georgia virginia ' +
+  'google amazon apple meta tesla instagram netflix microsoft costco tiktok facebook twitter youtube uber walmart target starbucks paypal openai ' +
+  'kaaba kabah arafat mina muzdalifah ' +
   'monday tuesday wednesday thursday saturday sunday january february march april june july august september october november december').split(/\s+/));
 Object.keys(PEOPLE).forEach(k => LEAD_STOP.add(k));
 const LEAD_FEM = new Set(('sarah sara fatima fatimah zainab zaynab maryam mariam aisha aaisha ayesha aysha khadija khadijah hafsa hafsah amina aminah asma aasiya asiya safiya safiyyah sumayyah sumaya ruqayyah ruqayya umaima layla laila leila lina leen lamya rania rana reem rima dina dena hana hanan hanaa hajar hajra halima hawa jamila jameela jannat kauthar kawthar khalida mahnoor maha mahira mona muna mariyah marwa maya mina nadia nadiya nadine nafisa najwa nawal nida nisa noor nur nura nusaibah rabia rabiah rafia raheema rahima rashida rasha rukhsana sabina sadia safa sahar sajida salma samira samiha sana sanaa shaima shazia shamila shamilah shabana sumaiya sumbul suhaila tahira tasneem tasnim thurayya yasmin yasmeen zahra zahrah zara zarina zeenat zeynep zubaida zulaikha ' +
   'abigail alice amanda amy andrea angela anna anne ashley barbara betty brenda carol caroline catherine charlotte chloe christina claire cynthia deborah diana donna elizabeth ella emily emma eva evelyn fiona gloria hannah heather helen isabella jamie jane janet jasmine jennifer jessica jenny joanna judy julia julie karen kate katherine kathy kelly kim laura lauren linda lisa lucy lily margaret maria marie martha megan melissa michelle monica nancy natalie nicole olivia pamela patricia rachel rebecca rebekah ruth samantha sandra sharon sophia sophie stephanie susan tanya teresa tiffany victoria vanessa veronica wendy zoe priya anita sunita neha pooja divya meera sofia lucia carmen').split(/\s+/));
 const LEAD_MASC = new Set(('ahmed ahmad muhammad mohammed mohammad mohamed mohamad muhammed hamza ali omar umar uthman usman othman bilal yusuf yousef yousuf youssef yunus younus musa moses isa ibrahim ismail ismael idris ilyas dawud daud zakariya zakaria yahya ayyub ayub harun haroon luqman salih saleh sulaiman suleiman sulayman hassan hasan hussain hussein husain abdullah abdallah abdulrahman abdelrahman abdulaziz abdulmalik abdulkarim abubakar khalid khaled zaid zayd zayed tariq tarik tareq talha zubair zubayr saad saeed salman sami samir sameer rashid rasheed rayyan rayan ridwan rizwan imran irfan ismat jabir jamal jamil junaid junayd kareem karim kamal kashif faisal faizan farhan fahad fahd faraz farid fareed hakim hamid hamdan haris harith haroun hashim hisham hussam jafar jaafar jawad majid mustafa mustapha maaz mazen malik mansour mansoor mahmoud mahmood mubarak muneeb munir murtaza nabil nadeem nadir naeem nasir nasser nasr naveed noman numan osama usama owais qasim qais rafiq rahim rami ramy raheem sufyan shoaib shuaib shahid shahzad shakir shaheer sohail suhail sulaiman talal tahir taha tawfiq tauseef umair umayr waleed walid wasim wajid yaqub yaseen yasin yasir yaser zaki zakir zain zaheer zia ziad ziyad ' +
   'aaron adam adrian alan alex alexander andrew anthony benjamin brian charles chris christopher daniel david dennis donald edward eric ethan frank gary george gregory henry jacob james jason jeffrey jeremy joe john jonathan joseph joshua justin kevin kyle larry lucas luke matthew michael nathan nicholas patrick paul peter philip ralph raymond richard robert roger ronald ryan samuel scott sean stephen steven thomas timothy tom tony tyler jack jake josh dan sam ben tim mike dave steve matt nick rob bob jim joe ed victor walter william zachary raj rahul amit vikram sanjay arjun carlos jose juan luis miguel').split(/\s+/));
-const LEAD_PRED = /^(?:is|isn't|was|wasn't|has|hasn't|had|got|gets|lost|needs?|keeps?|feels?|seems?|failed|passed|died|broke|won't|can't|cannot|doesn't|didn't|will|just|are|aren't|were|weren't|have|haven't|wants?|struggles?|suffers?|started|starts|ended|ends|went|goes|is going|got|got)\b/i;
-const LEAD_STRONG = /^(?:(?:is|was|has been|had been|got|gets|is getting|is feeling|feels|is having|has|had)\s+(?:so |very |really |quite |extremely |too )?(?:sick|ill|unwell|pregnant|in (?:the )?(?:hospital|icu|labou?r)|admitted|diagnosed|injured|hurt|sad|depressed|anxious|stressed|struggling|suffering|lonely|grieving|married|engaged|divorced|expecting|dying|bedridden|hospitali[sz]ed|cancer|surgery|a baby|a miscarriage|an operation|chemo\w*|covid|the flu|a fever|diabetes)|passed away|passed on|died|(?:lost|losing|got|failed|failing|quit|quitting|left)\s+(?:her|his|their)\b|(?:is|are) getting (?:married|engaged|divorced)|(?:is|are) (?:pregnant|expecting)|(?:are|were) (?:sick|ill|married|engaged))/i;
+/* ---- who a memo that opens with a person is about -------------------------------------------------------------
+   A person is only read when the memo says something only a person can say about them ("is sick", "has surgery",
+   "lost her job", "passed away", "is getting married"). A known first name may also take softer feelings ("is sad").
+   Words that are also Islamic terms, Names of Allah, surahs, places or companies never count unless the predicate is
+   unmistakably about a person. When unsure the memo stays about the user: a wrong guess about a person is worse. */
+const LEAD_AMBIG = new Set('noor nur nura jannat kawthar kauthar yasin yaseen maryam mariam yusuf yousef yousuf youssef safa marwa muhammad mohammed mohammad mohamed mohamad muhammed malik hakim kareem karim rahim raheem hamid rashid rasheed salam iman imaan taha luqman ibrahim hawa hajar hajra'.split(' '));
+const LEAD_MARK = /\b(?:surah|sura|ayah|ayat|salah|salat|prayer|dua|duas|jannah|jannat|paradise|heaven|messenger|prophet|rasul|quran|allah|deceased|grave|king|planners?|merciful|praise|light|heart|hereafter|akhirah|dunya|fountain|pbuh|saw)\b/i;
+const LEAD_TITLE = {dr:['Dr.',''], mr:['Mr.','m'], mrs:['Mrs.','f'], ms:['Ms.','f'], miss:['Miss','f'], prof:['Prof.',''], professor:['Professor',''], imam:['Imam','m'], sheikh:['Sheikh','m'], shaykh:['Shaykh','m'], ustadh:['Ustadh','m'], ustadha:['Ustadha','f'], aunty:['Aunty','f'], auntie:['Auntie','f'], aunt:['Aunt','f'], uncle:['Uncle','m'], sister:['Sister','f'], brother:['Brother','m'], hajji:['Hajji','m'], hajjah:['Hajjah','f'], sir:['Sir','m']};
+const LEAD_KIN_ONLY = {beta:'son', beti:'daughter'};            // as the first word only; "beta version" elsewhere is not a son
+const LEAD_KIN = '(?:mom|mum|mama|mommy|mother|dad|daddy|papa|father|abu|abba|abbu|abbi|ammi|ami|amma|ammu|ummi|grandma|grandmother|grandpa|grandfather|nani|nana|dadi|dada|dadu|husband|hubby|wife|son|daughter|baby|kids?|children|child|brother|bro|sister|sis|aunt|aunty|auntie|khala|phupho|chacha|mamu|uncle|cousin|friend|boss|parents|mother-in-law|father-in-law|brother-in-law|sister-in-law)';
+const LEAD_EVENT = '(?:exams?|tests?|interview|surgery|operation|wedding|nikah|engagement|job|health|results?|visa|appointment|treatment|biopsy|delivery|birth|graduation|presentation|thesis|defen[cs]e|hearing|court|case|recovery|pregnancy|marriage|studies|finals|midterms?|check-?up|chemo\\w*|scan|procedure)';
+const LEAD_TIME = /^(today|tomorrow|tonight|yesterday|currently|lately|recently|sadly|unfortunately|apparently|now)\b[,\s]+/i;
+const LEAD_AUX = "(?:(?:is|are|was|were|has been|have been|had been|isn't|aren't|wasn't|weren't)\\s+)";
+const LEAD_ADV = "(?:(?:so|very|really|quite|extremely|too|still|currently|now|just|also|not)\\s+)*";
+const LEAD_NARROW = new RegExp('^(?:' + [
+  '(?:' + LEAD_AUX + '|\\s*)' + LEAD_ADV + '(?:sick(?!\\s+of\\b)|ill|unwell|pregnant|expecting|diagnosed|injured|bedridden|hospitali[sz]ed|admitted|married|engaged|divorced|unemployed|jobless|recovering|in (?:the )?(?:hospital|icu|labou?r|surgery)|getting (?:married|engaged|divorced|sick|surgery)|having (?:a baby|surgery|a miscarriage|an operation|chemo\\w*|twins)|going to (?:have|get) (?:surgery|married)|about to (?:give birth|get married))',
+  '(?:(?:has|have|had)\\s+got(?:ten)?|has|have|had|got|gets|gotten)\\s+(?:an?\\s+|the\\s+|her\\s+|his\\s+|their\\s+)?(?:interview|exams?|tests?|surgery|operation|baby|biopsy|procedure|cancer|diabetes|covid|miscarriage|appointment|chemo\\w*|fever|flu|infection|cold|court|hearing|presentation|tumou?r|kidney|heart (?:attack|surgery|condition))',
+  '(?:has |have |had )?(?:got|gotten)\\s+(?:sick|ill|hurt|injured|married|engaged|divorced|fired|rejected|admitted|arrested|pregnant|laid off|into an accident)',
+  '(?:was|is|gets|got)\\s+(?:fired|laid off|rejected|admitted|diagnosed|injured|robbed|arrested|hospitali[sz]ed|killed)',
+  'needs?\\s+(?:an?\\s+)?(?:job|surgery|operation|cure|healing|transplant|spouse|husband|wife|visa|rishta|treatment|medicine)',
+  '(?:lost|losing|quit|quitting|failed|failing|passed|resigned from|dropped)\\s+(?:her|his|their)\\b',
+  '(?:died|dies|has died|passed away|has passed away|passed on|fell (?:ill|sick)|collapsed|miscarried|gave birth|was in an accident|had an accident)',
+  '(?:has |have )?passed(?=\\s*$|\\s+(?:this (?:morning|afternoon|evening|week)|today|yesterday|last|peacefully|recently|suddenly|unexpectedly|away|on\\b))',
+  'quit(?=\\s*$)'
+].join('|') + ')(?![a-z])', 'i');
+const LEAD_WIDE = new RegExp('^(?:' + [
+  '(?:' + LEAD_AUX + '|\\s*)' + LEAD_ADV + '(?:dead|dying|sad|depressed|anxious|stressed|struggling|suffering|lonely|grieving|worried|scared|afraid|nervous|overwhelmed|exhausted|tired|lazy|weak|upset|heartbroken|hurting|angry|burn(?:ed|t) out|not (?:well|okay|ok|doing well)|doing (?:badly|poorly|worse|better|well|ok(?:ay)?)|having (?:a (?:hard|tough|rough|difficult|bad) (?:time|day|week|month|year))|going through|in (?:trouble|debt|distress|need|pain|a (?:bad|hard|dark) place)|better|worse|studying|travell?ing|moving|leaving|starting|graduating|applying|looking for|trying|due)',
+  '(?:needs?|wants?|is looking for|is hoping for|is praying for|wishes?)\\s+(?:an?\\s+|the\\s+|some\\s+|your\\s+|our\\s+)?(?:guidance|help|duas?|prayers?|support|patience|strength|ease|relief|rest|break|money|funds|time|direction|advice|comfort|mercy|baby|child|home|house|place|car|work|jobs?|husband|wife|spouse|rishta|visa|marriage|to\\b)',
+  '(?:has|have|had|got|gets)\\s+(?:an?\\s+|the\\s+|her\\s+|his\\s+|their\\s+|no\\s+|so\\s+)?(?:jobs?|problems?|issues?|trouble|deadline|decision|news|wedding|nikah|class(?:es)?|midterms?|finals?|pain|headache|illness|disease|condition|cough|big decision|hard time|difficult time)',
+  '(?:keeps?|kept)\\s+\\w+ing',
+  '(?:lost|losing|failed|failing|quit|left|got|passed)\\s+(?:the|an?)\\b',
+  'will\\s+(?:be|have|get|start|give birth|graduate|marry)\\b',
+  'is\\s+(?:about to|going to)\\s+\\w+',
+  '(?:feels?|seemed?|seems|looks?)\\s+(?:so |very |really )?(?:sad|sick|ill|unwell|down|low|weak|tired|anxious|stressed|overwhelmed|lost|alone|lonely)',
+  '(?:can\'t|cannot|couldn\'t|won\'t)\\s+(?:sleep|eat|breathe|walk|pass|find|get)',
+  '(?:is\\s+)?(?:struggles?|struggling|suffering|suffers?)\\s+(?:with|from)\\b'
+].join('|') + ')(?![a-z])', 'i');
 const LEAD_CAP = w => w.split('-').map(x => x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join('-');
-/* -> {subject:'Sarah' | 'Sarah and Omar', plural, fixed: the text with the name(s) capitalised} or null */
+const leadKnown = w => { const b = w.toLowerCase().replace(/-/g, ''); return LEAD_FEM.has(b) || LEAD_MASC.has(b); };
+const LEAD_PRED_START = /^(?:is|isn't|are|aren't|was|wasn't|were|weren't|has|hasn't|have|haven't|had|got|gets|lost|needs?|keeps?|feels?|seems?|failed|passed|died|broke|can't|cannot|doesn't|didn't|will|just|wants?|started|quit|fired|sick|ill|unwell|pregnant|married|engaged|divorced|dead|sad|tired|stressed|anxious|dying|recovering|expecting|resigned|collapsed|fell|gave|miscarried|struggling|suffering)$/i;
+/* one person in the opening: "Sarah", "sarahs", "Sarah Ahmed", "Aunty Fatima", "Dr. Khan", "my mom" -> {text, name, known, ambig, gender, poss, kin, len} or null */
+const LEAD_TITLE_RE = /^(dr|mr|mrs|ms|miss|prof|professor|imam|sheikh|shaykh|ustadh|ustadha|aunty|auntie|aunt|uncle|sister|brother|hajji|hajjah|sir)\.?\s+(?=[A-Za-z])/i;
+const LEAD_KIN_RE = new RegExp('^(?:my|our) (' + LEAD_KIN + ')(?![A-Za-z-])', 'i');
+function leadElement(str, first){
+  let m, p = 0, title = '', gender = '';
+  if (!first && (m = str.match(LEAD_KIN_RE))) {
+    const k = PEOPLE[m[1].toLowerCase().replace(/-/g, '')] || m[1].toLowerCase();
+    return {text: m[0], name: 'my ' + k, known: true, ambig: false, kin: true, gender: '', poss: '', len: m[0].length};
+  }
+  if ((m = str.match(LEAD_TITLE_RE))) { const t = LEAD_TITLE[m[1].toLowerCase()]; title = t[0]; gender = t[1]; p = m[0].length; }
+  const words = []; let poss = '', known = false, ambig = false, end = 0;
+  for (let i = 0; i < 3; i++) {
+    m = str.slice(p).match(/^([A-Za-z][A-Za-z-]{0,24})(['\u2019]s)?(?![A-Za-z'\u2019-])/);
+    if (!m) break;
+    let w = m[1], pp = m[2] ? "'s" : '', lw = w.toLowerCase();
+    if (!pp && lw.length > 3 && lw.slice(-1) === 's' && !leadKnown(lw) && leadKnown(lw.slice(0, -1)) && !LEAD_STOP.has(lw.slice(0, -1))) { w = w.slice(0, -1); lw = lw.slice(0, -1); pp = "'s"; }   // "sarahs"
+    if (LEAD_STOP.has(lw) || LEAD_PRED_START.test(lw) || /^(?:al|ar|as|ash|an|ad|az|at|adh)-/i.test(lw)) break;
+    if (i > 0 && !(/^[A-Z]/.test(w) || known || title)) break;          // a surname: capitalised, or after a known first name or a title
+    words.push(w);
+    if (i === 0) { known = leadKnown(lw); ambig = LEAD_AMBIG.has(lw.replace(/-/g, '')); gender = gender || leadGender(lw); }
+    end = p + m[0].length; p = end;
+    if (pp) { poss = pp; break; }
+    const ws = str.slice(p).match(/^\s+(?=[A-Za-z])/); if (!ws) break; p += ws[0].length;
+  }
+  if (!words.length) return null;
+  const name = (title ? title + ' ' : '') + words.map(LEAD_CAP).join(' ');
+  return {text: (title ? title.replace(/\.$/, '') + ' ' : '') + words.map(LEAD_CAP).join(' ') + poss, name: name, known: known, ambig: ambig, kin: false, gender: gender, poss: poss, len: end};
+}
+const joinNames = a => a.length < 3 ? a.join(' and ') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];   // no Oxford comma: joinRequests would drop it anyway
+/* -> {subject, plural, fixed, rest, possKin?} or null.  subject: 'Sarah' | 'Sarah and Omar' | 'Aunty Fatima' | "Sarah's mother" | 'my father'.
+   fixed is the text with the names capitalised ("sarahs sick" -> "Sarah's sick"). */
 function leadSubject(text){
-  const s = String(text).replace(/^\s+/, '');
-  const m = s.match(/^([A-Za-z][A-Za-z-]{1,19})(['\u2019]s)?(?:\s+(?:and|&)\s+([A-Za-z][A-Za-z-]{1,19})(['\u2019]s)?)?(?=\s|$)\s*([\s\S]*)$/);
-  if (!m) return null;
-  const toks = [m[1], m[3]].filter(Boolean);
-  if (toks.some(w => LEAD_STOP.has(w.toLowerCase()) || /^(?:al|ar|as|ash|an|ad|az|at|adh)-/i.test(w))) return null;
-  const known = toks.some(w => { const b = w.toLowerCase().replace(/-/g, ''); return LEAD_FEM.has(b) || LEAD_MASC.has(b); });
-  const rest = m[5] || '', hasPoss = !!(m[2] || m[4]), plural = toks.length === 2;
-  const vp = hasPoss && !plural ? 'is ' + rest : rest;            // "Xavi's sick": 's is "is"
-  const ok = known ? (hasPoss ? !!rest : LEAD_PRED.test(rest)) : LEAD_STRONG.test(vp);
+  let s = String(text).replace(/^\s+/, ''), pre = '';
+  const tm = s.match(LEAD_TIME);
+  if (tm) { pre = tm[1].toLowerCase() + ' '; s = s.slice(tm[0].length); }
+  const ko = s.match(/^([A-Za-z]+)\s+([\s\S]*)$/);
+  if (ko && LEAD_KIN_ONLY[ko[1].toLowerCase()] && (LEAD_NARROW.test(ko[2]) || LEAD_WIDE.test(ko[2])))
+    return {subject: 'my ' + LEAD_KIN_ONLY[ko[1].toLowerCase()], plural: false, fixed: pre + s, rest: ko[2], kin: true};
+  const els = []; let cur = s, sep = '';
+  for (let n = 0; n < 5; n++) {
+    const el = leadElement(cur, n === 0);
+    if (!el) return null;
+    els.push({el: el, sep: sep}); cur = cur.slice(el.len);
+    if (el.poss) break;
+    const sm = cur.match(/^(?:\s*,\s*(?:(?:and|&)\s+)?|\s+(?:and|&)\s+)(?=\S)/i);
+    if (!sm) break;
+    sep = sm[0]; cur = cur.slice(sm[0].length);
+  }
+  const rest = cur.replace(/^\s+/, ''), last = els[els.length - 1].el, plural = els.length > 1;
+  if (plural && last.poss) return null;
+  const known = els.some(e => e.el.known), ambig = els.some(e => e.el.ambig), wide = known && !ambig;
+  const test = (vp) => LEAD_NARROW.test(vp) || (wide && LEAD_WIDE.test(vp));
+  if (ambig && LEAD_MARK.test(rest)) return null;
+  let possKin = '', ok;
+  if (last.poss) {
+    const km = rest.match(new RegExp('^(' + LEAD_KIN + ')(?![A-Za-z-])\\s*([\\s\\S]*)$', 'i'));
+    const em = rest.match(new RegExp('^' + LEAD_EVENT + '(?![A-Za-z])\\s*([\\s\\S]*)$', 'i'));
+    if (km) { possKin = PEOPLE[km[1].toLowerCase().replace(/-/g, '')] || km[1].toLowerCase(); ok = !!km[2] && (test(km[2]) || (wide && /^(?:is|are|was|will|has|got)\b/i.test(km[2]))); }
+    else if (em) ok = wide || (!ambig && /^(?:is|are|was|will|has|got)\b/i.test(em[1]));
+    else ok = test('is ' + rest) || test('has ' + rest);                      // "Xavi's sick", "Sarah's got surgery"
+  } else ok = test(rest);
   if (!ok) return null;
-  const sub = toks.map(LEAD_CAP).join(' and ');
-  const fixed = toks.map((w, i) => LEAD_CAP(w) + (i ? (m[4] || '') : (m[2] || ''))).join(' and ') + (rest ? ' ' + rest : '');
-  return {subject: sub, plural: plural, fixed: fixed};
+  const names = els.map(e => e.el.name);
+  const out = {subject: possKin ? names[0] + "'s " + possKin : joinNames(names), plural: plural, fixed: pre + els.map(e => e.sep + e.el.text).join('') + (rest ? ' ' + rest : ''), rest: rest};
+  if (possKin) out.possKin = possKin;
+  return out;
 }
 function leadGender(name){   // 'f' | 'm' | '' from a first name
   const w = String(name).toLowerCase().replace(/[^a-z]/g, '');
@@ -1455,31 +1548,41 @@ function namedIn(orig){
 }
 function personIn(m, orig){
   const t = m.replace(/\b(mother|father|brother|sister)[- ]in[- ]law\b/g, '$1inlaw').replace(/\bin[- ]laws?\b/g, 'inlaws').replace(/\bco-worker/g, 'coworker');
+  const ls = orig && leadSubject(orig); if (ls) return ls.subject;   // the person the memo opens with is who it is about
   const nm = orig && namedIn(orig);
   const r = t.match(/\b(?:my|our)\s+([a-z]+)(?:'s|s')?\b/);
   if (r && PEOPLE[r[1]]) return nm && nm.indexOf('my ' + PEOPLE[r[1]] + ' ') === 0 ? nm : 'my ' + PEOPLE[r[1]];
   for (const w of t.split(/[^a-z']+/)) { const b = w.replace(/'s?$/, ''); if (PEOPLE[b]) return 'my ' + PEOPLE[b]; }
   return nm;
 }
+let PRON_HINT = '';   // the he/she of the next clause, so "my friend Alex is sick, she needs surgery" is her in both
 function pron(p, lo){
+  const HIM = {obj:'him', pos:'his'}, HER = {obj:'her', pos:'her'}, THEM = {obj:'them', pos:'their'};
   if (!p) return {obj:'me', pos:'my'};
   const k = p.replace(/^my /, '');
   if (/^(cat|dog|pet)$/.test(k)) return {obj:'it', pos:'its'};
-  if (FEM.has(k)) return {obj:'her', pos:'her'};
-  if (MASC.has(k)) return {obj:'him', pos:'his'};
+  if (FEM.has(k)) return HER;
+  if (MASC.has(k)) return HIM;
+  const pk = k.match(/['\u2019]s ([a-z-]+)$/);                       // "Sarah's mother": the relative's gender
+  if (pk) return FEM.has(pk[1]) ? HER : MASC.has(pk[1]) ? HIM : THEM;
+  if (/,| and /.test(k)) return THEM;
   const w = k.split(' ');
-  if (w.length > 1 && !/ and /.test(k)) { if (FEM.has(w[0])) return {obj:'her', pos:'her'}; if (MASC.has(w[0])) return {obj:'him', pos:'his'}; }
-  if (!/ and /.test(k) && /^[A-Z]/.test(w[w.length - 1])) {   // a named person: first name, else his/her/she/he in the memo, else gender-neutral
-    const g = leadGender(w[w.length - 1]) || (/\b(?:her|hers|herself|she)\b/.test(lo || '') ? 'f' : /\b(?:his|himself|he|him)\b/.test(lo || '') ? 'm' : '');
-    if (g === 'f') return {obj:'her', pos:'her'};
-    if (g === 'm') return {obj:'him', pos:'his'};
+  if (w.length > 1) { if (FEM.has(w[0])) return HER; if (MASC.has(w[0])) return HIM; }
+  if (/^[A-Z]/.test(w[w.length - 1])) {   // a named person: the pronoun the memo uses, else what the situation implies, else a title, else the first name, else gender-neutral
+    const L = (lo || '') + ' ' + PRON_HINT, fem = /\b(?:she|her|hers|herself)\b/.test(L), mas = /\b(?:he|him|his|himself)\b/.test(L);
+    let g = fem && !mas ? 'f' : mas && !fem ? 'm' : '';
+    if (!g && /\b(?:pregnan\w*|expecting|miscarri\w*|gave birth|giving birth|labou?r|postpartum)\b/.test(L)) g = 'f';
+    for (let i = 0; i < w.length && !g; i++) { const t = LEAD_TITLE[w[i].toLowerCase().replace(/\.$/, '')]; if (t && i < w.length - 1) g = t[1]; }
+    for (let i = 0; i < w.length && !g; i++) g = leadGender(w[i]);
+    if (g === 'f') return HER;
+    if (g === 'm') return HIM;
   }
-  return {obj:'them', pos:'their'};
+  return THEM;
 }
 const TYPO = [[/\bakirah|akhira\b|aakhirah|akhirat\b/gi,'akhirah'],[/\bbarak(a|at|ah)\b|\bbarkat\b/gi,'barakah'],[/\bumma\b/gi,'ummah'],[/\bdunia\b/gi,'dunya'],[/\bdeen\b|\bdin\b/gi,'deen'],[/\bimaan\b/gi,'iman'],
   [/\bbring my closer\b/gi,'bring me closer'],[/\bkids\b/gi,'children'],[/\bmom\b|\bmum\b/gi,'mother'],[/\bdad\b/gi,'father'],[/\bmake my trials\b/gi,'make my trials'],[/\bive\b/gi,"I've"],[/\bim\b/gi,"I'm"],[/\bdont\b/gi,"don't"],[/\bcant\b/gi,"can't"],[/\bu\b/g,'you'],[/\bur\b/g,'your'],[/\balot\b/gi,'a lot'],[/\bthru\b/gi,'through'],
   [/\b(gratful|gratefull|greatful|grateul|gratefl)\b/gi,'grateful'],[/\b(thankfull|thnkful|thankfl)\b/gi,'thankful'],[/\bfam\b/gi,'family'],[/\b(thx|thnx|tnx)\b/gi,'thanks'],[/\b(tmrw|tomorow)\b/gi,'tomorrow']];
-const OTHER_PERSON = /\b(mom|mum|mother|dad|father|brother|sister|son|daughter|husband|wife|friend|boss|coworker|co-worker|colleague|manager|teacher|uncle|aunt|cousin|neighbou?r|grandma|grandpa|grandmother|grandfather|baby|child|children|kid|kids|family|parents?|in-?laws?|partner|spouse|classmate|roommate|student|patient|mentor|he's my|my (?:ex|fiance|fianc\u00e9))\b/i;
+const OTHER_PERSON = /\b(mom|mum|mother|dad|father|abu|abba|nani|nana|dadi|abbu|ami|amma|khala|chacha|mamu|bhai|apa|baji|dada|aunty|brother|sister|son|daughter|husband|wife|friend|boss|coworker|co-worker|colleague|manager|teacher|uncle|aunt|cousin|neighbou?r|grandma|grandpa|grandmother|grandfather|baby|child|children|kid|kids|family|parents?|in-?laws?|partner|spouse|classmate|roommate|student|patient|mentor|he's my|my (?:ex|fiance|fianc\u00e9))\b/i;
 const CLAUSE_VERB = /^(open|respond|answer|hear|make|forgive|pardon|accept|grant|give|help|guide|protect|heal|cure|bless|let|keep|increase|remove|ease|bring|permeate|put|fill|purify|raise|provide|show|teach|strengthen|soften|free|lift|relieve|settle|mend|restore|unite|reunite|save|shield|cover|turn|write|choose|allow|send|return|enable|count|clear|calm|replace|take|unlock|expand|widen|honou?r|preserve|draw|guard|steady|correct|fix|inspire|reward|have|be|use)\b/i;
 function tidy(m){
   let t = ' ' + m + ' ';
@@ -1488,6 +1591,8 @@ function tidy(m){
   t = t.replace(/^\s*(ya|o) allah\b,?/i, ' ');
   // Allah in third person -> You (we are speaking to Him)
   t = t.replace(/\b(to please|pleasing|for the sake of|for|from|to|with|by|of|near|closer to) allah\b/gi, (x, p) => p + ' You').replace(/\ballah's\b/gi, 'Your').replace(/\ballah\b/gi, 'You');
+  t = t.replace(/\bYou (is|was|has|does|isn't|wasn't|hasn't|doesn't)\b/g, (x, v) => 'You ' + ({is:'are', was:'were', has:'have', does:'do', "isn't":"aren't", "wasn't":"weren't", "hasn't":"haven't", "doesn't":"don't"})[v])
+       .replace(/\bYou (knows|sees|hears|loves|forgives|gives|provides|guides|protects|decrees|answers|accepts|plans|wills|wants)\b/g, (x, v) => 'You ' + v.replace(/s$/, ''));
   t = t.replace(/\byou\b/g, 'You').replace(/\byour\b/g, 'Your').replace(/\byours\b/g, 'Yours').replace(/\byourself\b/g, 'Yourself').replace(/\bi\b/g, 'I').replace(/\bi'(m|ve|ll|d)\b/g, "I'$1");
   return t.replace(/\s+/g, ' ').replace(/\s+([,.;!?])/g, '$1').trim();
 }
@@ -1517,11 +1622,16 @@ function pickTail(text, ctx){
   const themes = (typeof getThemes === 'function' ? getThemes() : []).join(' ').toLowerCase();
   const lo = text.toLowerCase();
   const used = ctx && ctx.used ? ctx.used : new Set();
-  const cands = TAILS.filter(tl => themes.includes(tl.key) && tl.fits.test(lo) && !tl.skip.test(lo));
+  const ls = leadSubject(text);   // a dua for the person the memo opens with: no tail that is about me
+  const cands = TAILS.filter(tl => themes.includes(tl.key) && tl.fits.test(lo) && !tl.skip.test(lo) && !(ls && /^(?:accept my deeds|family|pardon|firm heart)$/.test(tl.key)));
   const pick = cands.find(tl => !used.has(tl.key));
   if (!pick) return null;
   used.add(pick.key);
-  const other = OTHER_PERSON.test(text) || !!leadSubject(text);
+  if (ls) {
+    const ob = ls.plural ? 'them' : pron(ls.subject, lo).obj;
+    return {key: pick.key, text: pick.key === 'afiyah' ? 'grant ' + ob + ' \u2018afiyah' : pick.key === 'best for me' ? 'grant ' + ob + ' whatever is best for ' + ob : pick.text, imp: !!pick.imp};
+  }
+  const other = OTHER_PERSON.test(text);
   return {key: pick.key, text: other ? pick.text.replace(/^grant me \u2018afiyah/, 'grant us \u2018afiyah') : pick.text, imp: !!pick.imp};
 }
 /* ---- natural dua composer: rule-based, offline. Memo -> clauses -> request phrases -> opening template + Ameen ---- */
@@ -1531,7 +1641,8 @@ const COUNTABLE = new Set(['job','house','home','car','spouse','husband','wife',
 const GERUND_DOUBLE = {get:'getting', stop:'stopping', quit:'quitting', run:'running', cut:'cutting', sit:'sitting', win:'winning', put:'putting', set:'setting', begin:'beginning', plan:'planning', hit:'hitting', let:'letting', be:'being', see:'seeing', lie:'lying', die:'dying'};
 function gerund(v){ if (GERUND_DOUBLE[v]) return GERUND_DOUBLE[v]; if (/[^aeiouy]e$/.test(v) && !/ee$/.test(v)) return v.slice(0, -1) + 'ing'; return v + 'ing'; }
 function ucFirst(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
-function lcFirst(s){ return /^(I|You|Your|Yours|Yourself|Allah|Islam|Quran|Qur)\b/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1); }
+const PROPER_LEAD = new Set('gaza palestine rafah sudan yemen syria lebanon iraq afghanistan kashmir ukraine makkah mecca madinah medina jerusalem ramadan eid muslim muslims monday tuesday wednesday thursday friday saturday sunday january february april june july september october november december america canada london texas chicago houston dallas boston austin seattle toronto pakistan india bangladesh egypt turkey somalia nigeria'.split(' '));
+function lcFirst(s){ return /^(I|You|Your|Yours|Yourself|Allah|Islam|Quran|Qur)\b/.test(s) ? s : PROPER_LEAD.has(s.split(/[\s']/)[0].toLowerCase()) || /^[A-Z]/.test(s) && (w => leadKnown(w) && !LEAD_STOP.has(w))(s.split(/[\s']/)[0].toLowerCase()) ? ucFirst(s) : s.charAt(0).toLowerCase() + s.slice(1); }
 function withArticle(np){
   if (/^(a|an|the|my|our|your|his|her|their|some|more|any|all|every|this|that|these|those|good|great|beautiful|best|better|strong|righteous|halal|\d)\b/i.test(np)) return np;
   const head = np.split(/\s+/).pop();
@@ -1546,36 +1657,60 @@ function subj(person, lo){  // who the request is about: {obj, pos, name}
 const DEATH_SURE = /\b(passed away|passed on|passing away|deceased|late (?:mother|father|grand\w+|husband|wife|brother|sister)|in jannah|grave|funeral|janazah|buried)\b/;
 const DEATH_WHO = '(?:(?:my|our|his|her|their|the late)\\s+(?:[a-z]+\\s+)?(?:mother|father|mom|mum|dad|brother|sister|son|daughter|husband|wife|grand\\w+|aunt|uncle|cousin|friend|baby|child|children|parents?|mentor|teacher|neighbou?r|colleague|coworker|spouse|boss|cat|dog|pet|nani|dadi|nana)|he|she|they|who|someone)';
 const DEATH_VERB = new RegExp('\\b' + DEATH_WHO + '[^.,;]*?\\b(?:died|dies|dead|(?:has |have |had |just |recently )?passed)\\b(?!\\s+(?:my|the|his|her|their|our|an?|this|that|it|your|all|every|to|with|him|them|me|us|\\d))');
-function deathIn(lo){ return DEATH_SURE.test(lo) || DEATH_VERB.test(lo); }
+const LOST_KIN = '(?:mother|father|mom|mum|dad|mama|papa|baby|child|children|son|daughter|husband|wife|brother|sister|grandmother|grandfather|grandma|grandpa|parents|nani|nana|dadi|dada|aunt|aunty|auntie|uncle|abbu|ami|amma|bhai|apa)';
+const DEATH_LOST = new RegExp("\\b(?:lost|losing) (my|our|his|her|their) (?:late |beloved |dear )?(" + LOST_KIN + ")(?![a-z'\u2019-])");   // "I lost my mother", "Sarah lost her baby"
+const LEAD_DEATH = /\b(?:died|dies|is dead|was dead|drowned|was killed|passed(?=\s*$|\s+(?:this (?:morning|afternoon|evening|week)|today|yesterday|last|peacefully|recently|suddenly|unexpectedly|away|on\b)))/;
+function deathIn(lo){
+  if (DEATH_SURE.test(lo) || DEATH_VERB.test(lo) || DEATH_LOST.test(lo)) return true;
+  const ls = leadSubject(lo); return !!ls && LEAD_DEATH.test(ls.rest);   // "Sarah died", "Sarah is dead"
+}
+const OWN_GUIDANCE = /^(?:i|we)\b|\b(?:my|our) (?:own )?(?:decision|choice|istikhara|istikharah|path|direction|future|plans?|confusion)\b|\bistikhar\w*|\bwhether (?:i|we)\b/;   // guidance the user asks for, even when it is about someone
+const GUIDE_OTHER = /^(?:(?:my|our) [a-z-]+(?: [a-z]+)? (?:needs?|is|are|was|seems|feels|has|keeps|wants|doesn't|can't|isn't)\b|(?:guidance|direction|hidayah) for (?:my|our)\b|(?:help|guide|show)\b)/;   // the other person is the one who needs guidance
+const OWN_WEDDING = /\b(?:my|our) (?:wedding|nikah|engagement|walima)\b|\b(?:and i|i and \w+|we) (?:are|'re|were) (?:getting|about to get|going to get) (?:married|engaged)\b|\bi(?: am|'m) (?:getting|about to get) (?:married|engaged)\b|\bwe(?:'re| are) (?:married|engaged)\b/;
 const DOMAINS = [
   {k:'deceased', label:'Mercy for the departed', re:{test:deathIn}, build:(c) => {
+    const lm = c.lo.match(DEATH_LOST);
+    if (lm && (/^(?:my|our)$/.test(lm[1]) || !c.self)) {   // the one who died is the relative; the one grieving is who the memo is about
+      const mine = /^(?:my|our)$/.test(lm[1]), kin = PEOPLE[lm[2]] || lm[2], little = /^(?:baby|child|children)$/.test(kin);
+      const g = FEM.has(kin) ? 'her' : MASC.has(kin) ? 'him' : 'them';
+      if (mine) return little ? 'have mercy on my ' + kin + ', unite us in Jannah, and fill my heart with patience and comfort in this loss' : 'forgive my ' + kin + ', have mercy on ' + g + ', grant ' + g + ' the highest ranks of Jannah, and fill my heart with patience and comfort in this loss';
+      return 'grant ' + c.obj + ' patience and comfort in ' + c.pos + ' loss, ' + (little ? 'have mercy on ' + c.pos + ' ' + kin + ', and unite them in Jannah' : 'forgive ' + c.pos + ' ' + kin + ', and grant ' + g + ' the highest ranks of Jannah');
+    }
     const o = c.self ? 'those who have passed' : c.obj, p = c.self ? 'them' : c.obj; return 'forgive ' + o + ', have mercy on ' + p + ', and grant ' + p + ' the highest ranks of Jannah'; }},
-  {k:'health', label:'Health & healing', re:/\b(surgery|operation|procedure|health|healing|heal|healthy|sick|sickness|ill|illness|cancer|disease|cure|recover(y)?|injur(y|ed)|diagnos\w+|chemo\w*|fever|infection|pain|hospital|sugar|diabet\w+|headache|migraine)\b/, build:(c, s) => {
+  {k:'health', label:'Health & healing', re:/\b(surgery|operation|procedure|health|healing|heal|healthy|sick(?! (?:of|and tired)\b)|sickness|ill|illness|cancer|disease|cure|recover(y)?|injur(y|ed)|diagnos\w+|chemo\w*|fever|infection|pain|hospital|sugar|diabet\w+|headache|migraine)\b/, build:(c, s) => {
     if (/surgery|operation|procedure/.test(c.lo)) return 'make ' + c.pos + ' surgery easy and successful, and grant ' + c.obj + ' a full and swift recovery';
     return pickOf([
       'grant ' + c.obj + ' complete healing and lasting good health',
       'heal ' + c.obj + ' with a healing that leaves no illness behind, and grant ' + c.obj + ' strength',
       'cure ' + c.obj + ', ease ' + c.pos + ' pain, and restore ' + c.obj + ' to full health'], s, 1); }},
-  {k:'emotion', label:'Calm & relief', re:/\b(anxiety|anxious|stress(ed)?|worry|worries|worried|fear|fears|scared|afraid|depress\w+|sadness|sad|grief|grieving|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|heart (?:is |was )?broke\w*|hopeless\w*|nervous\w*)\b/, build:(c, s) => {
-    const m = c.lo.match(/\b(anxiety|anxious|stress(?:ed)?|worry|worries|worried|fear|scared|afraid|depress\w+|sadness|sad|grief|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|heart (?:is |was )?broke\w*|hopeless\w*|nervous\w*)\b/); const w = (m && m[1]) || 'worry';
+  {k:'emotion', label:'Calm & relief', re:/\b(anxiety|anxious|stress(?:ed|ful|ing)?|worry|worries|worried|fear|fears|scared|afraid|depress\w+|sadness|sad|grief|grieving|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|heart (?:is |was )?broke\w*|hopeless\w*|nervous\w*)\b/, build:(c, s) => {
+    const m = c.lo.match(/\b(anxiety|anxious|stress(?:ed|ful|ing)?|worry|worries|worried|fear|scared|afraid|depress\w+|sadness|sad|grief|lonel\w+|overthink\w*|panic|overwhelm\w*|heartbr\w+|heart (?:is |was )?broke\w*|hopeless\w*|nervous\w*)\b/); const w = (m && m[1]) || 'worry';
     const noun = /anx/.test(w) ? 'anxiety' : /stress/.test(w) ? 'stress' : /worr/.test(w) ? 'worry' : /fear|scar|afraid/.test(w) ? 'fear' : /depress|sad/.test(w) ? 'sadness' : /grie/.test(w) ? 'grief' : /lonel/.test(w) ? 'loneliness' : /overthink/.test(w) ? 'overthinking' : /panic/.test(w) ? 'panic' : /overwhelm/.test(w) ? 'feeling overwhelmed' : /hopeless/.test(w) ? 'hopelessness' : /heartbr|heart/.test(w) ? 'heartache' : 'worry';
     const topic = (c.lo.match(/\b(?:about|over|of|with|because of|regarding)\s+(.+)$/) || [])[1];
+    const wk = !topic && c.self ? c.lo.match(/\b(work|job|workplace|office|school|college|university|studies)\b/) : null;   // "work is stressful": ease the stress at work, not a request for a job
+    if (wk) { const w = wk[1], at = /^(?:work|job|workplace|office)$/.test(w) ? 'at work' : w === 'studies' ? 'in my studies' : 'at ' + w, mine = /^(?:work|job|workplace|office)$/.test(w) ? 'my work' : w === 'studies' ? 'my studies' : 'my time there';
+      return pickOf(['ease my ' + noun + ' ' + at + ', put barakah in ' + mine + ', and fill my heart with calm and trust in You', 'lift this ' + noun + ' from me ' + at + ', put barakah in ' + mine + ', and replace it with peace'], s, 2); }
     return pickOf([
       'ease ' + c.pos + ' ' + noun + (topic ? ' about ' + topic : '') + ' and fill ' + c.pos + ' heart with calm and trust in You',
       'lift this ' + noun + ' from ' + c.pos + ' heart' + (topic ? ' about ' + topic : '') + ' and replace it with peace',
       'relieve ' + c.obj + ' of ' + c.pos + ' ' + noun + (topic ? ' about ' + topic : '') + ' and grant ' + c.obj + ' tranquility'], s, 2); }},
   {k:'anger', label:'A soft heart', re:/\b(anger|angry|temper|frustrat\w+|irritab\w+|short[- ]tempered|rage)\b/, build:(c) => 'soften ' + c.pos + ' heart, take away ' + c.pos + ' anger, and grant ' + c.obj + ' calm and gentleness'},
   {k:'habit', label:'Leaving a habit', re:/\b(porn\w*|smok\w+|vap\w+|gossip\w*|backbit\w+|lying|lies|laziness|lazy|procrastinat\w+|addict\w+|bad habits?|habit|masturbat\w+|gambl\w+|drinking|alcohol|swearing|cursing|wasting time|screen time|phone addiction)\b/, build:(c, s) => {
+    if (!c.self && c.lead) {
+      if (/lazi|lazy|procrastinat/.test(c.lo)) return 'free ' + c.obj + ' from laziness and procrastination, and grant ' + c.obj + ' energy, discipline, and barakah in ' + c.pos + ' time';
+      return pickOf(['free ' + c.obj + ' from this habit, keep ' + c.obj + ' far from it, and replace it with what pleases You', 'help ' + c.obj + ' leave this for Your sake, strengthen ' + c.pos + ' will, and keep ' + c.pos + ' heart firm'], s, 3);
+    }
     if (/lazi|lazy|procrastinat/.test(c.lo)) return 'free me from laziness and procrastination, and grant me energy, discipline, and barakah in my time';
     return pickOf(['free me from this habit, keep me far from it, and replace it with what pleases You', 'help me leave this for Your sake, strengthen my will, and keep my heart firm'], s, 3); }},
   {k:'forgiveness', label:'Forgiveness', re:/\b(forgiv\w*|sins?|repent\w*|tawbah|mistakes?|wrongdoing|guilt\w*|ashamed|pardon)\b/, build:(c, s) => c.self
     ? pickOf(['forgive my sins, the hidden and the seen, and accept my repentance', 'forgive me, pardon my mistakes, and help me return to You sincerely'], s, 4)
     : 'forgive ' + c.name + ' and accept ' + c.pos + ' repentance'},
   {k:'debt', label:'Debt relief', re:/\b(debts?|loans?|owe|mortgage|(?:i'?m|i am|we'?re|we are|flat|so|totally|completely|stone|dead) broke)\b/, build:(c) => 'free ' + c.obj + ' from ' + c.pos + ' debts, settle what is due, and provide for ' + c.obj + ' from Your lawful bounty'},
-  {k:'job', label:'Work & career', re:/\b(jobs?|career|interviews?|promotion|raise|hired|hiring|resume|unemployed|laid off|work|workplace|boss|coworkers?|internship|offer letter)\b/, build:(c, s) => {
+  {k:'job', label:'Work & career', re:/\b(jobs?|career|interviews?|promotion|raise|hired|hiring|resume|unemployed|laid off|(?:got|get|gets|was|been|being|were|will be|might be) fired(?! up)|fired from|work|workplace|boss|coworkers?|internship|offer letter)\b/, build:(c, s) => {
     if (/interview/.test(c.lo)) return 'make ' + c.pos + ' interview easy, put calm and clarity in ' + c.pos + ' words, and open the door for ' + c.obj;
     if (/promotion|raise/.test(c.lo)) return 'raise ' + c.obj + ' in ' + c.pos + ' work, and bless ' + c.pos + ' provision';
     if (/boss|cowork|workplace/.test(c.lo)) return 'grant ' + c.obj + ' ease, respect, and peace in ' + c.pos + ' work';
+    if (c.self && /\bwork\b/.test(c.lo) && !/\b(?:jobs?|career|interviews?|hired|hiring|resume|unemployed|laid off|fired|internship|offer)\b/.test(c.lo) && /\b(?:is|are|was|has been|feels?|got)\b[^.]*\b(?:hard|tough|difficult|heavy|busy|exhausting|draining|overwhelming|toxic|rough|slow|boring|long)\b/.test(c.lo)) return 'ease what I face at work, grant me strength and patience, and put barakah in my work';   // a statement about work is not a request for a job
     return pickOf(['open the door to a good, halal job for ' + c.obj, 'grant ' + c.obj + ' a good job that is a source of lawful provision', 'ease the way to a blessed job for ' + c.obj + ', and make ' + c.pos + ' work good'], s, 5); }},
   {k:'provision', label:'Provision', re:/\b(money|income|rizq|rizk|provision|salary|finances?|financial|funds?|savings?|wealth|livelihood|sustenance|business|halal income)\b/, build:(c, s) => {
     if (/business/.test(c.lo)) return 'put barakah in ' + c.pos + ' business and make it a means of lawful provision';
@@ -1590,9 +1725,11 @@ const DOMAINS = [
     if (/wisdom/.test(c.lo)) return 'grant me wisdom and sound judgment in all my affairs';
     return pickOf(['increase me in beneficial knowledge and help me understand it well', 'open my heart and mind to beneficial knowledge, and let me act upon it'], s, 7); }},
   {k:'children', label:'Children & family', re:/\b(baby|babies|pregnan\w*|conceive|conception|offspring|children|child|kids?|toddler|newborn|my (son|daughter)s?|parenting)\b/, build:(c, s) => {
+    if (!c.self && c.lead && /pregnan|expecting|having a (baby|child)|gave birth|giving birth/.test(c.lo)) return 'make ' + c.pos + ' pregnancy easy and healthy, grant ' + c.obj + ' a safe delivery, and make the child a comfort to ' + c.pos + ' eyes';
     if (/pregnan|conceive|conception|offspring|a (baby|child)|have a (baby|child)|^(a )?(baby|child)$/.test(c.lo) && !/\bmy (baby|child|children|kids?|son|daughter)\b/.test(c.lo)) return 'bless ' + c.obj + ' with righteous, healthy children, and make them a comfort to ' + c.pos + ' eyes';
     return pickOf(['protect my children, guide them, and make them a joy to my heart', 'keep my children safe, make them righteous, and let them be a source of good for me'], s, 8); }},
-  {k:'marriage', label:'Marriage', re:/\b(spouse|marriage|marry|married|marrying|rishta|nikah|husband|wife|partner|proposal|fianc\w+|divorce|zawj)\b/, build:(c, s) => {
+  {k:'marriage', label:'Marriage', re:{test:(x) => /\b(spouse|marriage|marry|married|marrying|rishta|nikah|husband|wife|partner|proposal|fianc\w+|divorce|zawj)\b/.test(x) || (/\b(wedding|engaged|engagement|walima)\b/.test(x) && !/\b(decision|decide|istikhar\w*|whether|choice|choose)\b/.test(x))}, build:(c, s) => {
+    if (OWN_WEDDING.test(c.lo)) return 'bless my marriage, make our wedding easy, and fill our hearts with love, mercy, and barakah';
     if (!c.self && !/\bmy (husband|wife|spouse|marriage|partner)\b/.test(c.lo)) return 'make ' + c.pos + ' marriage blessed and easy, and fill it with love, mercy, and barakah';
     if (/\bmy (husband|wife|spouse|marriage|partner)\b|divorce/.test(c.lo)) return /divorce/.test(c.lo) ? 'ease this matter, guide us to what is best, and bring good out of it' : 'fill my marriage with love, mercy, and barakah, and bring our hearts together';
     return pickOf(['bless me with a righteous spouse who brings me closer to You', 'grant me a good, kind spouse and make the way to marriage easy'], s, 9); }},
@@ -1609,7 +1746,7 @@ const DOMAINS = [
     if (/quran|qur'an/.test(c.lo)) return 'make the Quran the spring of my heart, and help me recite it, understand it, and live by it';
     if (/sincer|ikhlas/.test(c.lo)) return 'purify my intentions, make my deeds sincerely for Your sake, and accept them from me';
     return c.self ? pickOf(['strengthen my faith and keep my heart firm on Your deen', 'draw me closer to You, strengthen my iman, and keep me steadfast'], s, 11) : 'guide ' + c.name + ' back to You and make ' + c.pos + ' faith strong and sincere'; }},
-  {k:'guidance', label:'Guidance & decisions', re:/\b(guidance|guide|decision|decide|choice|choose|istikhara|direction|purpose|path|confus\w+|lost|stuck|clarity|crossroads|unsure|move|moving)\b/, build:(c, s) => c.self ? pickOf(['guide me to what is best and make it easy for me', 'show me the right path, put clarity in my heart, and make the best choice easy for me'], s, 12) : pickOf(['guide ' + c.obj + ' to what is best and make it easy for ' + c.obj, 'show ' + c.obj + ' the right path, put clarity in ' + c.pos + ' heart, and make the best choice easy for ' + c.obj], s, 12)},
+  {k:'guidance', label:'Guidance & decisions', re:/\b(guidance|guide|decision|decide|choice|choose|istikhara|direction|purpose|path|confus\w+|lost|stuck|clarity|crossroads|unsure|move|moving)\b/, build:(c, s) => c.self || OWN_GUIDANCE.test(c.lo) || !(c.lead || GUIDE_OTHER.test(c.lo)) ? pickOf(['guide me to what is best and make it easy for me', 'show me the right path, put clarity in my heart, and make the best choice easy for me'], s, 12) : pickOf(['guide ' + c.obj + ' to what is best and make it easy for ' + c.obj, 'show ' + c.obj + ' the right path, put clarity in ' + c.pos + ' heart, and make the best choice easy for ' + c.obj], s, 12)},
   {k:'home', label:'Home & belongings', re:/\b(house|home|apartment|flat|car|place to live|housing|move out|room)\b/, build:(c, s) => /car/.test(c.lo) ? 'provide ' + c.obj + ' with a safe, reliable car, and put barakah in it' : 'provide ' + c.obj + ' with a good, peaceful home, and fill it with barakah'},
   {k:'virtue', label:'Character', re:/\b(gratitude|grateful|thankful|humility|humble|contentment|content|calm|peace|peaceful|happiness|happy|confidence|confident|courage|brave|strength|strong|kindness|kind|discipline|discipline[d]?|good character|manners|gentle|gentleness|hope|energy|rest|sleep|ease|barakah|success|tranquil\w*)\b/, build:(c, s) => {
     const V = [[/gratitude|grateful|thankful/,'make me truly grateful, and let me never take Your blessings for granted'],[/humil|humble/,'fill my heart with humility and protect me from pride'],[/content/,'make me content with what You have decreed and free my heart from wanting what is not mine'],[/calm|peace|tranquil/,'fill my heart with calm and peace, and make me steady through whatever comes'],[/happi|happy/,'fill my life with true happiness and my heart with contentment'],[/confiden|courage|brave/,'grant me courage and a confident, steady heart'],[/strength|strong|energy/,'grant me strength and steadiness, and help me carry what is in front of me'],[/kind|gentle|manners|character/,'beautify my character with kindness and gentleness'],[/discipline/,'grant me discipline and consistency, and make good habits easy for me'],[/hope/,'restore my hope in You and let me never despair of Your mercy'],[/sleep|rest/,'grant me restful sleep and ease my mind and body'],[/barakah/,'put barakah in my time, my work, and what I have'],[/success|ease/,'grant me success and make what I am facing easy']];
@@ -1633,7 +1770,8 @@ const KNOWN_DUAS = [
   {re:/\bas ?aluka(?: ?al)? ?afiyah\b/, tr:'Allahumma inni as\u2019aluka al-\u2018afiyah', en:'O Allah, I ask You for well-being', k:'health'},
   {re:/\bas ?alukal ?afwa wal ?afiyah\b/, tr:'Allahumma inni as\u2019alukal-\u2018afwa wal-\u2018afiyah', en:'O Allah, I ask You for pardon and well-being', k:'health'},
   {re:/\brabbana atina fi ?d ?dunya hasanah\b/, tr:'Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina \u2018adhaban-nar', en:'our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire', k:'faith'},
-  {re:/\bhasbunallahu? wa ni ?mal wakeel\b/, tr:'Hasbunallahu wa ni\u2018mal-wakil', en:'Allah is enough for us, and the best disposer of affairs', k:'emotion'},
+  {re:/\bhasbiyallahu?\b/, tr:'Hasbiyallahu la ilaha illa Huwa, \u2018alayhi tawakkaltu', en:'Allah is enough for me; there is no god but Him; in Him I put my trust', k:'emotion'},
+  {re:/\bhasbun(?:a|ee)? ?allahu?(?: wa ni ?mal wak[ie]{1,2}l)?\b/, tr:'Hasbunallahu wa ni\u2018mal-wakil', en:'Allah is enough for us, and the best disposer of affairs', k:'emotion'},
   {re:/\bla hawla wa la quwwata illa billah\b/, tr:'La hawla wa la quwwata illa billah', en:'there is no power and no strength except with Allah', k:'patience'},
   {re:/\brabbi ishrah li sadri\b/, tr:'Rabbi ishrah li sadri wa yassir li amri', en:'my Lord, expand my chest for me and ease my task for me', k:'emotion'},
   {re:/\b(?:rabbi|rabbighfir|allahumma) ?i?ghfir li\b/, tr:'Rabbighfir li', en:'my Lord, forgive me', k:'forgiveness'},
@@ -1661,12 +1799,13 @@ function domainOf(text){
   return (key && DOMAINS.find(d => d.k === key)) || pickDomain(tidy(text).toLowerCase());
 }
 function nounRequest(np, seed, seen){
+  const whole = np;   // who the memo is about is read from the words as typed, before an article is stripped ("The doctor is sick" is not a person called Doctor)
   np = np.replace(/^(a|an|some|more of|the)\s+/i, (m) => /^(more of)/i.test(m) ? m : '').trim() || np;
   const lo = np.toLowerCase();
-  let person = personIn(lo, np);
-  if (person && /baby|child|family/.test(person) && !/\b(my|our|his|her)\s+(baby|child|children|family|kids?)\b/.test(lo)) person = null;
+  let person = personIn(lo, whole);
+  if (person && /^my /.test(person) && /baby|child|family/.test(person) && !/\b(my|our|his|her)\s+(baby|child|children|family|kids?)\b/.test(lo)) person = null;
   const s = subj(person, lo);
-  const c = {lo:lo, self:s.self, obj:s.self || seen ? s.obj : '\u0001O', pos:s.self || seen ? s.pos : '\u0001P', name:s.name};
+  const c = {lo:lo, self:s.self, lead:!!leadSubject(whole), obj:s.self || seen ? s.obj : '\u0001O', pos:s.self || seen ? s.pos : '\u0001P', name:s.name};
   const fin = (str) => { if (s.self || seen) return str; let k = 0; return str.replace(/\u0001([OP])/g, (x, w) => { const first = k++ === 0; return w === 'O' ? (first ? s.name : s.obj) : (first ? s.name + "'s" : s.pos); }); };
   const d = pickDomain(lo);
   const why = (lo.match(/\bso (?:that )?(?:i|we) can (.+)$/) || [])[1];
@@ -1683,6 +1822,7 @@ function nounRequests(np, seed, seen){
   }
   return [nounRequest(np, seed, seen)];
 }
+const STATEMENT = /^(?!(?:a|an|some|more|any|someone|somebody|something|good|great|beautiful|best|please)\b)[a-z0-9'\u2019-]+(?: [a-z0-9'\u2019-]+){0,3} (?:is|are|was|were|am|has|have|had|isn't|aren't|wasn't|weren't|hasn't|doesn't|don't|didn't|can't|won't|keeps?|seems?|feels?|looks?)\b/;
 const STMT_VERB = /\b(is|are|was|were|has|have|had|ends?|starts?|keeps?|got|lost|won't|isn't|can't|doesn't|don't|did|does|gets?|goes|went|feels?|seems?|needs?|wants?|makes?|comes?|came|left|leaves?|passed|died|hurts?|broke|failed|started|ended)\b/i;
 const RS = /^(i (want|need|wanna|would like|wish|hope|pray|ask|am|feel|have|can|cannot|cant|don't|do not|dont|keep|struggle)|i'?m|help|make|let|grant|give|forgive|guide|protect|heal|cure|bless|keep|open|bring|ease|increase|remove|accept|please|to |for |that |my [a-z]+( [a-z]+)? (is|are|has|have|needs?|got|lost|passed|died)|thank|alhamdulillah|grateful|thankful|you (are|know|have|see|hear)|so that|forgive|show|teach|strengthen|soften|free|lift|relieve|settle|mend|restore|fill|purify|raise|provide|save|unite|shield|calm|replace|take|unlock|expand|preserve|guard|inspire|reward|use|fix|set|clear|find|pass|be|become|stop|quit)\b/i;
 function splitMemo(t){
@@ -1733,6 +1873,10 @@ function clauseToRequest(c, seed, first, st){
   return arr.some(x => x && x.t === 'thanks') ? arr : [{t:'thanks', s:'all praise is Yours'}].concat(arr);
 }
 function clauseCore(c, seed, first, st){
+  PRON_HINT = (st && st.hint) || '';
+  try { return clauseCore0(c, seed, first, st); } finally { PRON_HINT = ''; }
+}
+function clauseCore0(c, seed, first, st){
   st = st || {};
   c = c.trim().replace(/^(and|also|plus|&|so|but)\s+/i, '').replace(/\s+/g, ' ');
   if (!c) return null;
@@ -1746,7 +1890,7 @@ function clauseCore(c, seed, first, st){
   // pronoun clause about the person just mentioned ("he has cancer")
   if (st.person && (m = lo.match(/^(he|she|they) (has|is|have|are|was|had|got|needs?)\b(.*)$/))) {
     const lo2 = st.person + ' ' + m[2] + m[3];
-    if (DOMAINS.some(d => d.re.test(lo2))) return nounRequests(lo2, seed, true).map(x => ({t:'req', s:x}));
+    if (DOMAINS.some(d => d.re.test(lo2))) { PRON_HINT = m[1]; return nounRequests(lo2, seed, true).map(x => ({t:'req', s:x})); }
     return null;
   }
   if ((m = lo.match(/^(?:because|since|as|cause|cuz)\s+(.+)$/))) return {t:'ctx', s: cm(/^(?:because|since|as|cause|cuz)\s+(.+)$/)[1]};
@@ -1756,7 +1900,7 @@ function clauseCore(c, seed, first, st){
     return {t:'thanks', s: what ? 'all praise is Yours for ' + what : 'all praise is Yours for all Your countless blessings'};
   }
   // statements about Allah
-  if (/^you (are|know|have|see|hear|alone|can|created|gave|made|love|forgive|answer|decree)\b/i.test(c)) return {t:'stmt', s: ucFirst(c)};
+  if (/^you (are|know|have|see|hear|alone|can|created|gave|made|love|forgive|answer|decree)\b/i.test(c)) return {t:'stmt', s: ucFirst(c), then: /enough|suffici|planner|disposer|wakil|rely|trust|plan|decree|control|knows? best/i.test(c) ? 'help me rely on You alone and be at peace with Your plan' : 'keep my heart close to You and grateful for who You are'};
   // success already given: thanks, not a request
   if ((m = cm(/^(i|we) ((?:passed|won|graduated|finished|completed|received|was accepted|got (?:accepted|hired|promoted|into|married|engaged|the|my|a|an)\b).*)$/))) return {t:'thanks', s:'all praise is Yours that ' + (m[1].toLowerCase() === 'i' ? 'I' : 'we') + ' ' + m[2]};
   // "why is everything so hard" is how it feels, not something to ask for
@@ -1819,6 +1963,8 @@ function clauseCore(c, seed, first, st){
   if ((CLAUSE_VERB.test(c) && !/^(be|use|have|let me)\b/i.test(c)) || /^(watch over|be (enough|my|with|merciful|gentle|kind|pleased)|take care|look after|cleanse|pardon|erase)\b/i.test(c)) return {t:'req', s: lcFirst(c.replace(/^give\b/i, 'grant'))};
   if (/^let me\b/i.test(c)) return {t:'req', s: lcFirst(c)};
   if (/^(be|become|stay|get|pass|finish|do|reach|achieve|learn|understand|overcome|stop|quit|find|win|start|build|improve|memori[sz]e|complete|keep up|remember|forget|focus|sleep|wake)\b/i.test(c)) return {t:'req', s:'help me ' + lcFirst(c)};
+  // a statement ("Money is tight", "this is hard") is how things are, not a noun to ask for: say it to Allah and ask for ease
+  if (STATEMENT.test(lo) && !/\b(?:who|that|which|where|whose)\b/.test(lo.split(/ (?:is|are|was|were|am|has|have|had)\b/)[0]) && !pickDomain(lo)) return {t:'ctx', s:c, then:'ease this for me and bring good out of it'};
   // fragments
   return nounRequests(c, seed).map(x => ({t:'req', s:x}));
 }
@@ -1871,6 +2017,7 @@ function composeDua(n, memo, ctx){
   const harm = HARMWISH.test(lo0) || HOPEHARM.test(lo0) || (AGAINST.test(lo0) && /\b(my|the|this|that|a|someone|people|they|he|she)\b/.test(lo0) && !/\bhelp me (not|stop|avoid)\b/.test(lo0));
   let body, kind;
   let t = tidy(hasFrame(raw) ? stripDuaFrame(raw) : raw).replace(/\b(mother|father) and (mother|father)\b/gi, 'parents').replace(/\bmy (mother|father) and (?:my )?(mother|father)\b/gi, 'my parents');
+  t = t.replace(/\b(Dr|Mr|Mrs|Ms|Prof)\.(?=\s)/gi, '$1');   // "Dr. Khan": the period is not a sentence end
   if (t === t.toUpperCase()) t = t.toLowerCase();
   { const ls = leadSubject(t); t = ls ? ls.fixed : lcFirst(t); }
   if (harm) {
@@ -1878,15 +2025,15 @@ function composeDua(n, memo, ctx){
   } else if (alreadyDua(raw) || wcount(raw) > 60) {
     body = stripDuaFrame(t).replace(/^(You [^,]+), (?=(?:make|grant|help|forgive|guide|protect|ease|open|bring|heal|bless|keep)\b)/, '$1, so '); kind = 'dua';
   } else {
-    const st = {}; const parts = [].concat(...splitMemo(t).map((c, i) => clauseToRequest(c, seed, i === 0, st))).filter(Boolean);
+    const st = {}; const cl = splitMemo(t); const parts = [].concat(...cl.map((c, i) => { const nx = (cl[i + 1] || '').match(/^(?:and |but )?(he|she)\b/i); st.hint = nx ? nx[1].toLowerCase() : ''; return clauseToRequest(c, seed, i === 0, st); })).filter(Boolean);
     if (!parts.length) return {text: voc + ' (' + ar + '), ' + g[3] + AMEEN, generic: true};
     const stmts = parts.filter(p => p.t === 'stmt' || p.t === 'thanks'), ctxs = parts.filter(p => p.t === 'ctx'), reqs = parts.filter(p => p.t === 'req').map(p => p.s);
     ctxs.forEach(p => { if (p.then && !reqs.length) reqs.push(p.then); });
     const thanksOnly = !reqs.length && stmts.length > 0 && stmts.every(p => p.t === 'thanks');
-    stmts.forEach(p => { if (p.then) reqs.push(p.then); if (p.t === 'thanks' && !reqs.length) reqs.push('keep me grateful and never let me take this blessing for granted'); });
+    stmts.forEach(p => { if (p.then && !reqs.length) reqs.push(p.then); if (p.t === 'thanks' && !reqs.length) reqs.push('keep me grateful and never let me take this blessing for granted'); });
     // standing-theme tail (at most one), only when it fits; none after pure thanks
     const probe = thanksOnly ? null : pickTail(t, ctx);
-    if (probe && reqs.some(r => r.includes(probe.text))) ctx.used.delete(probe.key);
+    if (probe && reqs.some(r => r.includes(probe.text) || (probe.key === 'barakah' && /barakah/.test(r)))) ctx.used.delete(probe.key);
     else if (probe) { if (wcount(reqs.join(' ')) + wcount(probe.text) <= 38) { if (probe.imp) reqs.push(probe.text); else reqs[reqs.length - 1] += ' ' + probe.text; } else ctx.used.delete(probe.key); }
     if (reqs.length === 1 && wcount(reqs[0]) <= 7) { const dd = domainOf(raw); if (dd && dd.k === 'study' && /^help me /.test(reqs[0])) reqs[0] += ', and grant me clarity, calm, and success'; else if (dd && dd.k === 'job' && /^help me /.test(reqs[0])) reqs[0] += ', and open the doors of halal provision for me'; }
     const lead = stmts.map(p => p.s);
@@ -3682,7 +3829,8 @@ const PAIR_DEFAULT = ['Ar-Rahim', 'Al-Latif', 'Al-Mujib'];
 function pairNames(text){
   const lo = tidy(text).toLowerCase(), dom = domainOf(text);
   let trs = PAIR_DEFAULT;
-  if (dom) {
+  if (/^you (?:are|is) (?:enough|sufficient|the best (?:of planners|disposer)|my (?:wakil|trustee))\b|\b(?:rely|trust|depend) on you\b|\bhasb(?:unal|iyal)lah/.test(lo)) trs = ['Al-Wakil', 'Al-Latif', 'Al-Hafiz'];   // tawakkul
+  else if (dom) {
     const sub = PAIR_SUB.find(x => x[0] === dom.k && x[1].test(lo));
     trs = sub ? sub[2] : PAIR[dom.k] || PAIR_DEFAULT;
   }
