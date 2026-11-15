@@ -303,6 +303,7 @@
   .sug-tag.sunnah{ color:#9fd3a6; border-color:rgba(159,211,166,.4); background:rgba(159,211,166,.08); }
   .sug-tag.suggestion{ color:var(--gold); border-color:var(--gold-soft); background:rgba(201,162,39,.08); }
   .sug-chips{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:6px; }
+  .sug-pchips{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:6px; }
   .sug-chip{ font:inherit; font-size:.82rem; font-weight:500; color:var(--ink); background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:8px 14px; min-height:38px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .sug-chip i{ font-style:normal; color:var(--gold); font-size:.72rem; }
   .sug-chip:active{ border-color:var(--gold); background:var(--card-hover); }
@@ -3495,7 +3496,7 @@ function peopleChips(){
   if (!list.length) return null;
   return el('div', {class:'sug-people', role:'group', 'aria-label':'People you pray for'}, [
     el('div', {class:'sug-row'}, [sugTag('Your people'), el('span', {class:'sug-themes', text:'One tap adds what you already ask for them'})]),
-    el('div', {class:'sug-chips'}, list.map(p => {
+    el('div', {class:'sug-pchips'}, list.map(p => {
       const all = p.live.every(i => prayHas(i.d.id)), th = p.themes.slice(0, 2).join(' \u00B7 ');
       return el('button', {type:'button', class:'sug-chip sug-person', 'data-person':p.key, 'aria-pressed':all ? 'true' : 'false',
         'aria-label':(all ? 'Already added: ' : 'Add to this prayer: ') + p.live.length + (p.live.length === 1 ? ' dua' : ' duas') + ' for ' + p.label + (th ? ', ' + th : ''), onclick:() => addPersonToPrayer(p)},
