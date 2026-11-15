@@ -3174,7 +3174,7 @@ function openBackup(){
     el('div', {class:'session-foot bk-row'}, [el('button', {type:'button', class:'btn small', text:'Choose backup file\u2026', onclick:() => fileIn.click()}), fileIn]),
     paste,
     el('div', {class:'session-foot bk-row'}, [el('button', {type:'button', class:'btn small', text:'Restore pasted backup', onclick:() => { if (!paste.value.trim()) { toast('Paste a backup first.'); return; } importText(paste.value); close(); }})]),
-    el('p', {class:'set-p small', text:'Restoring adds the backup\u2019s logs to what you have; it never deletes anything.'})
+    el('p', {class:'set-p small', text:'Restoring adds the backup\u2019s duas to what you have; it never deletes anything.'})
   ]);
   // automatic snapshots
   const list = snaps.slice().reverse();
@@ -3361,7 +3361,6 @@ function renderPray(){
   const recents = data.duas.filter(d => d.status === 'oneoff' && !PRAY.ids.includes(d.id) && Date.now() - Date.parse(((idx.get(d.id) || {}).last) || d.created) < 7 * MS_DAY)
     .sort((a, b) => (((idx.get(b.id) || {}).last) || b.created).localeCompare(((idx.get(a.id) || {}).last) || a.created)).slice(0, 4);
   if (recents.length) wrap.appendChild(el('div', {class:'pr-recents'}, recents.map(d => { const t = curText(d); return el('button', {type:'button', class:'pr-chip', onclick:() => { prayAdd(d.id); renderPray(); }, text:(t.length > 28 ? t.slice(0, 26) + '\u2026' : t) + ((idx.get(d.id) || {}).count ? ' \u00B7 ' + idx.get(d.id).count + '\u00D7' : '')}); })));
-  // the rest of My Duas
   const q = normText(PRAY.q);
   const pool = data.duas.filter(d => isLive(d) && !PRAY.ids.includes(d.id) && (q ? normText(curText(d) + ' ' + d.memo + ' ' + (d.n ? BY_N[d.n].tr : '')).includes(q) : d.status === 'keeper'))
     .sort((a, b) => (((idx.get(b.id) || {}).count) || 0) - (((idx.get(a.id) || {}).count) || 0));
@@ -3779,7 +3778,7 @@ function occsOf(g){ return data.occ.filter(o => o.day === g.day && atPrayer(o) =
 async function shareDay(r){
   const text = dayText(r);
   if (navigator.share) { try { await navigator.share({title:fmtDate(dateFromKey(r.day)), text:text}); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
-  if (await copyText(text)) toast('Copied \u2014 paste it anywhere to share'); else toast('Couldn\u2019t copy on this browser');
+  if (await copyText(text)) toast('Copied. Paste it anywhere to share.'); else toast('Couldn\u2019t copy on this browser');
 }
 function renderHistory(){
   duasView.innerHTML = '';
