@@ -1398,19 +1398,31 @@ const PH = {
 const PEOPLE = {mom:'mother',mum:'mother',mama:'mother',mommy:'mother',ammi:'mother',ummi:'mother',mother:'mother',dad:'father',papa:'father',daddy:'father',abu:'father',abba:'father',father:'father',
   grandma:'grandmother',nani:'grandmother',dadi:'grandmother',grandmother:'grandmother',grandpa:'grandfather',nana:'grandfather',grandfather:'grandfather',
   kids:'children',kid:'child',children:'children',child:'child',son:'son',daughter:'daughter',husband:'husband',hubby:'husband',wife:'wife',
-  brother:'brother',bro:'brother',sister:'sister',sis:'sister',baby:'baby',family:'family',parents:'parents',friend:'friend',aunt:'aunt',uncle:'uncle',spouse:'spouse',cousin:'cousin',cat:'cat',dog:'dog',pet:'pet'};
-const FEM = new Set(['mother','grandmother','daughter','wife','sister','aunt']);
-const MASC = new Set(['father','grandfather','son','husband','brother','uncle']);
-function personIn(m){
-  const r = m.match(/\b(?:my|our)\s+([a-z]+)(?:'s|s')?\b/);
-  if (r && PEOPLE[r[1]]) return 'my ' + PEOPLE[r[1]];
-  for (const w of m.split(/[^a-z']+/)) { const b = w.replace(/'s$/, ''); if (PEOPLE[b]) return 'my ' + PEOPLE[b]; }
-  return null;
+  brother:'brother',bro:'brother',sister:'sister',sis:'sister',baby:'baby',family:'family',parents:'parents',friend:'friend',aunt:'aunt',uncle:'uncle',spouse:'spouse',cousin:'cousin',cat:'cat',dog:'dog',pet:'pet',
+  coworker:'coworker',colleague:'colleague',boss:'boss',manager:'manager',teacher:'teacher',neighbor:'neighbor',neighbour:'neighbor',partner:'partner',classmate:'classmate',roommate:'roommate',student:'student',patient:'patient',mentor:'mentor',fiance:'fiance',
+  parent:'parents',inlaw:'in-laws',inlaws:'in-laws',motherinlaw:'mother-in-law',fatherinlaw:'father-in-law',brotherinlaw:'brother-in-law',sisterinlaw:'sister-in-law'};
+const FEM = new Set(['mother','grandmother','daughter','wife','sister','aunt','mother-in-law','sister-in-law']);
+const MASC = new Set(['father','grandfather','son','husband','brother','uncle','father-in-law','brother-in-law']);
+const NOT_NAMES = /^(Allah|Ameen|Amin|Islam|Quran|Qur|Ramadan|Jannah|Hajj|Umrah|Eid|Sunnah|Muslims?|God|Lord|You|Your|Him|Ya|Rabbi|Rabbana|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|January|February|March|April|May|June|July|August|September|October|November|December)$/;
+/* "my friend Sarah" / "for Sarah": a capitalised name the memo gives (needs the original case) */
+function namedIn(orig){
+  const rel = orig.match(/\b(?:my|our) (friend|colleague|coworker|co-worker|neighbou?r|cousin|classmate|teacher|student|brother|sister|mentor|boss|manager|uncle|aunt|roommate|patient) ([A-Z][a-z]{2,})\b/);
+  if (rel && !NOT_NAMES.test(rel[2])) return 'my ' + rel[1].replace('co-worker', 'coworker') + ' ' + rel[2];
+  const r = orig.match(/\b(?:for|heal|cure|help|protect|guide|forgive|bless|about|upon) ([A-Z][a-z]{2,})\b/);
+  return r && !NOT_NAMES.test(r[1]) ? r[1] : null;
+}
+function personIn(m, orig){
+  const t = m.replace(/\b(mother|father|brother|sister)[- ]in[- ]law\b/g, '$1inlaw').replace(/\bin[- ]laws?\b/g, 'inlaws').replace(/\bco-worker/g, 'coworker');
+  const nm = orig && namedIn(orig);
+  const r = t.match(/\b(?:my|our)\s+([a-z]+)(?:'s|s')?\b/);
+  if (r && PEOPLE[r[1]]) return nm && nm.indexOf('my ' + PEOPLE[r[1]] + ' ') === 0 ? nm : 'my ' + PEOPLE[r[1]];
+  for (const w of t.split(/[^a-z']+/)) { const b = w.replace(/'s?$/, ''); if (PEOPLE[b]) return 'my ' + PEOPLE[b]; }
+  return nm;
 }
 function pron(p){ if (!p) return {obj:'me', pos:'my'}; const k = p.replace(/^my /, ''); if (/^(cat|dog|pet)$/.test(k)) return {obj:'it', pos:'its'}; if (FEM.has(k)) return {obj:'her', pos:'her'}; if (MASC.has(k)) return {obj:'him', pos:'his'}; return {obj:'them', pos:'their'}; }
 const TYPO = [[/\bakirah|akhira\b|aakhirah|akhirat\b/gi,'akhirah'],[/\bbarak(a|at|ah)\b|\bbarkat\b/gi,'barakah'],[/\bumma\b/gi,'ummah'],[/\bdunia\b/gi,'dunya'],[/\bdeen\b|\bdin\b/gi,'deen'],[/\bimaan\b/gi,'iman'],
   [/\bbring my closer\b/gi,'bring me closer'],[/\bkids\b/gi,'children'],[/\bmom\b|\bmum\b/gi,'mother'],[/\bdad\b/gi,'father'],[/\bmake my trials\b/gi,'make my trials'],[/\bive\b/gi,"I've"],[/\bim\b/gi,"I'm"],[/\bdont\b/gi,"don't"],[/\bcant\b/gi,"can't"],[/\bu\b/g,'you'],[/\bur\b/g,'your'],[/\balot\b/gi,'a lot'],[/\bthru\b/gi,'through']];
-const OTHER_PERSON = /\b(mom|mum|mother|dad|father|brother|sister|son|daughter|husband|wife|friend|boss|coworker|co-worker|colleague|manager|teacher|uncle|aunt|cousin|neighbou?r|grandma|grandpa|grandmother|grandfather|baby|child|kid|kids|he's my|my (?:ex|partner|fiance|fianc\u00e9))\b/i;
+const OTHER_PERSON = /\b(mom|mum|mother|dad|father|brother|sister|son|daughter|husband|wife|friend|boss|coworker|co-worker|colleague|manager|teacher|uncle|aunt|cousin|neighbou?r|grandma|grandpa|grandmother|grandfather|baby|child|children|kid|kids|family|parents?|in-?laws?|partner|spouse|classmate|roommate|student|patient|mentor|he's my|my (?:ex|fiance|fianc\u00e9))\b/i;
 const CLAUSE_VERB = /^(open|respond|answer|hear|make|forgive|pardon|accept|grant|give|help|guide|protect|heal|cure|bless|let|keep|increase|remove|ease|bring|permeate|put|fill|purify|raise|provide|show|teach|strengthen|soften|free|lift|relieve|settle|mend|restore|unite|reunite|save|shield|cover|turn|write|choose|allow|send|return|enable|count|clear|calm|replace|take|unlock|expand|widen|honou?r|preserve|draw|guard|steady|correct|fix|inspire|reward|have|be|use)\b/i;
 function tidy(m){
   let t = ' ' + m + ' ';
@@ -1419,16 +1431,13 @@ function tidy(m){
   t = t.replace(/^\s*(ya|o) allah\b,?/i, ' ');
   // Allah in third person -> You (we are speaking to Him)
   t = t.replace(/\b(to please|pleasing|for the sake of|for|from|to|with|by|of|near|closer to) allah\b/gi, (x, p) => p + ' You').replace(/\ballah's\b/gi, 'Your').replace(/\ballah\b/gi, 'You');
-  // he/him/his -> You/Your when no other person is mentioned (the user usually means Allah)
-  if (/\b(he|him|his|himself)\b/i.test(t) && !OTHER_PERSON.test(t)) {
-    t = t.replace(/\bhe has\b/gi, 'You have').replace(/\bhe is\b/gi, 'You are').replace(/\bhe was\b/gi, 'You were').replace(/\bhe\b/gi, 'You').replace(/\bhimself\b/gi, 'Yourself').replace(/\bhim\b/gi, 'You').replace(/\bhis\b/gi, 'Your')
-         .replace(/\bYou (gives|grants|knows|hears|sees|loves|does|makes|has)\b/g, (x, v) => 'You ' + ({gives:'give',grants:'grant',knows:'know',hears:'hear',sees:'see',loves:'love',does:'do',makes:'make',has:'have'})[v]);
-  }
   t = t.replace(/\byou\b/g, 'You').replace(/\byour\b/g, 'Your').replace(/\byours\b/g, 'Yours').replace(/\byourself\b/g, 'Yourself').replace(/\bi\b/g, 'I').replace(/\bi'(m|ve|ll|d)\b/g, "I'$1");
   return t.replace(/\s+/g, ' ').replace(/\s+([,.;!?])/g, '$1').trim();
 }
 const AGAINST = /\b(undermin\w*|bully\w*|hurt\w*|hate\w*|annoy\w*|backstab\w*|lying about|lies about|jealous|insult\w*|disrespect\w*|mistreat\w*|abus\w*|wrong(ed|s) me|against me|unfair to me|toxic|gossip\w*|cheat\w*|betray\w*)\b/i;
 const HARMWISH = /\b(punish|destroy|curse|ruin|make (him|her|them|my \w+|that \w+|the \w+) (suffer|pay|fail|lose|sick)|revenge|get back at|hurt (him|her|them)|die|disappear forever|cut (him|her|them) off|cut ties|stop talking to my)\b/i;
+const THIRD = "(?:he|she|they|him|her|them|that \\w+|those \\w+|my (?:ex|boss|manager|coworker|co-worker|colleague|neighbou?r|teacher|brother|sister|mother-in-law|father-in-law|in-laws|roommate|classmate|cousin|stepmother|stepfather|enemy|enemies))";
+const HOPEHARM = new RegExp("\\b(?:hope|wish|pray|want|hoping|wishing|praying)\\b(?![^.!?]*\\b(?:not|never|no|\\w+n'?t)\\b)[^.!?]*\\b" + THIRD + "\\b[^.!?]{0,25}\\b(?:fail|fails|failed|die|dies|dead|suffer|suffers|lose|loses|get(?:s)? (?:fired|hurt|sick|caught|punished|divorced|cancer)|rot|rots|burn|burns|crash(?:es)?|fall(?:s)? (?:apart|ill|sick)|go(?:es)? (?:broke|bankrupt)|(?:be|is) (?:ruined|destroyed|miserable|punished))\\b", "i");
 function safetyReframe(lo){
   if (/\b(kill myself|end my life|want to die|hurt myself|harm myself|disappear)\b/.test(lo)) return {clause:'grant me relief from this heaviness, surround me with Your mercy and people who care for me, and do not leave me to myself', tail:false};
   const pm = lo.match(/\bmy (coworker|co-worker|colleague|boss|manager|teacher|classmate|neighbou?r|friend|sister|brother|mother|father|mom|dad|husband|wife|in-laws|family|cousin|aunt|uncle|roommate)\b/);
@@ -1565,7 +1574,7 @@ function domainOf(text){ return pickDomain(tidy(text).toLowerCase()); }
 function nounRequest(np, seed, seen){
   np = np.replace(/^(a|an|some|more of|the)\s+/i, (m) => /^(more of)/i.test(m) ? m : '').trim() || np;
   const lo = np.toLowerCase();
-  let person = personIn(lo);
+  let person = personIn(lo, np);
   if (person && /baby|child|family/.test(person) && !/\b(my|our|his|her)\s+(baby|child|children|family|kids?)\b/.test(lo)) person = null;
   const s = subj(person);
   const c = {lo:lo, self:s.self, obj:s.self || seen ? s.obj : '\u0001O', pos:s.self || seen ? s.pos : '\u0001P', name:s.name};
@@ -1618,7 +1627,7 @@ function clauseToRequest(c, seed, first, st){
   let m;
   const lo = c.toLowerCase();
   const cm = (re) => c.match(new RegExp(re.source, 'i'));
-  const pp = personIn(lo); if (pp) st.person = pp;
+  const pp = personIn(lo, c); if (pp) st.person = pp;
   if ((m = cm(/^may\s+((?:my|our)\s+.+)$/))) return clauseToRequest('let ' + m[1], seed, first, st);
   // pronoun clause about the person just mentioned ("he has cancer")
   if (st.person && (m = lo.match(/^(he|she|they) (has|is|have|are|was|had|got|needs?)\b(.*)$/))) {
@@ -1676,8 +1685,8 @@ function clauseToRequest(c, seed, first, st){
     return nounRequests(np, seed).map(x => ({t:'req', s:x}));
   }
   // "my mom is sick" style statements
-  if ((m = cm(/^((?:my|our|the) [a-z]+(?: [a-z]+)?) (is|are|was|were|has|have|had|got|lost|keeps|passed|died|ends?|starts?|won't|isn't|aren't|needs?|feels?|seems?|doesn't|can't)\b(.*)$/)) || (wcount(c) >= 5 && /^(my|our|the|it|this|that)\b/i.test(c) && STMT_VERB.test(c))) {
-    if (DOMAINS.some(d => d.re.test(lo))) return nounRequests(lo, seed).map(x => ({t:'req', s:x}));
+  if ((m = cm(/^((?:my|our|the) [a-z-]+(?: [a-z]+)?) (is|are|was|were|has|have|had|got|lost|keeps|passed|died|ends?|starts?|won't|isn't|aren't|needs?|feels?|seems?|doesn't|can't)\b(.*)$/)) || (wcount(c) >= 5 && /^(my|our|the|it|this|that)\b/i.test(c) && STMT_VERB.test(c))) {
+    if (DOMAINS.some(d => d.re.test(lo))) return nounRequests(c, seed).map(x => ({t:'req', s:x}));
     return {t:'ctx', s:c, then:'ease this for me and bring good out of it'};
   }
   // imperative to Allah already
@@ -1729,7 +1738,7 @@ function composeDua(n, memo, ctx){
   if (!/[a-z]/i.test(raw)) return {text: voc + ' (' + ar + '), ' + g[3] + AMEEN, generic: true};
   // safety: never turn a memo into a dua for harm; reframe
   const lo0 = raw.toLowerCase();
-  const harm = HARMWISH.test(lo0) || (AGAINST.test(lo0) && /\b(my|the|this|that|a|someone|people|they|he|she)\b/.test(lo0) && !/\bhelp me (not|stop|avoid)\b/.test(lo0));
+  const harm = HARMWISH.test(lo0) || HOPEHARM.test(lo0) || (AGAINST.test(lo0) && /\b(my|the|this|that|a|someone|people|they|he|she)\b/.test(lo0) && !/\bhelp me (not|stop|avoid)\b/.test(lo0));
   let body, kind;
   let t = tidy(hasFrame(raw) ? stripDuaFrame(raw) : raw).replace(/\b(mother|father) and (mother|father)\b/gi, 'parents').replace(/\bmy (mother|father) and (?:my )?(mother|father)\b/gi, 'my parents');
   if (t === t.toUpperCase()) t = t.toLowerCase();
@@ -3574,11 +3583,12 @@ const NO_ANSWER = ['forgiveness', 'deceased'];
 function versionById(d, vid){ return d.versions.find(v => v.id === vid) || curVersion(d); }
 function lastTouch(d, idx){ const r = idx.get(d.id); return r && r.last > d.created ? r.last : d.created; }
 function themeKey(d){ if (d.themeOverride) return d.themeOverride; const x = domainOf(d.memo || curText(d)); return x ? x.k : ''; }
-const ABOUT_OTHERS = /\b(mother|mom|mum|father|dad|brother|sister|son|daughter|husband|wife|friend|aunt|uncle|grand\w*|child|children|baby|him|her|them)\b/i;
+const ABOUT_OTHERS = /\b(mother|mom|mum|father|dad|brother|sister|son|daughter|husband|wife|friend|aunt|uncle|grand\w*|child|children|baby|kids?|family|him|her|them|parents?|partner|spouse|fianc\w+|in-?laws?|co-?workers?|colleague|boss|manager|teacher|neighbou?r|classmate|roommate|student|patient|mentor|cousin)\b/i;
+const GRATITUDE = /grateful|gratitude|thankful|thank(?:s| you)|al-?hamdu ?lill?ah|shukr|shukran|praise is yours/i;
 function canAnswer(d){
   const k = themeKey(d), txt = (d.memo || '') + ' ' + curText(d);
-  if (NO_ANSWER.indexOf(k) >= 0 || /grateful|gratitude|thankful/i.test(txt)) return false;
-  return !(k === 'health' && ABOUT_OTHERS.test(txt));
+  if (NO_ANSWER.indexOf(k) >= 0 || GRATITUDE.test(txt)) return false;
+  return !(k === 'health' && (ABOUT_OTHERS.test(txt) || namedIn(txt)));
 }
 function agoText(iso){
   const days = Math.floor((Date.now() - Date.parse(iso)) / MS_DAY);
@@ -3763,20 +3773,21 @@ const RQ = {
   gratitude:['What was one thing today you almost took for granted?', 'Which blessing on this list did you once ask for?', 'Who could you thank this week?'],
   patience:['When did you stay calm this week when you might not have before?', 'What helped you pause?', 'Where could you offer yourself the patience you give others?'],
   protection:['What worry did not become the thing you feared?', 'Where did you notice a quiet safety you usually overlook?', 'Who would you like to thank for helping keep your family safe?'],
-  care:['Who has been showing up with care, and have you been able to thank them?', 'What small kindness have you noticed lately?']
+  care:['Who has been showing up with care, and have you been able to thank them?', 'What small kindness have you noticed lately?'],
+  mercy:['What do you most want to remember about them, and could you put it into a dua for them?', 'Is there a lasting good you could do in their name, such as charity, a recitation, or a kindness to someone?', 'What has helped you carry this grief, even a little?']
 };
 const RQ_GROUP = {provision:'provision', debt:'provision', job:'provision', home:'provision', health:'healing', guidance:'guidance', knowledge:'guidance', study:'guidance', faith:'guidance',
   forgiveness:'forgiveness', habit:'forgiveness', patience:'patience', emotion:'patience', anger:'patience', protection:'protection', children:'protection',
-  marriage:'care', relationship:'care', deceased:'care'};
+  marriage:'care', relationship:'care', deceased:'mercy'};
 const REFL = {skip:new Set(), n:0};
 function reflGroup(d){
-  if (/grateful|gratitude|thankful/i.test((d.memo || '') + ' ' + curText(d))) return 'gratitude';
+  if (GRATITUDE.test((d.memo || '') + ' ' + curText(d))) return 'gratitude';
   return RQ_GROUP[themeKey(d)] || '';
 }
 function reflPrompts(d, firstAt){
   const g = reflGroup(d), fact = {id:'first', q:'You first asked this on ' + shortDay(dayKey(new Date(firstAt))) + '. What is different about how you ask it now?'};
   const own = g ? RQ[g].map((q, i) => ({id:g + i, q:q})) : [];
-  return own.concat(fact);
+  return g === 'mercy' ? own : own.concat(fact);   // grief is not asked to compare itself with the first day
 }
 function reflectCandidates(now){
   const idx = new Map(), cut = now - REFLECT_DAYS * MS_DAY;
