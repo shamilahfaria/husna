@@ -377,6 +377,59 @@
   .sug-again{ display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; text-align:left; font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--hairline); border-radius:12px; padding:10px 12px; margin-bottom:6px; cursor:pointer; min-height:44px; }
   .sug-again-m{ font-size:.82rem; line-height:1.35; flex:1; }
   .sug-again-n{ font-size:.7rem; color:var(--gold); white-space:nowrap; }
+  /* ---- Pray now ---- */
+  .pr-wrap{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:16px 16px calc(40px + var(--safe-b)); }
+  .pr-chips, .pr-recents{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+  .pr-chips::-webkit-scrollbar, .pr-recents::-webkit-scrollbar{ display:none; }
+  .pr-recents{ margin-top:10px; }
+  .pr-chip{ flex:none; font:600 .8rem 'Inter',sans-serif; color:var(--ink-dim); background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:8px 14px; min-height:38px; cursor:pointer; }
+  .pr-chip.on{ background:var(--gold-soft); color:var(--ink); border-color:var(--gold); }
+  .pr-hero{ margin-top:14px; padding:16px; border-radius:18px; border:1px solid var(--gold-soft); background:linear-gradient(180deg,#1b2347,#151b35); }
+  .pr-kicker{ font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); }
+  .pr-hero h2{ margin:4px 0 2px; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.4rem; }
+  .pr-hero p{ margin:0 0 12px; color:var(--ink-dim); font-size:.8rem; line-height:1.45; }
+  .pr-hero p.pr-note{ color:#9fd3a6; font-size:.74rem; margin:-4px 0 12px; }
+  .pr-hero-actions{ display:flex; gap:8px; }
+  .pr-hero-actions .btn{ flex:1; min-height:46px; }
+  .pr-sec{ display:flex; align-items:baseline; gap:8px; margin:22px 0 8px; }
+  .pr-sec h3{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.12rem; color:var(--gold); }
+  .pr-sec small{ color:var(--ink-faint); font-size:.72rem; }
+  .pr-sp{ flex:1; }
+  .pr-row{ display:flex; gap:11px; align-items:flex-start; background:var(--card); border:1px solid var(--hairline); border-left:3px solid var(--dot,var(--gold)); border-radius:var(--radius); padding:12px; margin-bottom:8px; }
+  .pr-row.off{ opacity:.5; }
+  .pr-tx{ flex:1; min-width:0; cursor:pointer; }
+  .pr-t{ margin:0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:1.06rem; line-height:1.35; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; white-space:pre-line; }
+  .pr-m{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px; font-size:.68rem; color:var(--ink-faint); }
+  .pr-tag{ font-size:.6rem; letter-spacing:.05em; text-transform:uppercase; border:1px solid rgba(217,168,107,.4); color:#d9a86b; border-radius:999px; padding:1px 7px; }
+  .pr-cb{ flex:none; width:26px; height:26px; margin-top:1px; padding:0; border-radius:50%; border:2px solid rgba(236,230,214,.55); background:none; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+  .pr-cb.on{ background:var(--gold); border-color:var(--gold); }
+  .pr-cb.on::after{ content:""; width:11px; height:6px; border-left:2.5px solid #151204; border-bottom:2.5px solid #151204; transform:rotate(-45deg) translate(1px,-1px); }
+  .pr-free{ display:flex; gap:8px; }
+  .pr-free .field{ flex:1; }
+  .pr-done{ text-align:center; padding:60px 20px; }
+  .pr-done h2{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.7rem; color:var(--gold); margin:0 0 6px; }
+  .pr-done p{ color:var(--ink-dim); font-size:.88rem; margin:0 0 20px; }
+  .pr-done-actions{ display:flex; gap:10px; justify-content:center; }
+  /* ---- guided reader ---- */
+  .rd{ --rd-size:1.7rem; position:fixed; inset:0; z-index:60; display:flex; flex-direction:column; background:radial-gradient(900px 600px at 50% -10%, #171d3c 0%, var(--bg) 60%), var(--bg); padding-top:var(--safe-t); }
+  .rd-top{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; }
+  .rd-x, .rd-size button{ font:600 .9rem 'Inter',sans-serif; color:var(--ink-dim); background:var(--card); border:1px solid var(--hairline); border-radius:999px; min-width:44px; height:44px; cursor:pointer; }
+  .rd-size{ display:flex; gap:8px; }
+  .rd-prog{ font-size:.8rem; letter-spacing:.06em; color:var(--ink-dim); }
+  .rd-card{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:18px 26px; display:flex; flex-direction:column; justify-content:center; text-align:center; touch-action:pan-y; }
+  .rd-card.skipped{ opacity:.45; }
+  .rd-ar{ font-family:'Amiri',serif; font-size:2.6rem; line-height:1.3; color:var(--ink); }
+  .rd-tr{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.05rem; color:var(--gold); margin:2px 0 18px; }
+  .rd-text{ margin:auto 0; font-family:'Cormorant Garamond',serif; font-weight:500; font-size:var(--rd-size); line-height:1.5; white-space:pre-line; color:var(--ink); }
+  .rd-card:not(:has(.rd-ar)) .rd-text{ margin:auto 0; }
+  .rd-foot{ display:flex; gap:10px; padding:12px 16px calc(14px + var(--safe-b)); border-top:1px solid var(--hairline); background:rgba(16,21,44,.97); }
+  .rd-btn{ flex:1; min-height:52px; font-size:1rem; }
+  .rd-btn.gold{ flex:1.6; }
+  .rd-card.sum{ justify-content:flex-start; text-align:left; }
+  .rd-sum-h{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.6rem; color:var(--gold); margin:10px 0 4px; text-align:center; }
+  .rd-sum-p{ text-align:center; color:var(--ink-dim); font-size:.82rem; margin:0 0 14px; }
+  .rd-sum-row{ display:flex; gap:11px; align-items:flex-start; width:100%; text-align:left; font:500 1rem/1.35 'Cormorant Garamond',serif; color:var(--ink); background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius); padding:12px; margin-bottom:8px; cursor:pointer; }
+  .rd-sum-row:not(.on){ opacity:.5; }
   /* ---- Backup & restore ---- */
   .bk-list{ margin:0 0 12px; padding-left:18px; font-size:.78rem; color:var(--ink-dim); line-height:1.55; }
   .bk-row{ margin:8px 0; }
@@ -392,6 +445,7 @@
     <span class="brand" aria-hidden="true">الأسماء</span>
     <nav class="tabs" aria-label="Pages">
       <a class="tab active" href="#reference" data-view="reference">Names</a>
+      <a class="tab" href="#pray" data-view="pray">Pray</a>
       <a class="tab" href="#logs" data-view="logs">Dua Log</a>
     </nav>
     <span class="spacer"></span>
@@ -433,6 +487,8 @@
   <p class="dua">May Allah answer you by every one of them.</p>
 </footer>
 </div>
+
+<div id="view-pray" class="view" hidden></div>
 
 <div id="view-logs" class="view" hidden>
 <div id="logsGuide" class="logs-guide">
@@ -3048,49 +3104,48 @@ const SUGGEST = {
     names:[['Al-Ghafur', 'forgive my sins'], ['Al-Ghaffar', 'forgive me again and again'], ['At-Tawwab', 'accept my repentance'], ['Al-\u2018Afuww', 'pardon me and erase my mistakes'], ['Al-Mujib', 'answer my dua']],
     dua:{tr:"Allahumma anta Rabbi la ilaha illa ant, khalaqtani wa ana \u2018abduk, wa ana \u2018ala \u2018ahdika wa wa\u2018dika mastata\u2018t, a\u2018udhu bika min sharri ma sana\u2018t, abu\u2019u laka bini\u2018matika \u2018alayya, wa abu\u2019u bidhanbi faghfir li, fa innahu la yaghfirudh-dhunuba illa ant", en:'O Allah, You are my Lord; there is no god but You. You created me and I am Your servant, and I keep Your covenant and promise as best I can. I seek refuge in You from the evil I have done. I acknowledge Your favor upon me and I acknowledge my sin, so forgive me, for none forgives sins but You.', src:'Bukhari 6306 \u00B7 Sayyid al-Istighfar'}}
 };
-function sugStart(trName, memo){ const n = nameNum(trName); if (!n) return; const pre = {}; pre[n] = memo; openMemoSheet([n], null, pre); }
-function sugAddDua(d){
-  const entry = {id:uid(), n:null, memo:'', text:d.tr + '\n' + d.en + '\n\u2014 ' + d.src, generic:false, note:'', custom:true};
-  const id = addEntries([entry], null); renderFavorites(); location.hash = '#log/' + id; toast('Added to your Dua Log');
+function sugAddName(trName, memo){
+  const n = nameNum(trName); if (!n) return;
+  const d = createDua({n:n, memo:memo || '', text:composeDua(n, memo || '').text, status:'oneoff', how:'suggested'});
+  prayAdd(d.id); renderPray(); toast('Added for this ' + PRAYER_NAME[PRAY.prayer]);
+}
+function sugAddDua(x){
+  const d = createDua({n:null, memo:'', text:x.tr + '\n' + x.en + '\n\u2014 ' + x.src, status:'oneoff', how:'suggested'});
+  prayAdd(d.id); renderPray(); toast('Added for this ' + PRAYER_NAME[PRAY.prayer]);
 }
 function sugTag(kind){ return el('span', {class:'sug-tag ' + kind.toLowerCase(), text:kind}); }
 function sugChip(trName, memo, extra){
-  return el('button', {type:'button', class:'sug-chip', title:memo, onclick:() => sugStart(trName, memo)}, [trName, extra ? el('i', {text:' \u00D7' + extra}) : null]);
+  return el('button', {type:'button', class:'sug-chip', title:memo, onclick:() => sugAddName(trName, memo)}, [trName, extra ? el('i', {text:' \u00D7' + extra}) : null]);
 }
 function sugDuaCard(d, kind){
   return el('div', {class:'sug-dua'}, [
     el('div', {class:'sug-dua-top'}, [sugTag(kind), el('span', {class:'sug-src', text:d.src})]),
     el('p', {class:'sug-tr', text:d.tr}),
     el('p', {class:'sug-en', text:d.en}),
-    el('button', {type:'button', class:'btn small', text:'+ Add to Dua Log', onclick:() => sugAddDua(d)})
+    el('button', {type:'button', class:'btn small', text:'+ Add to this prayer', onclick:() => sugAddDua(d)})
   ]);
 }
 /* what she asks for in each window, learned from her own entries (offline, nothing leaves the device) */
 function learnedFor(w){
-  const nm = new Map(), th = new Map(), memos = new Map(); let seen = 0;
-  data.logs.forEach(l => l.sessions.forEach(s => {
-    const t = Date.parse(s.time); let inWin = false;
-    if (!isNaN(t)) { try { inWin = windowAt(t).w === w; } catch (e) {} }
-    s.entries.forEach(e => {
-      if (!e.n || !BY_N[e.n]) return;
-      seen++;
-      const memo = (e.memo || '').trim();
-      if (inWin) { nm.set(e.n, (nm.get(e.n) || 0) + 1); const d = memo ? domainOf(memo) : null; if (d) th.set(d.label, (th.get(d.label) || 0) + 1); }
-      if (memo) {
-        const key = memo.toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
-        if (!key) return;
-        const r = memos.get(key) || {memo:memo, n:e.n, c:0, w:0, t:0}; r.c++; if (inWin) r.w++; if (!isNaN(t) && t >= r.t) { r.t = t; r.n = e.n; r.memo = memo; } memos.set(key, r);
-      }
-    });
-  }));
+  const per = new Map(), nm = new Map(), th = new Map(); let seen = 0;
+  data.occ.forEach(o => {
+    const d = duaById(o.duaId); if (!d) return;
+    const inWin = atPrayer(o) === w;
+    let r = per.get(d.id); if (!r) per.set(d.id, r = {d:d, c:0, w:0, t:''});
+    r.c++; if (inWin) r.w++; if (o.at > r.t) r.t = o.at;
+    if (!d.n || !BY_N[d.n]) return;
+    seen++;
+    if (inWin) { nm.set(d.n, (nm.get(d.n) || 0) + 1); const dom = domainOf(d.memo || curText(d)); if (dom) th.set(dom.label, (th.get(dom.label) || 0) + 1); }
+  });
   const top = (m, k) => Array.from(m.entries()).sort((a, b) => b[1] - a[1]).slice(0, k);
-  const repeat = Array.from(memos.values()).filter(r => r.c >= 2).sort((a, b) => (b.w - a.w) || (b.c - a.c) || (b.t - a.t)).slice(0, 3);
+  const repeat = Array.from(per.values()).filter(r => r.c >= 2 && isLive(r.d) && !PRAY.ids.includes(r.d.id)).sort((a, b) => (b.w - a.w) || (b.c - a.c) || b.t.localeCompare(a.t)).slice(0, 3)
+    .map(r => ({duaId:r.d.id, n:r.d.n, label:r.d.memo || curText(r.d), c:r.c}));
   return {seen:seen, names:top(nm, 4), themes:top(th, 3), repeat:repeat};
 }
-function buildSuggested(){
+function buildSuggested(prayerKey){
   let win; try { win = windowAt(Date.now()); } catch (e) { return document.createComment('no suggestions'); }
-  const S = SUGGEST[win.w];
-  const open = lsGet('asmaDuaLog.ui.suggest') !== '0';
+  const w = prayerKey || win.w, isNow = w === win.w || (w === 'isha' && win.w === 'last3'), S = SUGGEST[isNow ? win.w : w];
+  const open = lsGet('asmaDuaLog.ui.suggest') === '1';
   const body = el('div', {class:'sug-body'});
   body.hidden = !open;
   const head = el('button', {class:'sug-head', type:'button', 'aria-expanded':open ? 'true' : 'false'}, [
@@ -3101,8 +3156,8 @@ function buildSuggested(){
   const box = el('section', {class:'sug' + (open ? ' open' : ''), 'aria-label':'Suggested for now'}, [head, body]);
   head.addEventListener('click', () => { const o = body.hidden; body.hidden = !o; box.classList.toggle('open', o); head.setAttribute('aria-expanded', o ? 'true' : 'false'); lsSet('asmaDuaLog.ui.suggest', o ? '1' : '0'); });
 
-  body.appendChild(el('p', {class:'sug-when', text:'About ' + fmtAustin(win.start) + ' \u2013 ' + fmtAustin(win.end) + ' Austin time (approximate). Tap a Name to start a dua with it.'}));
-  if (win.w === 'asr' && win.wd === 'Fri') body.appendChild(el('p', {class:'sug-note', text:'It\u2019s Friday: the hour after Asr is a hoped-for time for dua \u2014 scholars differ on the exact window, so make the most of the whole afternoon.'}));
+  if (isNow) body.appendChild(el('p', {class:'sug-when', text:'About ' + fmtAustin(win.start) + ' \u2013 ' + fmtAustin(win.end) + ' Austin time (approximate). Tap a Name to add a dua with it.'}));
+  if (isNow && win.w === 'asr' && win.wd === 'Fri') body.appendChild(el('p', {class:'sug-note', text:'It\u2019s Friday: the hour after Asr is a hoped-for time for dua \u2014 scholars differ on the exact window, so make the most of the whole afternoon.'}));
   body.appendChild(el('div', {class:'sug-row'}, [sugTag('Suggestion'), el('span', {class:'sug-themes', text:S.themes.join(' \u00B7 ')})]));
   body.appendChild(el('div', {class:'sug-chips'}, S.names.map(x => sugChip(x[0], x[1]))));
   if (S.dua && !S.duaIsMuadh) body.appendChild(sugDuaCard(S.dua, 'Sunnah'));
@@ -3116,7 +3171,7 @@ function buildSuggested(){
   ]);
   body.appendChild(salah);
 
-  const L = learnedFor(win.w);
+  const L = learnedFor(w);
   const mine = el('div', {class:'sug-mine'}, [el('div', {class:'sug-sub', text:'From your past duas'})]);
   if (!L.names.length && !L.repeat.length) {
     mine.appendChild(el('p', {class:'sug-note', text: L.seen ? 'Nothing yet for this time of day \u2014 as you save more duas, this will show what you usually ask for now.' : 'Save a few duas and this will learn, on this device only, what you ask for at this time of day.'}));
@@ -3124,11 +3179,11 @@ function buildSuggested(){
     if (L.themes.length) mine.appendChild(el('div', {class:'sug-row'}, [el('span', {class:'sug-themes', text:'You often ask about: ' + L.themes.map(t => t[0]).join(' \u00B7 ')})]));
     if (L.names.length) {
       mine.appendChild(el('div', {class:'sug-row'}, [el('span', {class:'sug-themes', text:'Names you reach for at this time'})]));
-      mine.appendChild(el('div', {class:'sug-chips'}, L.names.map(x => { const memo = (L.repeat.find(r => r.n === x[0]) || {}).memo || ''; return el('button', {type:'button', class:'sug-chip', onclick:() => openMemoSheet([x[0]], null, memo ? {[x[0]]:memo} : null)}, [BY_N[x[0]].tr, el('i', {text:' \u00D7' + x[1]})]); })));
+      mine.appendChild(el('div', {class:'sug-chips'}, L.names.map(x => { const memo = (L.repeat.find(r => r.n === x[0]) || {}).label || ''; return el('button', {type:'button', class:'sug-chip', onclick:() => sugAddName(BY_N[x[0]].tr, memo)}, [BY_N[x[0]].tr, el('i', {text:' \u00D7' + x[1]})]); })));
     }
     if (L.repeat.length) {
       mine.appendChild(el('div', {class:'sug-row'}, [el('span', {class:'sug-themes', text:'Ask again in one tap'})]));
-      L.repeat.forEach(r => mine.appendChild(el('button', {type:'button', class:'sug-again', onclick:() => openMemoSheet([r.n], null, {[r.n]:r.memo})}, [el('span', {class:'sug-again-m', text:'\u201C' + (r.memo.length > 70 ? r.memo.slice(0, 68) + '\u2026' : r.memo) + '\u201D'}), el('span', {class:'sug-again-n', text:BY_N[r.n].tr + ' \u00B7 \u00D7' + r.c})])));
+      L.repeat.forEach(r => mine.appendChild(el('button', {type:'button', class:'sug-again', onclick:() => { prayAdd(r.duaId); renderPray(); }}, [el('span', {class:'sug-again-m', text:'\u201C' + (r.label.length > 70 ? r.label.slice(0, 68) + '\u2026' : r.label) + '\u201D'}), el('span', {class:'sug-again-n', text:(r.n && BY_N[r.n] ? BY_N[r.n].tr + ' \u00B7 ' : '') + '\u00D7' + r.c})])));
     }
   }
   body.appendChild(mine);
@@ -3209,6 +3264,248 @@ function openBackup(){
   wrap.appendChild(sheet);
   wrap.addEventListener('click', ev => { if (ev.target === wrap) close(); });
   document.body.appendChild(wrap); document.body.style.overflow = 'hidden';
+}
+
+/* ======================================================================
+   Duas, Pray now, and the guided reader
+   ====================================================================== */
+const MS_DAY = 864e5;
+function windowPrayer(w){ return w === 'last3' ? 'isha' : w; }
+function currentPrayer(ms){ try { return windowPrayer(windowAt(ms).w); } catch (e) { return 'fajr'; } }
+function atPrayer(o){
+  if (o.prayer) return o.prayer;
+  const t = Date.parse(o.at); if (isNaN(t)) return null;
+  try { return windowPrayer(windowAt(t).w); } catch (e) { return null; }
+}
+function duaById(id){ return data.duas.find(d => d.id === id); }
+function curVersion(d){ return d.versions.find(v => v.id === d.cur) || d.versions[d.versions.length - 1] || {id:'', text:''}; }
+function curText(d){ return curVersion(d).text; }
+function addVersion(d, text, how){
+  const t = String(text).trim(); if (!t || normText(t) === normText(curText(d)) && t === curText(d)) return;
+  const at = new Date().toISOString(), last = curVersion(d);
+  const used = data.occ.some(o => o.vid === last.id);
+  // a reworded line that was never made yet replaces the previous draft instead of piling up versions
+  if (last.how === how && !used && Date.now() - Date.parse(last.at) < 10 * 60 * 1000) { last.text = t; last.at = at; }
+  else { const v = {id:'v' + uid(), text:t, at:at, how:how}; d.versions.push(v); d.cur = v.id; }
+  d.updated = at;
+}
+function createDua(o){
+  const memo = o.memo || '', n = o.n || null;
+  const same = data.duas.find(d => isLive(d) && (d.n || null) === n && normText(d.memo) === normText(memo) && (memo || normText(curText(d)) === normText(o.text)));
+  if (same) { if (o.text && same.status === 'oneoff' && o.status === 'keeper') same.status = 'keeper'; saveData(); return same; }
+  const at = new Date().toISOString();
+  const d = {id:'d' + uid(), n:n, memo:memo, versions:[], cur:'', status:o.status || 'keeper', created:at, updated:at};
+  const v = {id:'v' + uid(), text:String(o.text || '').trim(), at:at, how:o.how || 'typed'};
+  d.versions.push(v); d.cur = v.id;
+  data.duas.push(d); saveData();
+  return d;
+}
+function duaIndex(){
+  const m = new Map();
+  data.occ.forEach(o => {
+    let r = m.get(o.duaId); if (!r) m.set(o.duaId, r = {count:0, last:'', days:new Set()});
+    r.count++; r.days.add(o.day); if (o.at > r.last) r.last = o.at;
+  });
+  return m;
+}
+function occGroups(){
+  const g = new Map();
+  data.occ.forEach(o => {
+    const p = atPrayer(o); if (!p) return;
+    const k = o.day + '|' + p; let r = g.get(k);
+    if (!r) g.set(k, r = {day:o.day, prayer:p, at:o.at, ids:[]});
+    if (o.at > r.at) r.at = o.at;
+    if (!r.ids.includes(o.duaId)) r.ids.push(o.duaId);
+  });
+  return [...g.values()].sort((a, b) => b.at.localeCompare(a.at));
+}
+function isLive(d){ return d && (d.status === 'keeper' || d.status === 'oneoff'); }
+/* what Pray now opens with: your last set for this prayer, else your latest set, else your most-made duas */
+function seedSet(prayer, nowMs){
+  const today = dayKey(new Date(nowMs)), idx = duaIndex();
+  const live = g => g.ids.filter(id => isLive(duaById(id)));
+  const past = occGroups().filter(g => g.day !== today && live(g).length);
+  const a = past.find(g => g.prayer === prayer && nowMs - Date.parse(g.at) <= 14 * MS_DAY);
+  if (a) return {kind:'prayer', ids:live(a), group:a};
+  const b = past.find(g => nowMs - Date.parse(g.at) <= 3 * MS_DAY);
+  if (b) return {kind:'recent', ids:live(b), group:b};
+  const top = data.duas.filter(d => d.status === 'keeper').sort((x, y) => ((idx.get(y.id) || {}).count || 0) - ((idx.get(x.id) || {}).count || 0)).slice(0, 5).map(d => d.id);
+  return {kind:top.length ? 'usual' : 'none', ids:top, group:null};
+}
+/* every dua gets one occurrence per day and prayer, however many times the button is tapped */
+function logMade(ids, prayer, atMs){
+  const at = new Date(atMs).toISOString(), day = dayKey(new Date(atMs)), made = [];
+  ids.forEach(id => {
+    const d = duaById(id); if (!d) return;
+    if (data.occ.some(o => o.duaId === id && o.day === day && atPrayer(o) === prayer)) return;
+    const o = {id:'o' + uid(), duaId:id, vid:d.cur, at:at, day:day, prayer:prayer, made:true, note:''};
+    data.occ.push(o); made.push(o.id);
+    if (d.status === 'oneoff') d.updated = at;
+  });
+  saveData();
+  return made;
+}
+function unlogMade(occIds){
+  const set = new Set(occIds);
+  data.occ = data.occ.filter(o => !set.has(o.id));
+  intentionalShrink = true; saveData();
+}
+
+/* ---------- Pray now ---------- */
+const prayView = document.getElementById('view-pray');
+const PRAY = {day:'', prayer:'', ids:[], off:new Set(), seed:null, q:'', more:false, logged:null};
+function shortDay(k){ return dateFromKey(k).toLocaleDateString('en-US', {month:'short', day:'numeric'}); }
+function prayReset(prayer){
+  PRAY.prayer = prayer; PRAY.seed = seedSet(prayer, Date.now()); PRAY.ids = PRAY.seed.ids.slice(); PRAY.off = new Set(); PRAY.q = ''; PRAY.more = false;
+}
+function prayOn(){ return PRAY.ids.filter(id => !PRAY.off.has(id) && isLive(duaById(id))); }
+function prayAdd(id){ if (!PRAY.ids.includes(id)) PRAY.ids.push(id); PRAY.off.delete(id); }
+function duaFromRequest(text, status, how){
+  const c = composeFree(text);
+  return createDua({n:c.n, memo:c.memo, text:c.text, status:status, how:how});
+}
+function composeFree(text){ const t = String(text).trim(); return {n:null, memo:t, text:t}; }
+function prayDuaRow(d, idx, on, onToggle, tag){
+  const st = idx.get(d.id), dot = d.n && BY_N[d.n] ? CAT_BY_ID[BY_N[d.n].cat].color : 'var(--gold)';
+  const cb = el('button', {type:'button', class:'pr-cb' + (on ? ' on' : ''), 'aria-pressed':on ? 'true' : 'false', 'aria-label':(on ? 'Leave out: ' : 'Include: ') + curText(d).slice(0, 60), onclick:onToggle});
+  return el('div', {class:'pr-row' + (on ? '' : ' off'), style:'--dot:' + dot}, [cb, el('div', {class:'pr-tx', onclick:onToggle}, [
+    el('p', {class:'pr-t', text:curText(d) || (d.n ? BY_N[d.n].tr : '')}),
+    el('div', {class:'pr-m'}, [d.status === 'oneoff' ? el('span', {class:'pr-tag', text:'just for now'}) : null, tag || null, st ? el('span', {text:'made ' + st.count + '\u00D7'}) : null])
+  ])]);
+}
+function renderPray(){
+  const today = dayKey(new Date());
+  if (PRAY.day !== today) { PRAY.day = today; PRAY.logged = null; prayReset(currentPrayer(Date.now())); }
+  prayView.innerHTML = '';
+  const wrap = el('div', {class:'pr-wrap'});
+  prayView.appendChild(wrap);
+  if (PRAY.logged) {
+    const L = PRAY.logged;
+    wrap.appendChild(el('div', {class:'pr-done'}, [
+      el('h2', {text:'Logged for ' + PRAYER_NAME[L.prayer]}),
+      el('p', {text:L.n === 0 ? 'These were already logged for ' + PRAYER_NAME[L.prayer] + ' today.' : L.n + (L.n === 1 ? ' dua' : ' duas') + ' recorded. May Allah accept it from you.'}),
+      el('div', {class:'pr-done-actions'}, [
+        L.occ.length ? el('button', {type:'button', class:'btn', text:'Undo', onclick:() => { unlogMade(L.occ); PRAY.logged = null; renderPray(); }}) : null,
+        el('button', {type:'button', class:'btn gold', text:'Done', onclick:() => { PRAY.logged = null; prayReset(PRAY.prayer); renderPray(); }})
+      ])
+    ]));
+    return;
+  }
+  const idx = duaIndex(), on = prayOn(), n = on.length, p = PRAY.prayer, seed = PRAY.seed;
+  wrap.appendChild(el('div', {class:'pr-chips', role:'tablist', 'aria-label':'Prayer'}, PRAYER_KEYS.map(k =>
+    el('button', {type:'button', class:'pr-chip' + (k === p ? ' on' : ''), role:'tab', 'aria-selected':k === p ? 'true' : 'false', text:PRAYER_NAME[k], onclick:() => { prayReset(k); renderPray(); }}))));
+  const doneToday = occGroups().find(g => g.day === today && g.prayer === p);
+  let kicker = 'Your usuals', title = 'Your most-made duas', sub = n + (n === 1 ? ' dua' : ' duas') + '. Add or leave out below, or just go.';
+  if (seed.kind === 'prayer') { kicker = 'Same as last time'; title = 'Your last ' + PRAYER_NAME[p]; sub = seed.ids.length + (seed.ids.length === 1 ? ' dua' : ' duas') + ', from ' + shortDay(seed.group.day) + '. Add or leave out below, or just go.'; }
+  else if (seed.kind === 'recent') { kicker = 'Your latest set'; title = 'From ' + PRAYER_NAME[seed.group.prayer] + ', ' + shortDay(seed.group.day); sub = 'You haven\u2019t logged ' + PRAYER_NAME[p] + ' lately. Add or leave out below, or just go.'; }
+  else if (seed.kind === 'none') { kicker = 'Let\u2019s start'; title = 'Add your first dua'; sub = 'Add something below, or build duas from the Names tab.'; }
+  const hero = el('div', {class:'pr-hero'}, [
+    el('div', {class:'pr-kicker', text:kicker}), el('h2', {text:title}), el('p', {text:sub}),
+    doneToday ? el('p', {class:'pr-note', text:'\u2713 ' + PRAYER_NAME[p] + ' is already logged today. Logging again only adds what\u2019s new.'}) : null,
+    el('div', {class:'pr-hero-actions'}, [
+      el('button', {type:'button', class:'btn gold', id:'prRead', text:'Read through (' + n + ')', disabled:n === 0, onclick:() => openReader(prayOn(), p)}),
+      el('button', {type:'button', class:'btn', id:'prLog', text:'I made these (' + n + ')', disabled:n === 0, onclick:() => finishPray(prayOn())})
+    ])
+  ]);
+  wrap.appendChild(hero);
+  if (PRAY.ids.length) {
+    wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'This ' + PRAYER_NAME[p]}), el('small', {text:'tap to leave one out'})]));
+    PRAY.ids.forEach(id => { const d = duaById(id); if (!isLive(d)) return; const inSet = !PRAY.off.has(id); wrap.appendChild(prayDuaRow(d, idx, inSet, () => { if (inSet) PRAY.off.add(id); else PRAY.off.delete(id); renderPray(); })); });
+  }
+  wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'For this time'}), el('small', {text:PRAYER_NAME[p]})]));
+  wrap.appendChild(buildSuggested(p));
+  wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'Just for now'}), el('small', {text:'stays out of My Duas'})]));
+  const inp = el('input', {type:'text', class:'field', id:'prFree', placeholder:'Something for tonight\u2026', maxlength:'300', enterkeyhint:'done', autocomplete:'off'});
+  const add = () => { const v = inp.value.trim(); if (!v) return; const d = duaFromRequest(v, 'oneoff', 'typed'); prayAdd(d.id); renderPray(); toast('Added for this ' + PRAYER_NAME[p]); };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+  wrap.appendChild(el('div', {class:'pr-free'}, [inp, el('button', {type:'button', class:'btn', text:'Add', onclick:add})]));
+  const recents = data.duas.filter(d => d.status === 'oneoff' && !PRAY.ids.includes(d.id) && Date.now() - Date.parse(((idx.get(d.id) || {}).last) || d.created) < 7 * MS_DAY)
+    .sort((a, b) => (((idx.get(b.id) || {}).last) || b.created).localeCompare(((idx.get(a.id) || {}).last) || a.created)).slice(0, 4);
+  if (recents.length) wrap.appendChild(el('div', {class:'pr-recents'}, recents.map(d => { const t = curText(d); return el('button', {type:'button', class:'pr-chip', onclick:() => { prayAdd(d.id); renderPray(); }, text:(t.length > 28 ? t.slice(0, 26) + '\u2026' : t) + ((idx.get(d.id) || {}).count ? ' \u00B7 ' + idx.get(d.id).count + '\u00D7' : '')}); })));
+  // the rest of My Duas
+  const q = normText(PRAY.q);
+  const pool = data.duas.filter(d => isLive(d) && !PRAY.ids.includes(d.id) && (q ? normText(curText(d) + ' ' + d.memo + ' ' + (d.n ? BY_N[d.n].tr : '')).includes(q) : d.status === 'keeper'))
+    .sort((a, b) => (((idx.get(b.id) || {}).count) || 0) - (((idx.get(a.id) || {}).count) || 0));
+  wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'From My Duas'}), el('small', {text:pool.length + (q ? ' found' : ' more')}),
+    el('span', {class:'pr-sp'}), pool.length > 3 || q ? el('button', {type:'button', class:'btn small ghost', text:PRAY.more || q ? 'Hide' : 'Show', onclick:() => { PRAY.more = !PRAY.more; PRAY.q = ''; renderPray(); }}) : null]));
+  if (PRAY.more || q || (pool.length && pool.length <= 3)) {
+    const s = el('input', {type:'search', class:'field', id:'prSearch', placeholder:'Find a dua\u2026', value:PRAY.q, 'aria-label':'Find a dua', autocomplete:'off', hidden:!PRAY.more && !q});
+    s.addEventListener('input', () => { PRAY.q = s.value; PRAY.more = true; renderPray(); const x = document.getElementById('prSearch'); x.focus(); x.setSelectionRange(x.value.length, x.value.length); });
+    wrap.appendChild(s);
+    pool.slice(0, 40).forEach(d => wrap.appendChild(prayDuaRow(d, idx, false, () => { prayAdd(d.id); renderPray(); })));
+  }
+}
+function finishPray(ids){
+  const p = PRAY.prayer;
+  const occ = logMade(ids, p, Date.now());
+  PRAY.logged = {prayer:p, n:occ.length, occ:occ};
+  renderPray();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- guided reader: one dua per screen ---------- */
+const READ_SIZE_KEY = 'asmaDuaLog.ui.readSize';
+let readerOpen = null;
+function openReader(ids, prayer){
+  if (!ids.length || readerOpen) return;
+  const list = ids.map(duaById).filter(Boolean);
+  let i = 0, size = parseFloat(lsGet(READ_SIZE_KEY)) || 1.7, lock = null;
+  const skipped = new Set();
+  const root = el('div', {class:'rd', role:'dialog', 'aria-modal':'true', 'aria-label':'Reading your duas'});
+  const top = el('div', {class:'rd-top'}), card = el('div', {class:'rd-card'}), foot = el('div', {class:'rd-foot'});
+  root.append(top, card, foot);
+  const close = () => { if (lock) { try { lock.release(); } catch (e) {} } readerOpen = null; root.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', onKey); };
+  const setSize = d => { size = Math.min(2.6, Math.max(1.2, size + d)); lsSet(READ_SIZE_KEY, String(size)); root.style.setProperty('--rd-size', size + 'rem'); };
+  const go = n => { i = Math.max(0, Math.min(list.length, n)); draw(); };
+  const included = () => list.filter(d => !skipped.has(d.id)).map(d => d.id);
+  const finish = () => { const made = included(); close(); finishPray(made); };
+  function draw(){
+    top.innerHTML = ''; card.innerHTML = ''; foot.innerHTML = '';
+    const last = i === list.length;
+    top.append(
+      el('button', {type:'button', class:'rd-x', 'aria-label':'Close the reader', text:'\u2715', onclick:close}),
+      el('div', {class:'rd-prog', 'aria-live':'polite', text:last ? 'All done' : (i + 1) + ' of ' + list.length}),
+      el('div', {class:'rd-size'}, [el('button', {type:'button', 'aria-label':'Smaller text', text:'A\u2212', onclick:() => setSize(-.15)}), el('button', {type:'button', 'aria-label':'Larger text', text:'A+', onclick:() => setSize(.15)})])
+    );
+    if (!last) {
+      const d = list[i], item = d.n ? BY_N[d.n] : null;
+      card.className = 'rd-card' + (skipped.has(d.id) ? ' skipped' : '');
+      if (item) card.append(el('div', {class:'rd-ar', text:item.ar}), el('div', {class:'rd-tr', text:item.tr + ' \u00B7 ' + item.meaning}));
+      card.appendChild(el('p', {class:'rd-text', text:curText(d)}));
+      foot.append(
+        el('button', {type:'button', class:'btn rd-btn', text:'\u2039 Back', disabled:i === 0, onclick:() => go(i - 1)}),
+        el('button', {type:'button', class:'btn ghost rd-btn', text:skipped.has(d.id) ? 'Include' : 'Skip', onclick:() => { if (skipped.has(d.id)) { skipped.delete(d.id); draw(); } else { skipped.add(d.id); go(i + 1); } }}),
+        el('button', {type:'button', class:'btn gold rd-btn', id:'rdNext', text:'Next \u203A', onclick:() => go(i + 1)})
+      );
+    } else {
+      card.className = 'rd-card sum';
+      card.append(el('h2', {class:'rd-sum-h', text:'That\u2019s all for this ' + PRAYER_NAME[prayer]}), el('p', {class:'rd-sum-p', text:'Tap one to leave it out of the log.'}));
+      list.forEach(d => {
+        const on = !skipped.has(d.id);
+        card.appendChild(el('button', {type:'button', class:'rd-sum-row' + (on ? ' on' : ''), 'aria-pressed':on ? 'true' : 'false', onclick:() => { if (on) skipped.add(d.id); else skipped.delete(d.id); draw(); }}, [el('span', {class:'pr-cb' + (on ? ' on' : '')}), el('span', {text:curText(d)})]));
+      });
+      foot.append(
+        el('button', {type:'button', class:'btn rd-btn', text:'\u2039 Back', onclick:() => go(list.length - 1)}),
+        el('button', {type:'button', class:'btn gold rd-btn', id:'rdLog', text:'I made these (' + included().length + ')', disabled:!included().length, onclick:finish})
+      );
+    }
+    card.scrollTop = 0;
+  }
+  function onKey(e){ if (e.key === 'ArrowRight') go(i + 1); else if (e.key === 'ArrowLeft') go(i - 1); else if (e.key === 'Escape') close(); }
+  let sx = 0, sy = 0, tracking = false;
+  card.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; tracking = true; });
+  card.addEventListener('pointerup', e => {
+    if (!tracking) return; tracking = false;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(i + (dx < 0 ? 1 : -1));
+  });
+  card.addEventListener('pointercancel', () => { tracking = false; });
+  document.addEventListener('keydown', onKey);
+  setSize(0);
+  document.body.appendChild(root); document.body.style.overflow = 'hidden';
+  readerOpen = root;
+  try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(l => { lock = l; if (!readerOpen) l.release(); }).catch(() => {}); } catch (e) {}
+  draw();
 }
 
 /* ---------- Dua Log views ---------- */
@@ -3643,24 +3940,25 @@ function route(){
   const h = location.hash || '#reference';
   let view = 'reference', logId = null;
   if (h === '#logs') view = 'logs';
+  else if (h === '#pray') view = 'pray';
   else if (h.startsWith('#log/')) { view = 'log'; logId = decodeURIComponent(h.slice(5)); }
   const wasRef = currentView === 'reference';
   if (wasRef && view !== 'reference') refScroll = window.scrollY;
   if (!sheetWrap.hidden) closeSheet();
   ['pickWrap', 'settingsWrap', 'backupWrap'].forEach(id => { const w = document.getElementById(id); if (w) { w.remove(); document.body.style.overflow = ''; } });
-  if (view === 'reference') {
-    refView.hidden = false; logsView.hidden = true; selectBtn.hidden = false;
-    if (!wasRef) window.scrollTo(0, refScroll);
-  } else {
+  refView.hidden = view !== 'reference'; logsView.hidden = view !== 'logs' && view !== 'log'; prayView.hidden = view !== 'pray';
+  selectBtn.hidden = view !== 'reference';
+  if (view === 'reference') { if (!wasRef) window.scrollTo(0, refScroll); }
+  else {
     if (selecting) setSelecting(false);
-    refView.hidden = true; logsView.hidden = false; selectBtn.hidden = true;
-    if (view === 'log') {
+    if (view === 'pray') renderPray();
+    else if (view === 'log') {
       const log = findLog(logId);
       if (log) renderLogDetail(log); else { location.replace('#logs'); return; }
     } else renderLogList();
     window.scrollTo(0, 0);
   }
-  currentView = view === 'reference' ? 'reference' : 'logs';
+  currentView = view === 'log' ? 'logs' : view;
   document.querySelectorAll('.tab').forEach(t => {
     const on = t.dataset.view === currentView;
     t.classList.toggle('active', on);
