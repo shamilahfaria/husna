@@ -136,7 +136,6 @@
   .appbar{ position:sticky; top:0; z-index:20; padding-top:var(--safe-t); background:rgba(12,16,34,.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--hairline); }
   .appbar-in{ max-width:1080px; margin:0 auto; height:var(--appbar-h); display:flex; align-items:center; gap:10px; padding:0 14px; }
   .brand{ font-family:'Amiri',serif; color:var(--gold); font-size:1.15rem; line-height:1; margin-right:2px; white-space:nowrap; }
-  .tabs{ display:flex; background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:3px; }
   .tab{ font-size:.8rem; font-weight:600; color:var(--ink-dim); text-decoration:none; padding:7px 14px; border-radius:999px; white-space:nowrap; transition:background .2s,color .2s; }
   .tab.active{ background:var(--gold-soft); color:var(--ink); }
   .tab:focus-visible, .btn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
@@ -200,10 +199,6 @@
   .sheet-foot .btn{ flex:1; min-height:44px; font-size:.9rem; }
   .memo-item{ display:grid; grid-template-columns:150px 1fr; gap:12px; align-items:start; padding:12px 0; border-top:1px solid var(--hairline); }
   .memo-item:first-child{ border-top:none; padding-top:2px; }
-  .mini-card{ border-radius:var(--radius); border:1px solid var(--hairline); border-left:3px solid var(--dot,var(--gold)); background:var(--card); padding:10px 11px; }
-  .mini-card .ar{ font-size:1.35rem; margin:0 0 3px; }
-  .mini-card .translit{ font-size:.98rem; }
-  .mini-card .meaning{ font-size:.74rem; }
   .memo-item label{ display:block; font-size:.8rem; font-weight:600; color:var(--ink); margin:2px 0 6px; line-height:1.35; }
   .memo-item label .lbl-name{ color:var(--dot,var(--gold)); }
   .field{ width:100%; font-family:'Inter',sans-serif; font-size:16px; line-height:1.45; padding:10px 12px; border-radius:10px; border:1px solid var(--hairline); background:var(--card); color:var(--ink); outline:none; resize:none; min-height:44px; }
@@ -213,81 +208,26 @@
   @media (max-width:480px){ .memo-item{ grid-template-columns:1fr; gap:8px; } .mini-card{ display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 10px; } .mini-card .ar{ order:-1; } .mini-card .meaning{ flex-basis:100%; } }
 
   /* ---------- Dua Log views ---------- */
-  .logs-wrap{ position:relative; z-index:1; max-width:760px; margin:0 auto; padding:26px 16px calc(60px + var(--safe-b)); }
-  .logs-head{ text-align:center; margin-bottom:18px; }
-  .logs-head .title-ar{ font-size:clamp(1.8rem,6vw,2.3rem); margin-bottom:2px; }
-  .logs-head .title-en{ margin-bottom:6px; }
-  .logs-head .sub{ font-size:.8rem; color:var(--ink-dim); margin:0 auto 14px; max-width:420px; line-height:1.5; }
-  .logs-actions{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
-  .log-list{ display:flex; flex-direction:column; gap:10px; margin-top:20px; }
-  .log-item{ display:block; width:100%; text-align:left; font:inherit; color:inherit; background:var(--card); border:1px solid var(--hairline); border-left:3px solid var(--gold); border-radius:var(--radius); padding:14px 16px; cursor:pointer; transition:background .2s; }
-  .log-item:hover{ background:var(--card-hover); }
-  .log-item .t{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.2rem; color:var(--ink); margin:0 0 3px; }
-  .log-item .m{ font-size:.74rem; color:var(--ink-faint); margin-bottom:8px; }
-  .log-item .names{ display:flex; flex-wrap:wrap; gap:5px; }
-  .pill{ font-size:.72rem; color:var(--ink-dim); border:1px solid var(--hairline); border-radius:999px; padding:3px 9px; background:rgba(201,162,39,.05); }
-  .pill .ar-s{ font-family:'Amiri',serif; color:var(--dot,var(--gold)); margin-right:4px; font-size:.85rem; }
   .empty{ text-align:center; color:var(--ink-faint); padding:34px 18px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.1rem; line-height:1.6; border:1px dashed var(--hairline); border-radius:var(--radius); margin-top:20px; }
 
-  .back-link{ display:inline-flex; align-items:center; gap:6px; color:var(--ink-dim); text-decoration:none; font-size:.82rem; margin-bottom:14px; }
-  .back-link:hover{ color:var(--gold); }
-  .log-title{ width:100%; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(1.45rem,5.5vw,1.9rem); color:var(--gold); background:transparent; border:1px solid transparent; border-radius:10px; padding:4px 8px; margin:0 -8px; outline:none; text-align:center; }
-  .log-title:hover{ border-color:var(--hairline); }
-  .log-title:focus{ border-color:var(--gold); background:var(--card); }
-  .log-meta{ text-align:center; font-size:.74rem; color:var(--ink-faint); margin:4px 0 12px; letter-spacing:.03em; }
-  .log-tools{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
-  .rename-hint{ text-align:center; font-size:.68rem; color:var(--ink-faint); margin-bottom:10px; }
 
-  .divider{ display:flex; align-items:center; gap:12px; margin:26px 0 14px; color:var(--gold); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; }
-  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--gold-soft), transparent); }
-  .divider svg{ flex:0 0 auto; }
   .entry{ display:grid; grid-template-columns:200px 1fr; gap:14px; align-items:start; background:rgba(21,27,53,.55); border:1px solid var(--hairline); border-radius:var(--radius); padding:12px; margin-bottom:12px; }
   .entry.custom{ grid-template-columns:1fr; }
   .entry .card-inner{ height:186px; }
-  .entry-body{ min-width:0; }
-  .entry-top{ display:flex; align-items:center; gap:6px; margin-bottom:6px; }
   .tag{ font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--dot,var(--gold)); opacity:.9; }
   .tag.general{ color:var(--ink-faint); }
-  .entry-top .tools{ margin-left:auto; display:flex; gap:2px; }
-  .memo-line{ font-size:.74rem; color:var(--ink-faint); margin:0 0 6px; font-style:italic; }
-  .memo-line b{ font-style:normal; font-weight:500; color:var(--ink-dim); }
-  .dua-text{ font-family:'Cormorant Garamond',serif; font-size:1.18rem; line-height:1.5; color:var(--ink); background:transparent; border:1px solid transparent; padding:6px 8px; margin:0 -8px; width:calc(100% + 16px); min-height:0; }
-  .dua-text:hover{ border-color:var(--hairline); }
-  .dua-text:focus{ background:var(--card); }
-  .note-field{ margin-top:8px; font-size:16px; }
-  .add-note{ margin-top:6px; background:none; border:none; color:var(--ink-faint); font-size:.74rem; cursor:pointer; padding:4px 0; }
-  .add-note:hover{ color:var(--gold); }
   .session-foot{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
-  .session-note-label{ font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin:14px 0 5px; }
-  .log-danger{ text-align:center; margin-top:34px; }
   @media (max-width:560px){ .entry{ grid-template-columns:1fr; } .entry .card-inner{ height:170px; } .brand{ display:none; } }
   @media (max-width:480px){ #search{ font-size:16px; } .tab{ padding:7px 12px; } }
   .toast{ position:fixed; left:50%; bottom:calc(24px + var(--safe-b)); transform:translateX(-50%); z-index:50; background:var(--card-hover); border:1px solid var(--gold-soft); color:var(--ink); font-size:.82rem; padding:10px 16px; border-radius:999px; box-shadow:0 8px 30px rgba(0,0,0,.4); opacity:0; pointer-events:none; transition:opacity .25s; max-width:90vw; text-align:center; }
   .toast.show{ opacity:1; }
   /* made tick-box */
-  .made-check{ display:inline-flex; align-items:center; gap:6px; font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); cursor:pointer; margin-right:6px; padding:4px 6px 4px 0; }
-  .made-box{ appearance:none; -webkit-appearance:none; width:22px; height:22px; margin:0; border-radius:6px; border:1.5px solid var(--ink-faint); background:rgba(12,16,34,.6); cursor:pointer; display:inline-grid; place-content:center; transition:background .2s,border-color .2s; }
-  .made-box::after{ content:""; width:10px; height:6px; border-left:2px solid #151204; border-bottom:2px solid #151204; transform:rotate(-45deg) translate(1px,-1px); opacity:0; }
-  .made-box:checked{ background:var(--gold); border-color:var(--gold); }
-  .made-box:checked::after{ opacity:1; }
-  .made-box:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
-  .entry.done .made-check{ color:var(--gold); }
   .entry.done .dua-text, .entry.done .memo-line, .entry.done .note-field, .entry.done .tag{ opacity:.42; }
-  .entry.done .dua-text{ text-decoration:line-through; text-decoration-color:rgba(201,162,39,.45); text-decoration-thickness:1px; }
   .entry{ transition:background .3s; }
   .entry.done{ background:rgba(21,27,53,.3); }
   .icon-btn.star{ font-size:1.05rem; }
   .icon-btn.star.on{ color:var(--fav); }
   /* favorite duas */
-  .favduas{ margin-top:38px; scroll-margin-top:calc(var(--appbar-h) + var(--safe-t) + 12px); }
-  .favduas .cat-head .fav-star{ font-size:1rem; }
-  .favduas-sub{ font-size:.76rem; color:var(--ink-faint); margin:-4px 0 12px; line-height:1.45; }
-  .favdua{ background:var(--card); border:1px solid var(--hairline); border-left:3px solid var(--dot,var(--gold)); border-radius:var(--radius); padding:12px 14px; margin-bottom:10px; }
-  .favdua-name{ display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 9px; margin-bottom:4px; }
-  .favdua-name .ar-s{ font-family:'Amiri',serif; font-size:1.25rem; color:var(--ink); }
-  .favdua-name .tr-s{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.02rem; color:var(--dot,var(--gold)); }
-  .favdua-name .mn-s{ font-size:.74rem; color:var(--ink-dim); }
-  .favdua-text{ font-family:'Cormorant Garamond',serif; font-size:1.12rem; line-height:1.5; margin:0 0 8px; white-space:pre-wrap; }
   .logs-guide{ margin:20px 0 4px; }
   .logs-guide .panel{ margin:12px auto; }
   .guide-tip{ position:relative; z-index:1; text-align:center; }
@@ -322,7 +262,6 @@
   @media (max-width:480px){ .memo-item .card-inner{ height:142px; } .memo-item .card .meaning{ font-size:.76rem; } }
   .memo-item .card, .memo-item .card-inner, .memo-item .card-face, .memo-item .field{ touch-action:pan-y; }
   /* settings + AI */
-  .logs-head{ position:relative; }
   .gear-btn{ position:absolute; top:-8px; right:0; width:40px; height:40px; border:none; background:transparent; color:var(--ink-faint); opacity:.55; font-size:1.15rem; border-radius:50%; cursor:pointer; }
   .gear-btn:hover, .gear-btn:focus-visible{ opacity:1; color:var(--gold); }
   .set-body{ padding:16px 18px !important; }
@@ -336,7 +275,6 @@
   .set-status{ font-size:.76rem; color:var(--ink-dim); margin:8px 0 10px; min-height:1.2em; }
   .tag.refined{ color:var(--gold); }
   .tag.refined::before{ content:"\2726 "; }
-  .icon-btn.rewrite{ font-size:1rem; }
   .icon-btn.spin{ animation:spin 1s linear infinite; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
   .btn.busy{ opacity:.85 !important; pointer-events:none; }
@@ -535,8 +473,7 @@
 <div id="view-pray" class="view" hidden></div>
 <div id="view-duas" class="view" hidden></div>
 
-<div id="view-logs" class="view" hidden>
-<div id="logsGuide" class="logs-guide">
+<template id="duaGuide"><div class="logs-guide">
 <div class="guide-tip"><p class="tip">Prefix any name with <em>Ya</em> — يا — when calling upon Allah in dua.</p></div>
 <section class="panel etiquette">
   <h2>Etiquette of Dua</h2>
@@ -561,8 +498,7 @@
   <p class="en">...I ask You <span class="hl">by every Name that is Yours</span> — that You named Yourself with, or revealed in Your Book, or taught to any of Your creation, or kept in the knowledge of the unseen with You.</p>
   <p class="src">Musnad Ahmad, sahih (al-Albani) — narrated by Ibn Mas'ud</p>
 </section>
-</div>
-</div>
+</div></template>
 
 <div class="selbar" id="selbar" aria-hidden="true">
   <div class="selbar-in">
@@ -1041,15 +977,6 @@ function buildCard(item, mode){ // mode: 'ref' | 'log'
   return card;
 }
 
-function buildMiniCard(item){
-  const cat = CAT_BY_ID[item.cat];
-  const m = el('div', {class:'mini-card', style:'--dot:' + cat.color});
-  m.appendChild(el('div', {class:'ar', text:item.ar}));
-  m.appendChild(el('div', {class:'translit', text:item.tr}));
-  m.appendChild(el('div', {class:'meaning', text:item.meaning}));
-  return m;
-}
-
 /* ---------- state ---------- */
 /* ---------- state + storage (hardened) ----------
    Primary copy: localStorage['asmaDuaLog.v1'] (format unchanged). Safety nets, all on this device:
@@ -1065,7 +992,6 @@ const PRE_KEY = 'asmaDuaLog.v1.preUpgrade';
 const IDB_NAME = 'asmaDuaLogBackup', IDB_STORE = 'kv';
 let selecting = false;
 const selected = new Set();
-let selectTarget = null;   // {logId, sessionId} when adding to an existing session
 const storageInfo = {lsState:'ok', lsOk:true, lsReadable:true, idb:null, persisted:null, restoredFrom:'', lastSaved:''};
 let reconciled = false, pendingSave = false, intentionalShrink = false, snaps = [];
 
@@ -1327,7 +1253,6 @@ function dayKey(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' +
 function fmtDate(d){ return d.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric', year:'numeric'}); }
 function fmtTime(d){ return d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}); }
 function dateFromKey(k){ const p = k.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
-function findLog(id){ return data.logs.find(l => l.id === id); }
 
 /* Memo placeholders: a short, Name-specific prompt to jog thoughts */
 const PH = {
@@ -2842,12 +2767,10 @@ searchClear.addEventListener('click', () => { search.value = ''; applySearch(); 
 const selectBtn = document.getElementById('selectBtn');
 const selbar = document.getElementById('selbar');
 const selCount = document.getElementById('selCount');
-const selTarget = document.getElementById('selTarget');
 const selAdd = document.getElementById('selAdd');
 
-function setSelecting(on, target){
+function setSelecting(on){
   selecting = on;
-  selectTarget = on ? (target || null) : null;
   if (!on) selected.clear();
   document.body.classList.toggle('selecting', on);
   selectBtn.textContent = on ? 'Done' : 'Select';
@@ -2872,29 +2795,19 @@ function syncSelectionUI(){
   selCount.innerHTML = '';
   selCount.appendChild(el('b', {text:String(k)}));
   selCount.appendChild(document.createTextNode(k === 1 ? ' Name selected' : ' Names selected'));
-  let tgt = 'Tap cards to choose Names';
-  if (selectTarget) { const l = findLog(selectTarget.logId); if (l) tgt = 'Adding to: ' + l.title; }
-  selCount.appendChild(el('span', {class:'target', text:tgt}));
+  selCount.appendChild(el('span', {class:'target', text:'Tap cards to choose Names'}));
   selAdd.disabled = k === 0;
-  selAdd.textContent = selectTarget ? 'Add to this log' : 'Add to My Duas';
 }
-selectBtn.addEventListener('click', () => {
-  if (selecting && selectTarget) { const t = selectTarget; setSelecting(false); location.hash = '#log/' + t.logId; return; }
-  setSelecting(!selecting);
-});
-document.getElementById('selCancel').addEventListener('click', () => {
-  const t = selectTarget;
-  setSelecting(false);
-  if (t) location.hash = '#log/' + t.logId;
-});
-selAdd.addEventListener('click', () => { if (selected.size) openMemoSheet(Array.from(selected), selectTarget); });
+selectBtn.addEventListener('click', () => setSelecting(!selecting));
+document.getElementById('selCancel').addEventListener('click', () => setSelecting(false));
+selAdd.addEventListener('click', () => { if (selected.size) openMemoSheet(Array.from(selected)); });
 
 /* ---------- memo sheet ---------- */
 const sheetWrap = document.getElementById('sheetWrap');
-function openMemoSheet(ns, target, prefill){
+function openMemoSheet(ns, prefill){
   const body = document.getElementById('sheetBody');
   body.innerHTML = '';
-  sheetWrap._ns = ns.slice(); sheetWrap._target = target; openMemoRow = null;
+  sheetWrap._ns = ns.slice(); openMemoRow = null;
   document.getElementById('sheetOneoff').checked = false;
   ns.forEach((n, i) => {
     const item = BY_N[n];
@@ -3059,31 +2972,6 @@ document.getElementById('sheetSave').addEventListener('click', async () => {
   location.hash = '#duas';
   toast(entries.length + (entries.length === 1 ? ' Name' : ' Names') + (status === 'keeper' ? ' added to My Duas' : ' saved just for now') + (aiNote ? ' \u00B7 ' + aiNote : ''));
 });
-
-function addEntries(entries, target){
-  const now = new Date();
-  if (target) {
-    const log = findLog(target.logId);
-    if (log) {
-      const s = log.sessions.find(x => x.id === target.sessionId);
-      if (s) s.entries.push(...entries);
-      else log.sessions.push({id:uid(), time:now.toISOString(), note:'', entries:entries});
-      log.updated = now.toISOString();
-      saveData();
-      return log.id;
-    }
-  }
-  const key = dayKey(now);
-  let log = data.logs.find(l => l.date === key);
-  if (!log) {
-    log = {id:uid(), date:key, title:'Dua Log \u2014 ' + fmtDate(now), created:now.toISOString(), sessions:[]};
-    data.logs.push(log);
-  }
-  log.sessions.push({id:uid(), time:now.toISOString(), note:'', entries:entries});
-  log.updated = now.toISOString();
-  saveData();
-  return log.id;
-}
 
 /* ---------- approximate Austin prayer windows (offline solar calculation) ---------- */
 const AUSTIN = {lat:30.2672, lon:-97.7431, tz:'America/Chicago'};
@@ -3553,62 +3441,6 @@ function openReader(ids, prayer){
   draw();
 }
 
-/* ---------- Dua Log views ---------- */
-const logsView = document.getElementById('view-logs');
-const logsGuide = document.getElementById('logsGuide'); // Etiquette + Dua That Calls Every Name (always open)
-logsGuide.remove();
-function sortedLogs(){ return data.logs.slice().sort((a, b) => (b.date + (b.created || '')).localeCompare(a.date + (a.created || ''))); }
-function entryCount(log){ return log.sessions.reduce((t, s) => t + s.entries.length, 0); }
-
-function renderLogList(){
-  logsView.innerHTML = '';
-  const wrap = el('div', {class:'logs-wrap'});
-  const head = el('div', {class:'logs-head'}, [
-    el('button', {class:'gear-btn', type:'button', 'aria-label':'Settings', title:'Settings', text:'\u2699', onclick:openSettings}),
-    el('h1', {class:'title-ar', text:'سِجِلُّ الدُّعَاء'}),
-    el('h2', {class:'title-en', text:'Dua Log'}),
-    el('p', {class:'sub', text:'Your saved duas, one log per day. Saved only on this device \u2014 tap Backup to keep a copy safe.'}),
-  ]);
-  const fileIn = el('input', {type:'file', accept:'application/json,.json', hidden:true});
-  fileIn.addEventListener('change', () => { if (fileIn.files[0]) importFile(fileIn.files[0]); fileIn.value = ''; });
-  head.appendChild(el('div', {class:'logs-actions'}, [
-    el('button', {class:'btn gold', text:'+ New from Names', onclick:() => { location.hash = '#reference'; setTimeout(() => setSelecting(true), 0); }}),
-    el('button', {class:'btn', text:'Backup', onclick:openBackup}),
-    el('button', {class:'btn', text:'Export', onclick:exportData, disabled:!data.logs.length && !data.favDuas.length}),
-    el('button', {class:'btn', text:'Import', onclick:() => fileIn.click()}),
-    el('button', {class:'btn ghost', text:'\u2605 Favorite Duas (' + data.favDuas.length + ')', onclick:() => { const f = document.getElementById('favDuas'); if (f) f.scrollIntoView({behavior:'smooth', block:'start'}); }}),
-    fileIn
-  ]));
-  wrap.appendChild(head);
-  wrap.appendChild(buildSuggested());
-  wrap.appendChild(logsGuide);
-  const logs = sortedLogs();
-  if (!logs.length) {
-    wrap.appendChild(el('div', {class:'empty', text:'No logs yet. Go to Names, tap Select, choose the Names you want to call on, then tap Add to Dua Log.'}));
-  } else {
-    const list = el('div', {class:'log-list'});
-    logs.forEach(log => {
-      const names = el('div', {class:'names'});
-      const seen = [];
-      log.sessions.forEach(s => s.entries.forEach(e => { if (e.n && !seen.includes(e.n)) seen.push(e.n); }));
-      seen.slice(0, 8).forEach(n => {
-        const it = BY_N[n];
-        names.appendChild(el('span', {class:'pill', style:'--dot:' + CAT_BY_ID[it.cat].color}, [el('span', {class:'ar-s', text:it.ar}), it.tr]));
-      });
-      if (seen.length > 8) names.appendChild(el('span', {class:'pill', text:'+' + (seen.length - 8) + ' more'}));
-      const c = entryCount(log), sc = log.sessions.length;
-      list.appendChild(el('button', {class:'log-item', onclick:() => { location.hash = '#log/' + log.id; }}, [
-        el('div', {class:'t', text:log.title}),
-        el('div', {class:'m', text:fmtDate(dateFromKey(log.date)) + ' \u00B7 ' + c + (c === 1 ? ' dua' : ' duas') + ' \u00B7 ' + sc + (sc === 1 ? ' session' : ' sessions')}),
-        names
-      ]));
-    });
-    wrap.appendChild(list);
-  }
-  wrap.appendChild(renderFavDuas());
-  logsView.appendChild(wrap);
-}
-
 /* ---------- choosing a Name that fits the request ---------- */
 const PAIR = {
   deceased:['Al-Ghafur','Ar-Rahman','Ar-Rahim'], health:['Ar-Rahim','Al-Hafiz','As-Salam'], emotion:['As-Salam','Al-Latif','Al-Wakil','Ar-Rahim'],
@@ -3832,7 +3664,7 @@ function renderDuas(){
   const rm = duaSection('Recently removed', removed, idx, {fold:true, key:'removedOpen', open:MY.removedOpen, row:d => el('div', {class:'my-card removed'}, [
     el('p', {class:'my-t', text:curText(d)}), el('div', {class:'my-row'}, [el('button', {type:'button', class:'btn small', text:'Restore', onclick:() => { setDuaStatus(d, 'keeper'); renderDuas(); }})])])});
   if (rm) wrap.appendChild(rm);
-  const g = logsGuide.cloneNode(true); g.hidden = false;
+  const g = el('div', {class:'my-guide-body'}); g.appendChild(document.getElementById('duaGuide').content.cloneNode(true));
   wrap.appendChild(el('details', {class:'my-fold my-guide'}, [el('summary', {text:'Before you pray'}), g]));
   wrap.querySelectorAll('textarea').forEach(autoGrow);
 }
@@ -3885,8 +3717,6 @@ function renderHistory(){
   if (days.length > MY.showHist) wrap.appendChild(el('button', {type:'button', class:'btn', text:'Show older', onclick:() => { MY.showHist += 60; renderHistory(); }}));
 }
 
-const DIVIDER_SVG = '<svg width="14" height="14" viewBox="0 0 100 100" fill="none" aria-hidden="true"><rect x="20" y="20" width="60" height="60" stroke="#c9a227" stroke-width="6"/><rect x="20" y="20" width="60" height="60" stroke="#c9a227" stroke-width="6" transform="rotate(45 50 50)"/></svg>';
-
 let saveTimer = null;
 function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveData, 300); }
 window.addEventListener('pagehide', () => { clearTimeout(saveTimer); saveData(); });
@@ -3898,280 +3728,13 @@ document.getElementById('updateBtn').addEventListener('click', () => {
 document.addEventListener('visibilitychange', () => { if (document.hidden) { clearTimeout(saveTimer); saveData(); } });
 
 function autoGrow(ta){ ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; }
-let growTimer; window.addEventListener('resize', () => { clearTimeout(growTimer); growTimer = setTimeout(() => document.querySelectorAll('#view-logs textarea').forEach(t => { if (!t.hidden) autoGrow(t); }), 120); });
+let growTimer; window.addEventListener('resize', () => { clearTimeout(growTimer); growTimer = setTimeout(() => document.querySelectorAll('#view-duas textarea').forEach(t => { if (!t.hidden) autoGrow(t); }), 120); });
 
-function renderLogDetail(log, keepScroll){
-  const y = window.scrollY;
-  logsView.innerHTML = '';
-  const wrap = el('div', {class:'logs-wrap'});
-  wrap.appendChild(el('a', {class:'back-link', href:'#logs', text:'\u2039 All logs'}));
-  const title = el('input', {class:'log-title', type:'text', value:log.title, 'aria-label':'Log title', maxlength:'120'});
-  title.addEventListener('input', () => { log.title = title.value; saveSoon(); });
-  title.addEventListener('blur', () => { if (!title.value.trim()) { log.title = 'Dua Log \u2014 ' + fmtDate(dateFromKey(log.date)); title.value = log.title; saveData(); } });
-  title.addEventListener('keydown', (e) => { if (e.key === 'Enter') title.blur(); });
-  wrap.appendChild(title);
-  wrap.appendChild(el('div', {class:'rename-hint', text:'Tap the title to rename'}));
-  const c = entryCount(log);
-  wrap.appendChild(el('div', {class:'log-meta', id:'logMeta', text:logMetaText(log)}));
-  wrap.appendChild(el('div', {class:'log-tools'}, [
-    el('button', {class:'btn small', type:'button', text:'\u2197 Share log', onclick:() => shareLog(log)}),
-    el('button', {class:'btn small ghost', type:'button', text:'Download .txt', onclick:() => downloadLogTxt(log)})
-  ]));
-
-  if (!log.sessions.length) wrap.appendChild(el('div', {class:'empty', text:'This log is empty. Add Names below.'}));
-
-  log.sessions.forEach((s, si) => {
-    const div = el('div', {class:'divider', role:'separator'});
-    div.innerHTML = DIVIDER_SVG;
-    div.appendChild(document.createTextNode((si === 0 ? 'Started ' : 'Added ') + fmtTime(new Date(s.time))));
-    wrap.appendChild(div);
-
-    s.entries.forEach((e, ei) => wrap.appendChild(renderEntry(log, s, e, ei)));
-
-    wrap.appendChild(el('div', {class:'session-note-label', text:'Your own words for this session'}));
-    const sn = el('textarea', {class:'field note-field', rows:'2', placeholder:'Write anything you want to add to this dua\u2026', 'aria-label':'Session notes'});
-    sn.value = s.note || '';
-    sn.addEventListener('input', () => { s.note = sn.value; autoGrow(sn); saveSoon(); });
-    wrap.appendChild(sn);
-    wrap.appendChild(el('div', {class:'session-foot'}, [
-      el('button', {class:'btn small', text:'+ Add Names', onclick:() => startAddingTo(log, s)}),
-      el('button', {class:'btn small ghost', text:'+ Write your own dua', onclick:() => {
-        s.entries.push({id:uid(), n:null, memo:'', text:'', generic:false, note:'', custom:true});
-        saveData(); renderLogDetail(log, true);
-        const tas = logsView.querySelectorAll('.entry[data-sid="' + s.id + '"] .dua-text');
-        if (tas.length) tas[tas.length - 1].focus();
-      }})
-    ]));
-  });
-
-  wrap.appendChild(el('div', {class:'log-danger'}, [
-    el('button', {class:'btn small', text:'+ New session in this log', onclick:() => startAddingTo(log, null)}), ' ',
-    el('button', {class:'btn small danger', text:'Delete this log', onclick:() => {
-      if (!confirm('Delete "' + log.title + '"? This cannot be undone.')) return;
-      intentionalShrink = true; data.logs = data.logs.filter(l => l !== log);
-      saveData(); renderFavorites();
-      location.hash = '#logs';
-      toast('Log deleted');
-    }})
-  ]));
-  logsView.appendChild(wrap);
-  requestAnimationFrame(() => {
-    logsView.querySelectorAll('textarea').forEach(autoGrow);
-    if (keepScroll) window.scrollTo(0, y);
-  });
-}
-
-function logMetaText(log){
-  const c = entryCount(log);
-  const d = log.sessions.reduce((t, s) => t + s.entries.filter(e => e.done).length, 0);
-  return fmtDate(dateFromKey(log.date)) + ' \u00B7 ' + c + (c === 1 ? ' dua' : ' duas') + (c ? ' \u00B7 ' + d + ' made' : '');
-}
-function updateMadeMeta(log){ const m = document.getElementById('logMeta'); if (m) m.textContent = logMetaText(log); }
-
-function renderEntry(log, s, e, ei){
-  const item = e.n ? BY_N[e.n] : null;
-  const color = item ? CAT_BY_ID[item.cat].color : 'var(--gold)';
-  const box = el('div', {class:'entry' + (item ? '' : ' custom') + (e.done ? ' done' : ''), style:'--dot:' + color, 'data-sid':s.id});
-  if (item) box.appendChild(buildCard(item, 'log'));
-  const body = el('div', {class:'entry-body'});
-  const tag = el('span', {class:'tag' + (e.generic ? ' general' : '') + (e.refined ? ' refined' : ''), text: !item ? 'Your own dua' : e.generic ? 'General supplication' : e.refined ? 'Refined supplication' : e.edited ? 'Edited supplication' : (e.memo ? 'Your supplication' : 'Supplication')});
-  const rewrite = (item && e.memo) ? el('button', {class:'icon-btn rewrite', type:'button', title:'Write it again (new wording)', 'aria-label':'Write this dua again from its memo, with new wording', text:'\u21BB'}) : null;
-  if (rewrite) rewrite.addEventListener('click', async () => {
-    if (e.edited && !confirm('Replace your edited wording with a fresh rewrite?')) return;
-    rewrite.disabled = true; rewrite.classList.add('spin');
-    let text = null, refined = false;
-    if (aiAvailable()) {
-      try { const got = await aiRefineItems([{id:e.id, n:e.n, memo:e.memo}]); if (got[e.id]) { text = got[e.id]; refined = true; } }
-      catch (err) { toast(aiErrorText(err) + ' \u2014 used the built-in wording'); }
-    }
-    if (!text) { e.vn = (e.vn || 0) + 1; text = composeDua(e.n, e.memo, {used:new Set(), variant:e.vn}).text; }
-    e.text = text; e.refined = refined; e.generic = false; e.edited = false;
-    saveData(); renderLogDetail(log, true);
-    toast(refined ? 'Rewritten with Gemini' : 'Rewritten');
-  });
-  const check = el('input', {type:'checkbox', class:'made-box', 'aria-label':'Mark this dua as made'});
-  check.checked = !!e.done;
-  check.addEventListener('change', () => {
-    e.done = check.checked; e.doneAt = e.done ? new Date().toISOString() : '';
-    box.classList.toggle('done', e.done); saveData(); updateMadeMeta(log);
-  });
-  const made = el('label', {class:'made-check', title:'Mark as made'}, [check, el('span', {text:'Made'})]);
-  const star = el('button', {class:'icon-btn star', type:'button'});
-  function syncStar(){ const on = !!findFavDua(e); star.classList.toggle('on', on); star.textContent = on ? '\u2605' : '\u2606'; star.title = on ? 'Remove from Favorite Duas' : 'Save to Favorite Duas'; star.setAttribute('aria-label', star.title); star.setAttribute('aria-pressed', on ? 'true' : 'false'); }
-  star.addEventListener('click', () => { toggleFavDua(e); syncStar(); });
-  syncStar();
-  const tools = el('div', {class:'tools'}, [
-    rewrite,
-    star,
-    el('button', {class:'icon-btn', title:'Move up', 'aria-label':'Move up', text:'\u2191', disabled:ei === 0, onclick:() => moveEntry(log, s, ei, -1)}),
-    el('button', {class:'icon-btn', title:'Move down', 'aria-label':'Move down', text:'\u2193', disabled:ei === s.entries.length - 1, onclick:() => moveEntry(log, s, ei, 1)}),
-    el('button', {class:'icon-btn del', title:'Delete', 'aria-label':'Delete this dua', text:'\u2715', onclick:() => deleteEntry(log, s, e)})
-  ]);
-  body.appendChild(el('div', {class:'entry-top'}, [made, tag, tools]));
-  if (e.memo) body.appendChild(el('p', {class:'memo-line'}, ['For: ', el('b', {text:e.memo})]));
-  const ta = el('textarea', {class:'field dua-text', rows:'1', 'aria-label':'Supplication text', placeholder: item ? 'Write your supplication\u2026' : 'Write your own dua\u2026'});
-  ta.value = e.text || '';
-  ta.addEventListener('input', () => {
-    e.text = ta.value; autoGrow(ta);
-    if (e.generic || e.refined || !e.edited) { e.generic = false; e.refined = false; e.edited = true; tag.className = 'tag'; tag.textContent = 'Edited supplication'; }
-    syncStar();
-    saveSoon();
-  });
-  body.appendChild(ta);
-  if (item) {
-    const note = el('textarea', {class:'field note-field', rows:'1', placeholder:'Add your own words\u2026', 'aria-label':'Your note for ' + item.tr});
-    note.value = e.note || '';
-    note.addEventListener('input', () => { e.note = note.value; autoGrow(note); saveSoon(); });
-    if (!e.note) {
-      note.hidden = true;
-      const addBtn = el('button', {class:'add-note', text:'+ Add your own words'});
-      addBtn.addEventListener('click', () => { addBtn.remove(); note.hidden = false; autoGrow(note); note.focus(); });
-      body.appendChild(addBtn);
-    }
-    body.appendChild(note);
-  }
-  box.appendChild(body);
-  return box;
-}
-
-function moveEntry(log, s, i, dir){
-  const j = i + dir;
-  if (j < 0 || j >= s.entries.length) return;
-  const t = s.entries[i]; s.entries[i] = s.entries[j]; s.entries[j] = t;
-  saveData(); renderLogDetail(log, true);
-}
-function deleteEntry(log, s, e){
-  const label = e.n ? BY_N[e.n].tr : 'this dua';
-  if (!confirm('Remove ' + label + ' from this log?')) return;
-  intentionalShrink = true; s.entries = s.entries.filter(x => x !== e);
-  if (!s.entries.length && !(s.note || '').trim()) log.sessions = log.sessions.filter(x => x !== s);
-  saveData(); renderFavorites(); renderLogDetail(log, true);
-}
-function startAddingTo(log, s){
-  location.hash = '#reference';
-  setTimeout(() => {
-    setSelecting(true, {logId:log.id, sessionId: s ? s.id : null});
-    const c = document.getElementById('controls');
-    if (c) window.scrollTo(0, c.offsetTop - 60);
-  }, 0);
-}
-
-/* ---------- Favorite Duas (saved dua lines, max 100) ---------- */
-const FAV_DUA_LIMIT = 100;
-function findFavDua(e){ const t = (e.text || '').trim(); return t ? data.favDuas.find(f => (f.n || null) === (e.n || null) && f.text === t) : null; }
-function toggleFavDua(e){
-  const ex = findFavDua(e);
-  if (ex) { intentionalShrink = true; data.favDuas = data.favDuas.filter(f => f !== ex); saveData(); toast('Removed from Favorite Duas'); return; }
-  const t = (e.text || '').trim();
-  if (!t) { toast('Write the dua first, then save it.'); return; }
-  if (data.favDuas.length >= FAV_DUA_LIMIT) { toast('You\u2019ve saved 100 Favorite Duas \u2014 the most it holds. Remove one to make room.'); return; }
-  data.favDuas.unshift({id:uid(), n:e.n || null, text:t, saved:new Date().toISOString()});
-  saveData(); toast('Saved to Favorite Duas (' + data.favDuas.length + '/' + FAV_DUA_LIMIT + ')');
-}
-function renderFavDuas(){
-  const sec = el('section', {class:'favduas', id:'favDuas'});
-  sec.appendChild(el('div', {class:'cat-head'}, [
-    el('span', {class:'fav-star', text:'\u2605'}), el('h3', {text:'Favorite Duas'}),
-    el('span', {class:'count', text:data.favDuas.length + ' / ' + FAV_DUA_LIMIT})
-  ]));
-  sec.appendChild(el('p', {class:'favduas-sub', text:'Dua lines you\u2019ve starred in any log. Insert one into a log to make it again. (Different from the Favorites Names on the reference page.)'}));
-  if (!data.favDuas.length) {
-    sec.appendChild(el('div', {class:'empty', text:'No Favorite Duas yet. Tap the \u2606 on any dua in a log to save it here.'}));
-    return sec;
-  }
-  data.favDuas.forEach(f => {
-    const item = f.n ? BY_N[f.n] : null;
-    const row = el('div', {class:'favdua', style:'--dot:' + (item ? CAT_BY_ID[item.cat].color : 'var(--gold)')});
-    if (item) row.appendChild(el('div', {class:'favdua-name'}, [el('span', {class:'ar-s', text:item.ar}), el('span', {class:'tr-s', text:item.tr}), el('span', {class:'mn-s', text:item.meaning})]));
-    else row.appendChild(el('div', {class:'favdua-name'}, [el('span', {class:'tr-s', text:'Your own dua'})]));
-    row.appendChild(el('p', {class:'favdua-text', text:f.text}));
-    row.appendChild(el('div', {class:'session-foot'}, [
-      el('button', {class:'btn small', type:'button', text:'+ Insert into a log', onclick:() => openPicker(f)}),
-      el('button', {class:'btn small danger', type:'button', text:'Remove', onclick:() => {
-        if (!confirm('Remove this from Favorite Duas?')) return;
-        data.favDuas = data.favDuas.filter(x => x !== f); saveData(); renderLogList();
-        const s2 = document.getElementById('favDuas'); if (s2) s2.scrollIntoView({block:'start'});
-        toast('Removed from Favorite Duas');
-      }})
-    ]));
-    sec.appendChild(row);
-  });
-  return sec;
-}
-function openPicker(f){
-  const wrap = el('div', {class:'sheet-wrap', id:'pickWrap'});
-  const close = () => { wrap.remove(); document.body.style.overflow = ''; };
-  const body = el('div', {class:'sheet-body'});
-  const now = new Date();
-  const today = data.logs.find(l => l.date === dayKey(now));
-  body.appendChild(el('button', {class:'log-item', type:'button', onclick:() => { close(); insertFavInto(f, today || null); }}, [
-    el('div', {class:'t', text:'Today\u2019s log'}),
-    el('div', {class:'m', text: today ? 'Adds to the latest session of ' + today.title : 'Starts Dua Log \u2014 ' + fmtDate(now)})
-  ]));
-  sortedLogs().filter(l => l !== today).forEach(l => body.appendChild(el('button', {class:'log-item', type:'button', onclick:() => { close(); insertFavInto(f, l); }}, [
-    el('div', {class:'t', text:l.title}), el('div', {class:'m', text:'Adds to its latest session'})
-  ])));
-  const sheet = el('div', {class:'sheet', role:'dialog', 'aria-modal':'true', 'aria-label':'Choose a log'}, [
-    el('div', {class:'sheet-head'}, [el('h2', {text:'Insert into which log?'}), el('p', {text:f.text})]),
-    body,
-    el('div', {class:'sheet-foot'}, [el('button', {class:'btn', type:'button', text:'Cancel', onclick:close})])
-  ]);
-  body.style.display = 'flex'; body.style.flexDirection = 'column'; body.style.gap = '8px';
-  wrap.appendChild(sheet);
-  wrap.addEventListener('click', ev => { if (ev.target === wrap) close(); });
-  document.body.appendChild(wrap); document.body.style.overflow = 'hidden';
-}
-function insertFavInto(f, log){
-  const entry = {id:uid(), n:f.n || null, memo:'', text:f.text, generic:false, note:'', custom:!f.n, fromFav:true};
-  let id;
-  if (log && log.sessions.length) { log.sessions[log.sessions.length - 1].entries.push(entry); log.updated = new Date().toISOString(); saveData(); id = log.id; }
-  else if (log) { log.sessions.push({id:uid(), time:new Date().toISOString(), note:'', entries:[entry]}); saveData(); id = log.id; }
-  else id = addEntries([entry], null);
-  renderFavorites();
-  location.hash = '#log/' + id;
-  toast('Favorite dua inserted');
-}
-
-/* ---------- share a log as plain text ---------- */
-function logToText(log){
-  const L = [log.title, fmtDate(dateFromKey(log.date)), ''];
-  log.sessions.forEach((s, si) => {
-    L.push('\u2014\u2014 ' + (si === 0 ? 'Started ' : 'Added ') + fmtTime(new Date(s.time)) + ' \u2014\u2014', '');
-    s.entries.forEach((e, i) => {
-      const it = e.n ? BY_N[e.n] : null;
-      L.push((i + 1) + '. ' + (it ? it.ar + ' \u00B7 ' + it.tr + ' \u2014 ' + it.meaning : 'Your own dua') + (e.done ? '  \u2713 made' : ''));
-      if (e.memo) L.push('   For: ' + e.memo);
-      if ((e.text || '').trim()) L.push('   ' + e.text.trim() + (e.generic ? '  (general supplication)' : ''));
-      if ((e.note || '').trim()) L.push('   Note: ' + e.note.trim());
-      L.push('');
-    });
-    if ((s.note || '').trim()) L.push('My words: ' + s.note.trim(), '');
-  });
-  L.push('\u2014 from my Asma al-Husna Dua Log');
-  return L.join('\n');
-}
 async function copyText(t){
   try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(t); return true; } } catch (e) {}
   const ta = el('textarea', {style:'position:fixed;top:-1000px;opacity:0'}); ta.value = t; document.body.appendChild(ta); ta.select();
   let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); return ok;
 }
-async function shareLog(log){
-  const text = logToText(log);
-  if (navigator.share) {
-    try { await navigator.share({title:log.title, text:text}); return; }
-    catch (e) { if (e && e.name === 'AbortError') return; }
-  }
-  if (await copyText(text)) toast('Log copied \u2014 paste it anywhere to share');
-  else { downloadLogTxt(log); }
-}
-function downloadLogTxt(log){
-  const blob = new Blob([logToText(log)], {type:'text/plain;charset=utf-8'});
-  const a = el('a', {href:URL.createObjectURL(blob), download:(log.title.replace(/[\\/:*?"<>|]+/g, '').trim() || 'Dua Log') + '.txt'});
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  toast('Text file downloaded');
-}
-
 /* ---------- export / import ---------- */
 function exportData(){
   const blob = new Blob([backupJson()], {type:'application/json'});
@@ -4266,7 +3829,6 @@ function route(){
   if (!sheetWrap.hidden) closeSheet();
   ['pickWrap', 'settingsWrap', 'backupWrap', 'answeredWrap'].forEach(id => { const w = document.getElementById(id); if (w) { w.remove(); document.body.style.overflow = ''; } });
   refView.hidden = view !== 'reference'; prayView.hidden = view !== 'pray'; duasView.hidden = view !== 'duas' && view !== 'history';
-  logsView.hidden = true;
   selectBtn.hidden = view !== 'reference';
   if (view === 'reference') { if (!wasRef) window.scrollTo(0, refScroll); }
   else {
