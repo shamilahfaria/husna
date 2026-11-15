@@ -306,6 +306,33 @@
   .sug-chip{ font:inherit; font-size:.82rem; font-weight:500; color:var(--ink); background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:8px 14px; min-height:38px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .sug-chip i{ font-style:normal; color:var(--gold); font-size:.72rem; }
   .sug-chip:active{ border-color:var(--gold); background:var(--card-hover); }
+  .sug-people{ padding:0 14px 6px; }
+  .sug-people .sug-row{ margin-top:2px; }
+  .sug-person{ min-height:44px; border-radius:16px; text-align:left; line-height:1.3; }
+  .sug-person b{ font-weight:600; }
+  .sug-person span{ color:var(--ink-dim); }
+  .sug-person[aria-pressed="true"]{ border-color:var(--gold); background:rgba(201,162,39,.12); }
+  .sug-person:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .ppl-hint{ margin:6px 0 0; }
+  .ppl-hint:empty{ display:none; }
+  .ppl-hint-in{ margin:8px 0 0; padding:9px 10px 6px; border-left:2px solid var(--gold-soft); background:rgba(201,162,39,.05); border-radius:0 10px 10px 0; text-align:left; }
+  .ppl-hint-t{ margin:0 0 4px; font-size:.78rem; color:var(--ink-dim); line-height:1.45; }
+  .ppl-hint-row{ display:flex; align-items:center; gap:10px; justify-content:space-between; min-height:44px; }
+  .ppl-hint-x{ flex:1; min-width:0; font-size:.84rem; color:var(--ink); line-height:1.35; }
+  .ppl-add{ min-height:44px; min-width:76px; }
+  .ppl-add[aria-pressed="true"]{ color:var(--gold); border-color:var(--gold-soft); }
+  .ppl-hint-more{ margin:0 0 4px; font-size:.72rem; color:var(--ink-faint); }
+  .ppl-sub{ margin:0 0 6px; font-size:.78rem; color:var(--ink-dim); }
+  .ppl-card{ padding:0; }
+  .ppl-sum{ display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 10px; padding:12px 14px; min-height:44px; box-sizing:border-box; cursor:pointer; list-style:none; align-content:center; }
+  .ppl-sum::-webkit-details-marker{ display:none; }
+  .ppl-sum b{ font-weight:600; color:var(--ink); }
+  .ppl-sum:focus-visible{ outline:2px solid var(--gold); outline-offset:-2px; border-radius:12px; }
+  .ppl-meta{ font-size:.72rem; color:var(--ink-faint); }
+  .ppl-body{ padding:0 14px 10px; }
+  .ppl-dua{ padding:9px 0; border-top:1px solid var(--hairline); }
+  .ppl-t{ margin:0; font-size:.88rem; line-height:1.4; color:var(--ink); }
+  .ppl-dua.ans .ppl-t{ color:var(--gold); }
   .sug-dua{ margin:10px 0; padding:11px 12px; border:1px solid var(--hairline); border-radius:12px; background:rgba(12,16,34,.55); }
   .sug-dua-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
   .sug-src{ font-size:.7rem; color:var(--ink-faint); }
@@ -3415,6 +3442,65 @@ function learnedFor(w){
     .map(r => ({duaId:r.d.id, n:r.d.n, label:r.d.memo || curText(r.d), c:r.c}));
   return {seen:seen, names:top(nm, 4), themes:top(th, 3), repeat:repeat};
 }
+/* "For your sister: a good job · guidance": one tap adds her live duas for that person to this prayer (prayAdd never doubles up) */
+const PEOPLE_CHIPS = 4;
+function addPersonToPrayer(p){
+  const ids = p.live.map(i => i.d.id), fresh = ids.filter(id => !prayHas(id));
+  ids.forEach(prayAdd); renderPray();
+  toast(fresh.length ? 'Added ' + (fresh.length === 1 ? 'a dua' : fresh.length + ' duas') + ' for ' + p.label : 'Already in this ' + PRAYER_NAME[PRAY.prayer]);
+  const b = document.querySelector('.sug-person[data-person="' + p.key + '"]'); if (b) b.focus({preventScroll:true});
+}
+/* while she types: "You've also asked for your sister: a good job, guidance", each with a one-tap add. Debounced, own container, never touches the text, saving or storage. */
+function showPeopleHint(box, text, o){
+  o = o || {};
+  try {
+    const said = peopleIn(String(text || '').slice(0, 400));
+    const found = []; let sig = '';
+    if (said.length) {
+      const want = new Set(said.map(p => p.key));
+      peopleIndex().forEach(e => {
+        if (found.length >= 2 || ![...e.keys].some(k => want.has(k))) return;
+        const rows = e.live.filter(i => o.showAdded || !prayHas(i.d.id)); if (!rows.length) return;
+        found.push({e:e, rows:rows}); sig += e.key + ':' + rows.map(i => i.d.id + (prayHas(i.d.id) ? '+' : '')).join(',') + '|';
+      });
+    }
+    if (box.dataset.sig === sig) return;
+    box.dataset.sig = sig; box.textContent = '';
+    found.forEach(f => {
+      const th = f.e.themes.slice(0, 3).join(', ');
+      const blk = el('div', {class:'ppl-hint-in'}, [el('p', {class:'ppl-hint-t', text:'You\u2019ve also asked for ' + f.e.label + (th ? ': ' + th : '')})]);
+      f.rows.slice(0, 3).forEach(i => {
+        const t = i.d.memo || curText(i.d), done = prayHas(i.d.id);
+        blk.appendChild(el('div', {class:'ppl-hint-row'}, [
+          el('span', {class:'ppl-hint-x', text:t.length > 70 ? t.slice(0, 68) + '\u2026' : t}),
+          el('button', {type:'button', class:'btn small ppl-add', 'aria-pressed':done ? 'true' : 'false', 'aria-label':(done ? 'Already added: ' : 'Add to this prayer: ') + t.slice(0, 60),
+            text:done ? '\u2713 Added' : '+ Add', onclick:() => { if (!done) o.onAdd(i.d.id); }})
+        ]));
+      });
+      if (f.rows.length > 3) blk.appendChild(el('p', {class:'ppl-hint-more', text:'+ ' + (f.rows.length - 3) + ' more in My Duas'}));
+      box.appendChild(blk);
+    });
+  } catch (e) { box.textContent = ''; }
+}
+function peopleHintBox(){ return el('div', {class:'ppl-hint', role:'status', 'aria-live':'polite'}); }
+function bindPeopleHint(input, box, o){
+  let t; const run = () => showPeopleHint(box, input.value, o);
+  input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 250); });
+  run();
+}
+function peopleChips(){
+  let list; try { list = peopleIndex().filter(p => p.live.length).slice(0, PEOPLE_CHIPS); } catch (e) { return null; }
+  if (!list.length) return null;
+  return el('div', {class:'sug-people', role:'group', 'aria-label':'People you pray for'}, [
+    el('div', {class:'sug-row'}, [sugTag('Your people'), el('span', {class:'sug-themes', text:'One tap adds what you already ask for them'})]),
+    el('div', {class:'sug-chips'}, list.map(p => {
+      const all = p.live.every(i => prayHas(i.d.id)), th = p.themes.slice(0, 2).join(' \u00B7 ');
+      return el('button', {type:'button', class:'sug-chip sug-person', 'data-person':p.key, 'aria-pressed':all ? 'true' : 'false',
+        'aria-label':(all ? 'Already added: ' : 'Add to this prayer: ') + p.live.length + (p.live.length === 1 ? ' dua' : ' duas') + ' for ' + p.label + (th ? ', ' + th : ''), onclick:() => addPersonToPrayer(p)},
+        [el('b', {text:(all ? '\u2713 ' : '') + 'For ' + p.label}), th ? el('span', {text:': ' + th}) : null, p.live.length > 1 ? el('i', {text:' \u00B7 ' + p.live.length + ' duas'}) : null]);
+    }))
+  ]);
+}
 function buildSuggested(prayerKey){
   let win; try { win = windowAt(Date.now()); } catch (e) { return document.createComment('no suggestions'); }
   const w = prayerKey || win.w, isNow = w === win.w || (w === 'isha' && win.w === 'last3'), S = SUGGEST[isNow ? win.w : w];
@@ -3426,7 +3512,7 @@ function buildSuggested(prayerKey){
     el('span', {class:'sug-title'}, ['Suggested for now', el('small', {text:' \u00B7 ' + S.label})]),
     el('span', {class:'sug-chev', 'aria-hidden':'true', text:'\u203A'})
   ]);
-  const box = el('section', {class:'sug' + (open ? ' open' : ''), 'aria-label':'Suggested for now'}, [head, body]);
+  const box = el('section', {class:'sug' + (open ? ' open' : ''), 'aria-label':'Suggested for now'}, [head, peopleChips(), body]);
   head.addEventListener('click', () => { const o = body.hidden; body.hidden = !o; box.classList.toggle('open', o); head.setAttribute('aria-expanded', o ? 'true' : 'false'); lsSet('asmaDuaLog.ui.suggest', o ? '1' : '0'); });
 
   if (isNow) body.appendChild(el('p', {class:'sug-when', text:'About ' + fmtAustin(win.start) + ' \u2013 ' + fmtAustin(win.end) + ' Austin time (approximate). Tap a Name to add a dua with it.'}));
@@ -3474,6 +3560,10 @@ const REL_DET = new Set('his her their your its the a an this that whose any eve
 const REL_SELF = new Set('a an the be being become becoming as like such'.split(' '));
 const NAME_VERBS = new Set('for heal cure help protect guide forgive bless about upon comfort ease'.split(' '));
 const NOT_PERSON = /^(Palestine|Gaza|Austin|Syria|Sudan|Yemen|Ummah|Ummat|Afghanistan|Iraq|Kashmir|Lebanon|Morocco|Algeria|Libya|Iran|Saudi|Arabia|Muslimeen|Muslimin|Believers|Rohingya|Uyghurs?|Satan|Shaytan|Iblis|Dajjal)$/i;
+/* words that are not people even when a name-spotter says so: body and feeling words, light, brands (this layer only filters; leadSubject/namedIn are consumed as they are) */
+const NOT_PERSON_WORDS = new Set(('heart hearts mind soul body head eyes eye hands hand tongue chest back stomach leg legs knee skin hair voice life death grave light darkness dream dreams ' +
+  'google microsoft amazon apple facebook meta instagram tiktok youtube twitter netflix uber lyft zoom tesla walmart target costco starbucks linkedin whatsapp snapchat openai chatgpt linux windows android iphone').split(' '));
+const NOOR_CTX = /\b(salah|salat|prayer|prayers|heart|hearts|quran|face|iman|light|grave|qabr|path|eyes?|dua|worship|fajr|dhuhr|asr|maghrib|isha|tahajjud)\b/i;
 const THEME_SHORT = {deceased:'mercy', health:'health', emotion:'calm', anger:'a soft heart', habit:'leaving a habit', forgiveness:'forgiveness', debt:'debt relief', job:'a good job', provision:'provision', study:'studies', knowledge:'knowledge', children:'children', marriage:'marriage', relationship:'a mended bond', patience:'patience', protection:'protection', faith:'faith', guidance:'guidance', home:'a home', virtue:'good character'};
 function nameKey(w){
   return String(w).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/'(?:s)?$/, '').replace(/[^a-z-]/g, '').replace(/(.)\1+/g, '$1').replace(/h$/, '');
@@ -3490,13 +3580,14 @@ function peopleIn(text){
   const add = p => { if (!out.some(x => x.key === p.key)) out.push(p); else if (p.via) { const o = out.find(x => x.key === p.key); if (!o.via) o.via = p.via; } };
   const nameOk = t => {
     if (!t || t.base.length < 3 || t.base.length > 20 || /['.]/.test(t.base)) return false;
-    if (LEAD_STOP.has(t.base) || NOT_NAMES.test(t.w) || NOT_PERSON.test(t.base)) return false;
+    if (LEAD_STOP.has(t.base) || NOT_NAMES.test(t.w) || NOT_PERSON.test(t.base) || NOT_PERSON_WORDS.has(t.base)) return false;
+    if (/^(?:noor|nur)$/.test(t.base) && (!/^[A-Z]/.test(t.w) || NOOR_CTX.test(T.s))) return false;   // noor = light, unless it is clearly a person
     return /^[A-Z]/.test(t.w) || !!leadGender(t.base);
   };
   const addName = (t, via) => add({key:'n:' + nameKey(t.base), kind:'name', label:LEAD_CAP(t.base), via:via || ''});
   const claimed = new Set();
   const ls = leadSubject(T.s);
-  if (ls) ls.subject.split(' and ').forEach(n => { const t = peopleTokens(n).toks[0]; if (t) addName(t, ''); });
+  if (ls) ls.subject.split(' and ').forEach(n => { const t = peopleTokens(n).toks[0]; if (t && nameOk(t)) addName(t, ''); });
   toks.forEach((t, k) => {
     const canon = PEOPLE[t.base];
     if (canon && !REL_SKIP.has(canon) && nameOk(toks[k + 1])) {                       // "my friend Sarah"
@@ -3551,13 +3642,14 @@ function peopleIndex(now){
   }));
   clash.forEach(k => alias.delete(k));
   shown.forEach(d => {
-    const ppl = []; duaPeople(d).forEach(p => { const a = alias.get(p.key), q = a ? {key:a.key, kind:'name', label:a.label, via:p.key.slice(2)} : p; if (!ppl.some(x => x.key === q.key)) ppl.push(q); });
+    const ppl = []; duaPeople(d).forEach(p => { const a = alias.get(p.key), q = a ? {key:a.key, kind:'name', label:a.label, via:p.key.slice(2), raw:p.key} : p; if (!ppl.some(x => x.key === q.key)) ppl.push(q); });
     if (!ppl.length) return;
     const r = occ.get(d.id) || {count:0, first:d.created, last:d.created, recent:0, week:false};
     const item = {d:d, count:r.count, first:r.first < d.created ? r.first : d.created, last:r.last > d.created ? r.last : d.created, theme:themeShort(d), recent:r.recent, week:r.week};
     ppl.forEach(p => {
       let e = map.get(p.key);
-      if (!e) map.set(p.key, e = {key:p.key, kind:p.kind, label:p.label, rels:new Set(), duas:[], live:[], answered:[], first:item.first, last:item.last, count:0, score:0});
+      if (!e) map.set(p.key, e = {key:p.key, kind:p.kind, label:p.label, rels:new Set(), keys:new Set([p.key]), duas:[], live:[], answered:[], first:item.first, last:item.last, count:0, score:0});
+      if (p.raw) e.keys.add(p.raw);
       if (p.via) e.rels.add(p.via);
       e.duas.push(item); (d.status === 'answered' ? e.answered : e.live).push(item);
       if (item.first < e.first) e.first = item.first; if (item.last > e.last) e.last = item.last;
@@ -3750,7 +3842,7 @@ function unlogMade(occIds){
 
 /* ---------- Pray now ---------- */
 const prayView = document.getElementById('view-pray');
-const PRAY = {day:'', prayer:'', ids:[], off:new Set(), seed:null, q:'', more:false, logged:null};
+const PRAY = {day:'', prayer:'', ids:[], off:new Set(), seed:null, q:'', more:false, logged:null, draft:''};
 function shortDay(k){ return dateFromKey(k).toLocaleDateString('en-US', {month:'short', day:'numeric'}); }
 function prayReset(prayer){
   PRAY.prayer = prayer; PRAY.seed = seedSet(prayer, Date.now()); PRAY.ids = PRAY.seed.ids.slice(); PRAY.off = new Set(); PRAY.q = ''; PRAY.more = false;
@@ -3769,9 +3861,14 @@ function prayDuaRow(d, idx, on, onToggle, tag){
     el('div', {class:'pr-m'}, [d.status === 'oneoff' ? el('span', {class:'pr-tag', text:'just for now'}) : null, tag || null, st ? el('span', {text:'made ' + st.count + '\u00D7'}) : null])
   ])]);
 }
-function renderPray(){
+function prayEnsure(){
   const today = dayKey(new Date());
   if (PRAY.day !== today) { PRAY.day = today; PRAY.logged = null; prayReset(currentPrayer(Date.now())); }
+}
+function prayHas(id){ return PRAY.ids.includes(id) && !PRAY.off.has(id); }
+function renderPray(){
+  const today = dayKey(new Date());
+  prayEnsure();
   prayView.innerHTML = '';
   const wrap = el('div', {class:'pr-wrap'});
   prayView.appendChild(wrap);
@@ -3811,10 +3908,13 @@ function renderPray(){
   wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'For this time'}), el('small', {text:PRAYER_NAME[p]})]));
   wrap.appendChild(buildSuggested(p));
   wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'Just for now'}), el('small', {text:'stays out of My Duas'})]));
-  const inp = el('input', {type:'text', class:'field', id:'prFree', placeholder:'Something for tonight\u2026', maxlength:'300', enterkeyhint:'done', autocomplete:'off'});
-  const add = () => { const v = inp.value.trim(); if (!v) return; const d = duaFromRequest(v, 'oneoff', 'typed'); prayAdd(d.id); renderPray(); toast('Added for this ' + PRAYER_NAME[p]); };
+  const inp = el('input', {type:'text', class:'field', id:'prFree', placeholder:'Something for tonight\u2026', maxlength:'300', enterkeyhint:'done', autocomplete:'off', value:PRAY.draft});
+  const add = () => { const v = inp.value.trim(); if (!v) return; const d = duaFromRequest(v, 'oneoff', 'typed'); PRAY.draft = ''; prayAdd(d.id); renderPray(); toast('Added for this ' + PRAYER_NAME[p]); };
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+  inp.addEventListener('input', () => { PRAY.draft = inp.value; });
   wrap.appendChild(el('div', {class:'pr-free'}, [inp, el('button', {type:'button', class:'btn', text:'Add', onclick:add})]));
+  const hint = peopleHintBox(); wrap.appendChild(hint);
+  bindPeopleHint(inp, hint, {onAdd:id => { prayAdd(id); renderPray(); toast('Added for this ' + PRAYER_NAME[p]); }});
   const recents = data.duas.filter(d => d.status === 'oneoff' && !PRAY.ids.includes(d.id) && Date.now() - Date.parse(((idx.get(d.id) || {}).last) || d.created) < 7 * MS_DAY)
     .sort((a, b) => (((idx.get(b.id) || {}).last) || b.created).localeCompare(((idx.get(a.id) || {}).last) || a.created)).slice(0, 4);
   if (recents.length) wrap.appendChild(el('div', {class:'pr-recents'}, recents.map(d => { const t = curText(d); return el('button', {type:'button', class:'pr-chip', onclick:() => { prayAdd(d.id); renderPray(); }, text:(t.length > 28 ? t.slice(0, 26) + '\u2026' : t) + ((idx.get(d.id) || {}).count ? ' \u00B7 ' + idx.get(d.id).count + '\u00D7' : '')}); })));
@@ -4008,6 +4108,9 @@ function composerCard(){
   ta.addEventListener('input', () => { MY.request = ta.value; autoGrow(ta); });
   box.appendChild(el('h3', {text:'New dua'}));
   box.appendChild(ta);
+  const hint = peopleHintBox(); box.appendChild(hint);
+  const hintOpts = {showAdded:true, onAdd:id => { prayEnsure(); prayAdd(id); toast('Added for this ' + PRAYER_NAME[PRAY.prayer]); showPeopleHint(hint, ta.value, hintOpts); }};
+  bindPeopleHint(ta, hint, hintOpts);
   if (!MY.draft) {
     box.appendChild(el('div', {class:'my-row'}, [
       el('button', {type:'button', class:'btn gold', id:'myWrite', text:'Write it as a dua', onclick:() => { if (!MY.request.trim()) { ta.focus(); return; } MY.variant = 0; MY.draft = composeFree(MY.request, 0); renderDuas(); }}),
@@ -4169,7 +4272,7 @@ const RQ = {
 const RQ_GROUP = {provision:'provision', debt:'provision', job:'provision', home:'provision', health:'healing', guidance:'guidance', knowledge:'guidance', study:'guidance', faith:'guidance',
   forgiveness:'forgiveness', habit:'forgiveness', patience:'patience', emotion:'patience', anger:'patience', protection:'protection', children:'protection',
   marriage:'care', relationship:'care', deceased:'mercy'};
-const REFL = {skip:new Set(), n:0};
+const REFL = {skip:new Set(), n:0, people:new Set()};
 function reflGroup(d){
   if (GRATITUDE.test((d.memo || '') + ' ' + curText(d))) return 'gratitude';
   return RQ_GROUP[themeKey(d)] || '';
@@ -4189,6 +4292,39 @@ function reflectCandidates(now){
     .sort((a, b) => b.score - a.score);
 }
 function renderHere(){ if (currentView === 'reflect') renderReflect(); else renderDuas(); }
+/* Reflect > By person: what she has asked for each person, how long, and what she has marked answered */
+function spanText(iso, now){
+  const days = Math.floor(((now || Date.now()) - Date.parse(iso)) / MS_DAY);
+  return days < 1 ? 'asking since today' : days === 1 ? 'asking since yesterday' : days < 14 ? 'asking for ' + days + ' days' : days < 60 ? 'asking for ' + Math.round(days / 7) + ' weeks' : 'asking for ' + Math.round(days / 30) + ' months';
+}
+function peopleSection(){
+  let list; try { list = peopleIndex(); } catch (e) { return null; }
+  if (!list.length) return null;
+  const sec = el('section', {class:'ppl-sec', 'aria-label':'By person'}, [
+    el('h3', {class:'my-h', style:'margin-top:26px', text:'By person'}),
+    el('p', {class:'ppl-sub', text:'What you have asked for each person, in one place.'})
+  ]);
+  list.forEach(e => {
+    const bits = [e.duas.length + (e.duas.length === 1 ? ' dua' : ' duas'), spanText(e.first)];
+    if (e.answered.length) bits.push(e.answered.length + ' answered');
+    const det = el('details', {class:'my-card ppl-card', 'data-person':e.key}, [
+      el('summary', {class:'ppl-sum'}, [el('b', {text:e.label.charAt(0).toUpperCase() + e.label.slice(1)}), el('span', {class:'ppl-meta', text:bits.join(' \u00B7 ')})])
+    ]);
+    if (e.rels.size) det.firstChild.appendChild(el('span', {class:'ppl-meta ppl-rel', text:'your ' + Array.from(e.rels).join(', your ')}));
+    if (REFL.people.has(e.key)) det.open = true;
+    det.addEventListener('toggle', () => { if (det.open) REFL.people.add(e.key); else REFL.people.delete(e.key); });
+    const body = el('div', {class:'ppl-body'});
+    e.duas.forEach(i => {
+      const d = i.d, t = d.memo || curText(d), ans = d.status === 'answered', meta = [];
+      if (ans) meta.push('\u2713 answered' + ((d.answered || {}).at ? ' ' + shortDay(dayKey(new Date(d.answered.at))) : '') + (d.answered && d.answered.note ? ' \u00B7 ' + d.answered.note : ''));
+      meta.push(i.count ? 'made ' + i.count + '\u00D7 since ' + shortDay(dayKey(new Date(i.first))) : 'not made yet');
+      if (i.theme) meta.push(i.theme);
+      body.appendChild(el('div', {class:'ppl-dua' + (ans ? ' ans' : '')}, [el('p', {class:'ppl-t', text:t}), el('div', {class:'my-m', text:meta.join(' \u00B7 ')})]));
+    });
+    det.appendChild(body); sec.appendChild(det);
+  });
+  return sec;
+}
 function renderReflect(){
   const now = Date.now(), wrap = el('div', {class:'my-wrap'});
   reflectView.innerHTML = ''; reflectView.appendChild(wrap);
@@ -4214,6 +4350,7 @@ function renderReflect(){
       el('p', {class:'refl-q', id:'reflQ', text:q.q}), ta, acts]));
     wrap.appendChild(el('p', {class:'refl-closing', text:REFLECT_CLOSING}));
   }
+  const byPerson = peopleSection(); if (byPerson) wrap.appendChild(byPerson);
   const past = data.notes.filter(n => n.kind === 'reflection' && n.text).sort((a, b) => b.at.localeCompare(a.at));
   if (past.length) {
     wrap.appendChild(el('h3', {class:'my-h', style:'margin-top:26px', text:'Your earlier reflections'}));
