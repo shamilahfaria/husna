@@ -319,13 +319,15 @@
   .ppl-hint-t{ margin:0 0 4px; font-size:.78rem; color:var(--ink-dim); line-height:1.45; }
   .ppl-hint-row{ display:flex; align-items:center; gap:10px; justify-content:space-between; min-height:44px; }
   .ppl-hint-x{ flex:1; min-width:0; font-size:.84rem; color:var(--ink); line-height:1.35; }
-  .ppl-add{ min-height:44px; min-width:76px; }
+  .btn.small.ppl-add{ min-height:44px; min-width:76px; }
   .ppl-add[aria-pressed="true"]{ color:var(--gold); border-color:var(--gold-soft); }
   .ppl-hint-more{ margin:0 0 4px; font-size:.72rem; color:var(--ink-faint); }
   .ppl-sub{ margin:0 0 6px; font-size:.78rem; color:var(--ink-dim); }
   .ppl-card{ padding:0; }
   .ppl-sum{ display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 10px; padding:12px 14px; min-height:44px; box-sizing:border-box; cursor:pointer; list-style:none; align-content:center; }
   .ppl-sum::-webkit-details-marker{ display:none; }
+  .ppl-sum::after{ content:'\203A'; margin-left:auto; color:var(--ink-dim); font-size:1.3rem; line-height:1; transition:transform .2s; }
+  .ppl-card[open] .ppl-sum::after{ transform:rotate(90deg); }
   .ppl-sum b{ font-weight:600; color:var(--ink); }
   .ppl-sum:focus-visible{ outline:2px solid var(--gold); outline-offset:-2px; border-radius:12px; }
   .ppl-meta{ font-size:.72rem; color:var(--ink-faint); }
@@ -3660,7 +3662,7 @@ function peopleIndex(now){
   list.forEach(e => {
     const byUse = (a, b) => (b.last.localeCompare(a.last)) || (b.count - a.count);
     e.duas.sort(byUse); e.live.sort(byUse); e.answered.sort(byUse);
-    const seen = new Set(); e.themes = e.live.concat(e.answered).map(i => i.theme).filter(x => x && !seen.has(x) && seen.add(x));
+    const seen = new Set(); e.themes = e.live.map(i => i.theme).filter(x => x && !seen.has(x) && seen.add(x));
   });
   return list.sort((a, b) => (b.score - a.score) || b.last.localeCompare(a.last) || a.label.localeCompare(b.label));
 }
