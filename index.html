@@ -78,6 +78,13 @@
   #search{ width:100%; font-family:'Inter',sans-serif; font-size:.95rem; padding:11px 16px; border-radius:10px; border:1px solid var(--hairline); background:var(--card); color:var(--ink); outline:none; }
   #search::placeholder{ color:var(--ink-faint); }
   #search:focus-visible{ border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft); }
+  .search-wrap{ position:relative; }
+  #search{ padding-right:40px; -webkit-appearance:none; appearance:none; }
+  .search-clear{ position:absolute; right:5px; top:50%; transform:translateY(-50%); width:34px; height:34px; border:none; background:transparent; color:var(--ink-dim); font-size:1.4rem; line-height:1; cursor:pointer; border-radius:50%; padding:0; -webkit-tap-highlight-color:transparent; }
+  .search-clear:active{ color:var(--gold); }
+  .search-results{ max-width:1100px; margin:0 auto; padding:6px 20px 40px; position:relative; z-index:1; }
+  .sr-status{ font-size:.82rem; color:var(--ink-dim); margin:4px 0 20px; line-height:1.9; }
+  .sr-try-btn{ font:inherit; font-size:.78rem; color:var(--gold); background:rgba(201,162,39,.08); border:1px solid var(--hairline); border-radius:999px; padding:3px 11px; margin:0 4px 0 0; cursor:pointer; }
   .chips{ max-width:900px; margin:0 auto; display:flex; gap:8px; overflow-x:auto; scrollbar-width:thin; padding-bottom:2px; }
   .chip{ flex:0 0 auto; display:flex; align-items:center; gap:7px; font-size:.78rem; font-weight:500; color:var(--ink-dim); background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:7px 13px; cursor:pointer; white-space:nowrap; transition:background .2s, color .2s, border-color .2s; }
   .chip:hover{ color:var(--ink); }
@@ -375,12 +382,14 @@
 
 <nav class="controls" id="controls">
   <div class="search-wrap">
-    <input type="text" id="search" placeholder="Search — e.g. &quot;forgive&quot;, &quot;provision&quot;, or &quot;Razzaq&quot;" aria-label="Search names of Allah">
+    <input type="text" id="search" placeholder="Search — try &quot;grateful&quot;, &quot;anxious&quot;, or &quot;Razzaq&quot;" aria-label="Search names of Allah by name, meaning, or need" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="search">
+    <button type="button" id="searchClear" class="search-clear" aria-label="Clear search" hidden>&times;</button>
   </div>
   <div class="chips" id="chips"></div>
 </nav>
 
 <main id="main"></main>
+<div id="searchResults" class="search-results" hidden></div>
 <p class="no-results" id="noResults">No names match that search.</p>
 
 <footer>
@@ -1399,6 +1408,7 @@ function makeChip(id, label, color, isFav){
   chip.dataset.cat = id;
   chip.innerHTML = (isFav ? '<span class="fav-star">\u2605</span>' : '<span class="dot"></span>') + label;
   chip.addEventListener('click', () => {
+    if (searchActive) { search.value = ''; applySearch(); }
     const s = document.getElementById('cat-' + id);
     if (s) s.scrollIntoView({behavior:'smooth', block:'start'});
   });
@@ -1467,23 +1477,781 @@ function renderFavorites(){
   applySearch();
 }
 
-const search = document.getElementById('search');
-function applySearch(){
-  const q = search.value.trim().toLowerCase();
-  let anyVisible = false;
-  document.querySelectorAll('#main section.category').forEach(section => {
-    let sectionHasVisible = false;
-    section.querySelectorAll('.card').forEach(card => {
-      const match = !q || card.dataset.search.includes(q);
-      card.style.display = match ? '' : 'none';
-      if (match) sectionHasVisible = true;
-    });
-    section.style.display = sectionHasVisible ? '' : 'none';
-    if (sectionHasVisible) anyVisible = true;
+/* ======================================================================
+   Smart search — hand-curated concept map (no backend, no network).
+   KEYS[i] is the short id of Name number i+1. Weights: 3 = the Name most
+   closely tied to the idea, 2 = strongly related, 1 = related.
+   ====================================================================== */
+const SEARCH_KEYS = ('rahman rahim malik quddus salam mumin muhaymin aziz jabbar mutakabbir ' +
+  'khaliq bari musawwir ghaffar qahhar wahhab razzaq fattah alim qabid ' +
+  'basit khafid rafi muizz mudhill sami basir hakam adl latif ' +
+  'khabir halim azim ghafur shakur aliyy kabir hafiz muqit hasib ' +
+  'jalil karim raqib mujib wasi hakim wadud majid baith shahid ' +
+  'haqq wakil qawiyy matin waliyy hamid muhsi mubdi muid muhyi ' +
+  'mumit hayy qayyum wajid maajid wahid ahad samad qadir muqtadir ' +
+  'muqaddim muakhkhir awwal akhir zahir batin wali mutaali barr tawwab ' +
+  'muntaqim afuww rauf malikulmulk jalalikram muqsit jami ghaniyy mughni mani ' +
+  'darr nafi nur hadi badi baqi warith rashid sabur').split(' ');
+
+/* Direct descriptive words for every Name (weight 3 unless "word^2" / "word^1") */
+const SEARCH_NAME_WORDS = {
+  rahman: 'merciful mercy compassionate compassion beneficent universal all-encompassing bismillah kindness',
+  rahim: 'merciful mercy compassion womb believers especially mercy^2',
+  malik: 'king ruler sovereign sovereignty master lord authority kingdom eternal owner dominion',
+  quddus: 'holy pure purity sacred perfect flawless sanctity glory^2 tasbih^2 angels^1',
+  salam: 'peace peaceful calm tranquil tranquility serenity safe safety wholeness harmony soundness',
+  mumin: 'security secure safe faith trust assurance reassurance belief believer faithful affirmer certainty',
+  muhaymin: 'guardian watcher overseer protector protect safeguard supervise witness^2',
+  aziz: 'almighty mighty powerful honor honour glory strength might invincible dignity unbeatable',
+  jabbar: 'mender restorer compeller repair mend heal^2 comfort broken fix restore healing^2',
+  mutakabbir: 'supreme greatness pride arrogance grandeur majestic dignity',
+  khaliq: 'creator create creation maker made originate design',
+  bari: 'maker evolver creator create design order balance harmony life',
+  musawwir: 'fashioner shaper shape form image appearance design',
+  ghaffar: 'forgive forgiving forgiveness forgiver sin sins pardon repeated  habitual covering^2',
+  qahhar: 'subduer dominant overpowering victorious conqueror overwhelming subdue defeat',
+  wahhab: 'bestower giver gift gifts giving grant bounty granting undeserved free',
+  razzaq: 'provider provision provide rizq rizk sustenance livelihood food income nourishment',
+  fattah: 'opener open opening victory judge solution breakthrough door doors key',
+  alim: 'knowing knower knowledge all-knowing omniscient know wise^2 aware^2',
+  qabid: 'withholder withhold restrict restrain narrow tight contract contraction',
+  basit: 'extender expander expand expansion enlarge abundance spread ease^2',
+  khafid: 'abaser lowering humble humbling humiliate lower',
+  rafi: 'exalter raiser raise elevate lift status rank honor^2 promotion',
+  muizz: 'honor honour honorer dignity respect esteem power^2 reputation strengthen^2',
+  mudhill: 'dishonor humiliate abase humbler oppressor^2 disgrace',
+  sami: 'hearing hearer hear hears listen listener listening heard',
+  basir: 'seeing seer see sees sight vision observe observer watching',
+  hakam: 'judge judgment ruling verdict arbiter decide decision court fair^2',
+  adl: 'just justice fair fairness equity balance righteous equal impartial',
+  latif: 'subtle gentle gentleness kind kindly delicate fine hidden^2 ease^2 soft',
+  khabir: 'aware all-aware informed acquainted knowing expert insight',
+  halim: 'forbearing forbearance patient patience gentle clement tolerant mild restraint slow-to-anger',
+  azim: 'magnificent magnificence grand great greatness tremendous glory glorious ruku',
+  ghafur: 'forgiving forgiver forgive forgiveness sin sins pardon covering',
+  shakur: 'appreciative appreciate appreciation grateful thankful thanks gratitude reward rewarding recognize',
+  aliyy: 'highest high above exalted lofty sublime elevated supreme',
+  kabir: 'greatest great big grand vast largest elder',
+  hafiz: 'preserver preserve guard guardian keeper protect protector protection memorize memory safekeeping remember^2',
+  muqit: 'sustainer sustain nourish nourishment food feeder provider^2 maintain strength^2',
+  hasib: 'reckoner reckoning accountant account sufficient enough suffice sufficiency count',
+  jalil: 'majestic majesty glorious glory grandeur exalted sublime',
+  karim: 'generous generosity noble bountiful gracious giving giver hospitable honor^2 gift',
+  raqib: 'watchful watcher watching observer vigilant guarding overseer attentive',
+  mujib: 'responder answer answerer answering respond response reply accept acceptance dua prayer supplication',
+  wasi: 'vast encompassing all-encompassing spacious boundless abundant ample expansive wide limitless',
+  hakim: 'wise wisdom perfectly-wise judicious sage reason purpose',
+  wadud: 'loving love beloved affection warmth devoted tender fondness',
+  majid: 'glorious glory noble honor honour illustrious praiseworthy',
+  baith: 'resurrector resurrect raise resurrection revive send afterlife hereafter',
+  shahid: 'witness witnessing present testify observe watch',
+  haqq: 'truth true real reality certain certainty right absolute',
+  wakil: 'trustee trust reliance rely depend dependable guardian disposer advocate entrust tawakkul representative',
+  qawiyy: 'strong strength powerful power mighty vigor force robust',
+  matin: 'firm steadfast steady strong unshakable robust solid stable resolute',
+  waliyy: 'friend protector protecting ally guardian supporter patron helper close nearness',
+  hamid: 'praised praise praiseworthy commendable laud thanks^2 gratitude^2 alhamdulillah hamd grateful^2',
+  muhsi: 'appraiser counter counting count precise reckon record number calculate account^2',
+  mubdi: 'originator originate begin beginning start initiate new first^2 starter',
+  muid: 'restorer restore return bring-back repeat renew recover recovery ',
+  muhyi: 'life living revive revival giver-of-life resuscitate alive animate quicken',
+  mumit: 'death die dying mortality taker end ending mortal',
+  hayy: 'living alive ever-living life eternal immortal vital',
+  qayyum: 'self-subsisting sustainer sustaining upholding upholder self-sufficient support maintain independent',
+  wajid: 'finder find found discover discovery wealthy rich capable resourceful',
+  maajid: 'noble glorious glory honor dignity illustrious majesty^2',
+  wahid: 'one only unique singular tawhid unity monotheism alone',
+  ahad: 'one only unique singular indivisible tawhid unity incomparable',
+  samad: 'refuge eternal needless self-sufficient shelter depended-upon needed everlasting independent impenetrable',
+  qadir: 'powerful power able ability capable capability capacity might competent',
+  muqtadir: 'powerful all-powerful dominant potent determining decree decreeing',
+  muqaddim: 'expediter bring-forward forward advance early earlier first priority prioritize hasten',
+  muakhkhir: 'delayer delay delayed postpone later wait waiting late patience^2',
+  awwal: 'first beginning origin before start earliest',
+  akhir: 'last end ending final everlasting after hereafter',
+  zahir: 'manifest apparent evident visible clear outward signs',
+  batin: 'hidden inner inward unseen secret nearest intimate private',
+  wali: 'governor guardian manager administrator protector patron ruler handle charge affairs',
+  mutaali: 'exalted supreme transcendent above beyond high highest lofty',
+  barr: 'goodness good righteous kind benevolent beneficent dutiful source-of-goodness',
+  tawwab: 'repentance repent accepting acceptor return returning forgiving turn tauba tawba atone',
+  muntaqim: 'avenger avenge revenge vengeance retribution retaliation punishment punisher justice^2',
+  afuww: 'pardon pardoner pardoning erase wipe-out forgive forgiveness overlook efface clemency',
+  rauf: 'kind kindness tender tenderness compassionate gentle compassion pity soft',
+  malikulmulk: 'sovereignty sovereign owner owns dominion kingdom king ownership rule power^2 authority title',
+  jalalikram: 'majesty generosity lord honor honour glory greatness bounty',
+  muqsit: 'equitable fair fairness just justice equity balanced impartial',
+  jami: 'gatherer gather gathering unite united unity assemble together collect reunite',
+  ghaniyy: 'self-sufficient sufficient rich wealthy independent contentment content needless free-of-need',
+  mughni: 'enricher enrich enriching wealth rich suffice wealthy bounty free-of-debt debt^2',
+  mani: 'preventer prevent preventing protect protector protection withhold^2 shield shielding block guard harm^2',
+  darr: 'harm hardship trial test lesson adversity affliction distress difficulty',
+  nafi: 'beneficial benefit useful usefulness advantage profit helpful bringer-of-benefit worthwhile',
+  nur: 'light illumination bright radiance luminous enlightenment lit guidance^2',
+  hadi: 'guide guidance guiding direct direction path straight way lead',
+  badi: 'incomparable originator unprecedented innovative innovation creative creativity invent inventor wonder novel unique^2',
+  baqi: 'everlasting enduring eternal permanent lasting remain remaining forever imperishable',
+  warith: 'inheritor inherit inheritance heir remaining legacy',
+  rashid: 'right-path guide guidance wise-path sound-judgment righteous direction rightly-guided',
+  sabur: 'patient patience persevere perseverance steadfast steadfastness endure endurance sabr enduring'
+};
+
+/* Concept groups: [ "synonym list", "nameKey:weight ..." ] */
+const SEARCH_CONCEPTS = [
+  /* ----- gratitude & praise ----- */
+  ['grateful thankful thanks thank gratitude appreciate appreciation appreciative thanksgiving blessed blessings counting-blessings gratefulness shukr shukran alhamdulillah content-with-blessings',
+   'shakur:3 hamid:3 karim:1 wahhab:1'],
+  ['praise glorify glorification extol laud commend admire worship hamd subhanallah tasbih',
+   'hamid:3 majid:2 azim:2 jalil:2 quddus:2 aliyy:1 kabir:1 mutaali:1'],
+  ['dhikr zikr remembrance remember-allah after-prayer wird',
+   'shakur:3 hamid:2 azim:1 quddus:1 jalil:1'],
+  ['small-deeds effort efforts sincerity sincere ikhlas intention intentions deed deeds good-deeds reward rewarded recompense',
+   'shakur:3 shahid:2 basir:2 khabir:1 baith:1 karim:2 muhsi:1 hasib:1 wasi:1'],
+
+  /* ----- healing & health ----- */
+  ['healing heal healed healer cure cured sick sickness ill illness disease health healthy unwell wellbeing wellness recover recovery recovering surgery diagnosis cancer injury injured pain hospital medicine treatment chronic fever sehat shifa',
+   'rahim:3 jabbar:2 hafiz:2 salam:2 latif:2 sabur:2 rahman:2 muhyi:1 qadir:1 mujib:1 wakil:1'],
+  ['sick-child sick-mother sick-father loved-one-ill',
+   'rahim:2 hafiz:2 latif:2 sabur:1'],
+
+  /* ----- money, work, provision ----- */
+  ['money rizq rizk provision provisions provide provider provided income wealth rich richness salary pay paid paycheck funds finance finances financial earn earning earnings livelihood sustenance abundance afford affordable bills rent poverty poor broke struggling-financially prosperity prosper blessing-in-wealth halal-income',
+   'razzaq:3.3 wahhab:3 mughni:3 fattah:3 ghaniyy:2 basit:2 karim:2 muqit:2 qabid:1 wakil:1 wasi:1 wajid:1'],
+  ['job jobs work working career employment employed unemployed hire hired hiring interview interviews promotion promoted business businesses startup entrepreneur profession workplace colleague boss resume cv application',
+   'fattah:3.3 razzaq:3 wahhab:2 rafi:2 wakil:2 muizz:1 hadi:1 qawiyy:1 basit:2 alim:1'],
+  ['debt debts loan loans owe owed borrow borrowed borrowing mortgage creditor bankruptcy credit-card',
+   'mughni:3 razzaq:2 ghaniyy:2 wahhab:1 fattah:1 latif:1'],
+  ['withheld withhold tight scarcity scarce lack shortage struggle-with-money limited restricted',
+   'qabid:3 basit:3 razzaq:2 hakim:2 latif:1 sabur:1'],
+  ['abundance expand expansion increase growth grow bigger  barakah barakat baraka plenty',
+   'basit:3 wasi:2 razzaq:2 wahhab:2 fattah:1 karim:1'],
+  ['generous generosity gift gifts bounty give giving giver charity sadaqah zakat donate donation donations undeserved generous-giving',
+   'karim:3 wahhab:3 ghaniyy:2 shakur:1 basit:2 wasi:2 mughni:1'],
+  ['food hungry hunger eat eating meal water drink nourishment starve famine drought',
+   'razzaq:3 muqit:3 karim:1 wahhab:1 basit:1 latif:1'],
+  ['house home-purchase property land car buy buying purchase apartment move moving relocation',
+   'razzaq:3 wahhab:2 fattah:2 wasi:2 basit:2 karim:1'],
+  ['content contentment satisfied enough sufficient greed greedy needless independent independence enough-for-me self-sufficient',
+   'ghaniyy:3 hasib:3 mughni:2 karim:1 muqit:1 wasi:1 wakil:1'],
+  ['depend dependence reliance rely need needy needing need-help beg begging weak-and-needy',
+   'samad:3 ghaniyy:3 qayyum:3 wakil:2'],
+  ['envy jealous jealousy comparison compare comparing resent resentment',
+   'ghaniyy:2 razzaq:2 wahhab:2 hakim:2 qabid:1 basit:1 adl:1 shakur:1 karim:1'],
+
+  /* ----- anxiety, sadness, comfort ----- */
+  ['anxious anxiety worry worried worries worrying stress stressed stressful overwhelmed overwhelm panic nervous uneasy restless tension tense dread calm calming relax nerves burnout anxious-thoughts',
+   'salam:3 mumin:3 hayy:3 qayyum:3 latif:2 wakil:3 mujib:2 hasib:2 qahhar:2 hafiz:1 matin:1 wali:1 waliyy:1 mani:1'],
+  ['fear afraid scared frightened terror terrified fearful phobia nightmare nightmares',
+   'mumin:3 salam:2 hafiz:2 mani:2 qahhar:2 waliyy:2 qawiyy:2 wakil:2 aziz:1 muhaymin:2'],
+  ['sad sadness sorrow sorrowful grief grieve grieving mourning depressed depression   unhappy  cry crying tears heartbreak heartbroken broken hurt hurting comfort comforted consolation misery gloom sorrows',
+   'latif:3 jabbar:3 rahman:2 rahim:2 rauf:2 salam:2 mujib:2 muhyi:2 sabur:2 sami:2 wadud:1 wakil:1 barr:1 qayyum:1 hayy:1 wali:1 wasi:1 fattah:1'],
+  ['lonely loneliness alone isolated abandoned friendless unseen invisible ignored forgotten',
+   'waliyy:3 wadud:2 sami:2 batin:2 raqib:1 hayy:1 khabir:1 basir:2 latif:1'],
+  ['hope hopeful hopeless despair despairing despondent discouraged discouragement give-up giving-up faith-in-better-days',
+   'muhyi:3 fattah:2 rahman:2 latif:2 badi:2 mubdi:2 mujib:1 wasi:1 karim:1 wahhab:1 ghafur:1 wajid:1'],
+  ['hardship difficulty difficult hard struggle struggling trial trials tested test tests calamity trouble troubled crisis ease easy easier relief affliction distress adversity suffering tough rough challenge challenges',
+   'latif:3 sabur:3 fattah:2 mujib:2 hakim:2 qawiyy:2 wakil:2 hayy:2 qayyum:2 rahman:1 aziz:1 wali:1 barr:1 darr:2 jabbar:1'],
+  ['trapped stuck-in-trouble no-way-out cornered helpless',
+   'fattah:3 latif:2 mujib:2 wakil:2 tawwab:1 qadir:1'],
+  ['overthinking overthink thoughts mind racing intrusive rumination restless-mind scattered distracted focus concentration',
+   'salam:3 wakil:3 jami:2 latif:2 alim:2 khabir:2 hakim:1 hayy:1'],
+  ['heart hearts soft-heart hard-heart cold-heart spiritual-dryness iman-low faith-low weak-faith distant-from-allah',
+   'nur:2 muhyi:2 latif:2 salam:2 jami:2 hadi:2 mumin:2 jabbar:2 tawwab:2 wadud:1 rauf:1'],
+  ['uncertainty uncertain unknown future outcome outcomes  worried-about-future unsure doubt doubts doubting certainty clarity',
+   'haqq:3 mumin:3 wakil:3 hakim:2 alim:2 khabir:2 latif:1 nur:2 hadi:2 muqaddim:1'],
+  ['trust tawakkul surrender hand-over leave-it-to-allah entrust reliance reliable',
+   'wakil:3 hakim:1 latif:1 hafiz:1 wali:1 haqq:1 hasib:1 qayyum:1'],
+  ['peace peaceful tranquility serenity quiet silence rest restful soothe soothing stillness',
+   'salam:3 mumin:2 latif:2 rahman:1 rauf:1 hayy:1'],
+  ['speechless silence-unspoken unspoken cannot-find-words words voiceless',
+   'sami:3 alim:2 basir:1 khabir:1 latif:1 batin:1'],
+  ['broken mend mending repair fix restore-what-is-broken shattered crushed',
+   'jabbar:3 latif:1 muid:2 salam:1 fattah:1 qawiyy:1'],
+  ['lost-item missing recover restore restored return-of-lost lost   lost-something misplaced',
+   'muid:3 wajid:2 jabbar:1 hafiz:1 muhyi:1 hadi:1'],
+
+  /* ----- sins, forgiveness, repentance ----- */
+  ['sin sins sinful forgive forgiven forgiveness forgiving forgave mistake mistakes wrong wrongdoing wrongs wronged-myself guilt guilty shame ashamed regret regrets repent repentance repenting tauba tawba istighfar atone atonement return relapse slip slipped   failing-again',
+   'ghafur:3 ghaffar:3 tawwab:3 afuww:3 halim:1 rahim:1 khaliq:0.5'],
+  ['same-sin again-and-again repeated relapse habit habits addiction addicted temptation lust desire nafs self-control willpower bad-habit quit quitting struggle-with-sin',
+   'ghaffar:3 qahhar:3 tawwab:3 hadi:2 matin:2 qawiyy:2 rashid:2 halim:1 mani:1 latif:1 jabbar:1 wali:1'],
+  ['fresh-start second-chance new-beginning begin-again start-over change changing transformation transform renewal renew reset',
+   'mubdi:3 badi:3 muhyi:2 tawwab:2 khaliq:1 fattah:1 muid:1 baith:1 hadi:1'],
+  ['forgive-others forgiving-others grudge grudges resentment let-go letting-go reconcile reconciliation make-up argument arguments fight fighting conflict quarrel apologize apology',
+   'afuww:3 halim:2 ghafur:2 salam:2 jami:2 barr:1 rauf:1 hakam:1 ghaffar:1'],
+  ['anger angry rage furious temper irritated frustrated frustration annoyed patience-with-others',
+   'halim:3 sabur:2 salam:2 afuww:1 ghafur:1 latif:1'],
+  ['self-compassion forgive-myself insecure insecurity worthless worth esteem confidence inadequate small unworthy self-hate',
+   'halim:2 rauf:2 aziz:2 muizz:2 karim:2 ghafur:1 afuww:1 rahim:2 latif:1 wadud:1 rafi:1 qawiyy:1'],
+
+  /* ----- guidance & decisions ----- */
+  ['guidance guide guided guiding direction directions path straight right-path lost confused confusion decision decisions decide choose choice choices istikhara istikhaarah advice clarity purpose purposeful lead leading wisdom crossroads which-way',
+   'hadi:3 rashid:3 nur:3 hakim:2 alim:2 qadir:2 khabir:1 fattah:1 latif:1 wali:1 mujib:1'],
+  ['istikhara istikhaarah decision-making big-decision life-decision marriage-decision choose-wisely',
+   'qadir:3 alim:3 hadi:3 rashid:3 hakim:2 wakil:1 khabir:1'],
+  ['light darkness dark enlightenment illuminate illumination bright brightness lamp tahajjud night-prayer quran-light',
+   'nur:3 hadi:1'],
+  ['truth true real reality honest honesty false falsehood lies lying liar deceit',
+   'haqq:3 shahid:1 hakam:1 nur:1 adl:1'],
+  ['faith iman belief believe believing deen religion islam spiritual spirituality religious practice istiqamah steadfast-faith',
+   'hadi:3 mumin:3 haqq:2 nur:2 wali:1 matin:2 salam:1 muhyi:1'],
+  ['worship ibadah devotion devoted servant service khushu humble-prayer prayer-quality salah-focus',
+   'shakur:2 hadi:1 shahid:2 hamid:1 azim:1 hasib:1 quddus:1'],
+  ['ruku sujud bowing prostration prostrate',
+   'azim:3 aliyy:2 hamid:2 quddus:2 razzaq:1'],
+  ['salah namaz salat',
+   'shakur:2 mujib:1 hamid:1 azim:1 quddus:1'],
+  ['oneness tawhid monotheism one-god unity-of-god shirk god-is-one no-partners',
+   'wahid:3 ahad:3 samad:2 haqq:2 mumin:1 malik:1'],
+  ['greatest-name ism-azam ismul-azam greatest-name-of-allah',
+   'ahad:3 samad:3 hayy:2 qayyum:2 jalalikram:2 rahman:1'],
+
+  /* ----- protection & safety ----- */
+  ['protect protection protected protecting safe safety safeguard shield harm danger dangerous evil evil-eye threat threatened secure security defence defense refuge shelter guard guardian guarding accident',
+   'hafiz:3 mani:3 waliyy:3 muhaymin:3 mumin:3 salam:2 samad:2 qawiyy:2 aziz:2 qahhar:2 wakil:2 raqib:1 jabbar:1 wali:1 muntaqim:1 hakam:1 darr:1'],
+  ['enemy enemies hater haters rival adversary bully bullies oppressor oppressors tyrant tyrants abuse abuser harassment toxic',
+   'qahhar:3 aziz:2 qawiyy:2 jabbar:2 muntaqim:2 mudhill:2 waliyy:2 mani:2 hafiz:2 adl:2 hakam:1 mutakabbir:1'],
+  ['travel traveling travelling journey trip flight flying drive driving road commute voyage abroad safe-journey',
+   'hafiz:3 salam:2 hadi:2 waliyy:1 muhaymin:1 mani:1 qadir:1 wakil:1 raqib:1'],
+  ['war conflict violence terror attack peace-in-world ceasefire',
+   'salam:3 qahhar:2 aziz:2 qawiyy:2 jabbar:2 waliyy:2 hakam:2 adl:2 muntaqim:1 rahman:1'],
+  ['harm-prevented prevented-harm avoided-disaster near-miss escaped',
+   'mani:3 hafiz:2 latif:2 khabir:1 shakur:1'],
+
+  /* ----- patience, timing, waiting ----- */
+  ['patience patient persevere perseverance endure endurance steadfast steadfastness steady steadiness sabr resilience resilient tolerate tolerance forbearance grit stamina',
+   'sabur:3 halim:3 matin:2 qawiyy:1 hakim:2 latif:1 wakil:1 muakhkhir:1'],
+  ['waiting wait delay delayed delays postponed late timing time schedule when soon eventually someday not-yet ',
+   'muakhkhir:3 muqaddim:2 hakim:3 sabur:2 latif:1 wali:1 awwal:1 akhir:1'],
+  ['denied denial rejected rejection refused turned-down unanswered not-answered no-answer closed-door disappointed disappointment failed failure fail',
+   'muakhkhir:3 hakim:3 mani:2 sabur:2 barr:2 latif:1 khabir:1 qabid:2 mujib:1 fattah:1'],
+  ['why-me why-this-happened meaning-in-pain wisdom-behind lesson lessons purpose-of-hardship fate destiny qadr decree plan',
+   'hakim:3 darr:3 latif:2 barr:2 khabir:1 adl:1 alim:2 sabur:2 muqtadir:2 qadir:1'],
+  ['past future yesterday tomorrow beginning-and-end first-and-last',
+   'awwal:3 akhir:3 baqi:1 qayyum:1 muqaddim:1 muakhkhir:1'],
+  ['sleep sleeping bed bedtime night insomnia nighttime dream dreams    ',
+   'awwal:2 akhir:2 zahir:2 batin:2 hafiz:2 salam:2 nur:1 hayy:1 qayyum:1'],
+
+  /* ----- love, family, relationships ----- */
+  ['love loved loving beloved affection warmth care caring kindness kind tender tenderness compassion compassionate gentle gentleness romance romantic friendship friend friends heart-warmth',
+   'wadud:3 rauf:3 rahman:2 rahim:2 latif:2 barr:2 waliyy:2 karim:1 halim:1'],
+  ['marriage married marry spouse husband wife wedding nikah newlywed couple partner relationship relationships divorce engaged engagement soulmate',
+   'wadud:3 rahman:1 rahim:1 wahhab:2 salam:2 jami:2 hadi:1 latif:2 barr:1 razzaq:1 mujib:1'],
+  ['family families household relatives siblings brother sister brothers sisters cousin cousins in-laws extended-family kin',
+   'wadud:2 hafiz:2 salam:2 jami:2 rahim:2 barr:1 wahhab:1 latif:1'],
+  ['children child kids kid son sons daughter daughters offspring descendants baby babies newborn toddler teenager teen parenting raise-children righteous-children',
+   'wahhab:3 hafiz:3 wadud:2 hadi:2 razzaq:1 rahim:1 latif:1 rauf:1'],
+  ['pregnant pregnancy conceive conception fertility infertility infertile miscarriage birth childbirth labor delivery expecting womb',
+   'wahhab:3 musawwir:3 khaliq:2 bari:2 rahim:2 hafiz:2 latif:2 qadir:1 razzaq:1'],
+  ['parents parent mother mom mum father dad mama baba elderly grandparents grandmother grandfather',
+   'barr:3 rahim:2 rahman:1 rauf:1 ghafur:1 karim:1 hafiz:1'],
+  ['unity united togetherness community ummah brotherhood sisterhood gather gathering reunite reunion neighbors neighbours',
+   'jami:3 wadud:2 salam:1 waliyy:1 rahim:1'],
+  ['home house household peace-at-home family-peace',
+   'salam:3 hafiz:2 razzaq:1 wasi:1 wadud:1'],
+  ['friend friends friendship companion companions support supporter ally helper helpers',
+   'waliyy:3 wadud:2 latif:1 hafiz:1'],
+
+  /* ----- mercy, justice, honor ----- */
+  ['mercy merciful mercies compassion pity clemency lenient',
+   'rahman:3 rahim:3 rauf:2 wasi:2 latif:1 halim:1 wadud:1 barr:1 karim:1'],
+  ['justice just fair fairness unfair unjust injustice oppression oppressed wronged judge judgement judgment court lawsuit verdict dispute rights balance scales equity accountability accountable wrongdoer',
+   'adl:3 hakam:3 muqsit:3 haqq:2 muntaqim:2 hasib:1 mudhill:1 qahhar:1 waliyy:1 shahid:2 basir:1'],
+  ['revenge vengeance payback retaliate retaliation get-back-at karma',
+   'muntaqim:3 adl:2 halim:1 afuww:1 hakam:1'],
+  ['slander accusation accused falsely-accused rumor rumors gossip backbiting defamation not-believed misunderstood misjudged',
+   'shahid:3 basir:2 haqq:2 hakam:2 muizz:2 adl:2 alim:2 wakil:1 waliyy:1'],
+  ['honor honour respect respected dignity reputation esteem status standing rank prestige fame recognition recognized',
+   'muizz:3 rafi:3 karim:1 majid:1 jalil:1 hamid:1 basit:1 aziz:1'],
+  ['humble humility humbled modest modesty ego pride proud arrogance arrogant boast boasting conceited',
+   'mutakabbir:3 khafid:2 kabir:2 maajid:2 aliyy:1 mudhill:1 ghaniyy:1 halim:1'],
+  ['success succeed succeeding victory victorious win winning achieve achievement accomplish goal goals ambition promotion-success triumph',
+   'fattah:3 aziz:3 rafi:2 qawiyy:2 muizz:2 muqtadir:2 matin:1 qadir:1 wahhab:1 karim:1 hadi:1'],
+  ['leadership leader lead manage manager management govern governing responsibility authority command power-and-control',
+   'wali:3 malik:2 hakim:2 rashid:2 wakil:2 muhaymin:2 qayyum:2 hakam:1 hadi:1 qawiyy:1 rafi:1'],
+  ['handle-my-affairs take-charge sort-out-my-affairs manage-my-affairs set-right affairs',
+   'wali:3 wakil:3 hayy:2 qayyum:2 hakim:1 muhaymin:1'],
+
+  /* ----- knowledge, study ----- */
+  ['knowledge know knowing learn learning learned study studying student students exam exams test tests test-prep school university college homework grades grade understanding understand comprehension education teacher teaching research science lesson revise revision memory memorize memorise memorization memorising quran-memorization hifz forget forgetful intellect mind smart intelligent mastery',
+   'alim:3 hakim:3 hafiz:3 fattah:2 nafi:2 hadi:2 khabir:2 nur:1 latif:1 rashid:1 wasi:1 mujib:1'],
+  ['exam exams test tests quiz finals midterm',
+   'fattah:3 alim:3 latif:2 hafiz:2 hakim:1 nafi:1'],
+  ['exam-stress test-anxiety finals interview-prep presentation public-speaking',
+   'alim:2 fattah:3 latif:3 hafiz:2 qawiyy:1 mumin:1 salam:1'],
+  ['useful benefit beneficial beneficial-knowledge worthwhile productive productivity impact meaningful',
+   'nafi:3 hakim:1 karim:1 wasi:1'],
+  ['hidden secret secrets unseen private concealed inner',
+   'batin:3 alim:2 khabir:2 basir:2 sami:2'],
+  ['see seen watching watched observe observed notice noticed vigilant',
+   'basir:3 raqib:3 shahid:2 sami:1 khabir:1'],
+  ['hear hears heard listen listening listener hearing',
+   'sami:3 mujib:2 basir:1 khabir:1'],
+  ['dua duas supplication supplicate pray prayer prayers ask asking call calling beg plead invoke request answer answered response accepted acceptance',
+   'mujib:3 sami:2 wasi:1 karim:1 wahhab:1 rahman:1'],
+
+  /* ----- strength, power ----- */
+  ['strength strong stronger weak weakness power powerful powerless tired exhausted exhaustion weary fatigue energy capable ability able capacity courage brave bold resilience firm stable stability',
+   'qawiyy:3 matin:3 qadir:3 aziz:2 muqtadir:2 qayyum:2 qahhar:1 sabur:2 jabbar:1 waliyy:1 latif:2 rahim:1 hayy:1'],
+  ['overwhelmed-by-problem problem-too-big huge-problem impossible impossibility nothing-is-impossible miracle miracles',
+   'kabir:2 muqtadir:3 qadir:3 aziz:2 qahhar:2 qayyum:2 wakil:2 latif:2 fattah:2 badi:2'],
+  ['impossible miracle miracles unprecedented never-happened no-precedent',
+   'badi:3 muqtadir:3 qadir:3 fattah:2 wajid:2 mubdi:2'],
+  ['create creation creator made design nature universe cosmos stars sky earth planet origin art artist',
+   'khaliq:3 bari:3 musawwir:3 badi:3 mubdi:2 nur:1'],
+  ['beauty beautiful appearance looks face form shape body image',
+   'musawwir:3 badi:2 jalil:1 nur:1 bari:1 khaliq:1'],
+  ['creative creativity idea ideas invent inventing innovation innovate project design-new startup-idea',
+   'badi:3 mubdi:3 khaliq:2 fattah:1 hakim:1 alim:1 musawwir:1'],
+  ['beginning begin begins start starting origin originate',
+   'mubdi:3 awwal:2 badi:1 muid:1 fattah:1'],
+  ['opportunity opportunities doors door opening open breakthrough chance solution way-out way-forward obstacle obstacles blocked stuck',
+   'fattah:3 badi:2 wajid:2 latif:2 wasi:1 razzaq:1 hadi:1 rashid:2 hakim:1 mujib:1 jabbar:1'],
+
+  /* ----- life, death, afterlife ----- */
+  ['death die dying dead died grave graves funeral burial passed-away mortality deathbed',
+   'mumit:3 baith:3 baqi:3 warith:2 akhir:3 hayy:2 muhyi:2 jami:2 hasib:2 hakam:1 nur:1 ghafur:1 rahman:1'],
+  ['afterlife hereafter akhirah akhira paradise jannah heaven hell judgment-day day-of-judgment resurrection qiyamah accountable-on-the-day',
+   'baith:3 jami:3 hasib:3 hakam:2 adl:2 warith:2 akhir:2 mumit:1 ghafur:2 rahman:2 nur:1'],
+  ['grief-loss lost-loved-one bereaved bereavement loss lost-someone passed condolence innalillahi',
+   'sabur:3 warith:2 baqi:2 latif:2 jabbar:2 rahman:2 rauf:1 hayy:2 muhyi:1'],
+  ['temporary impermanence impermanent attachment dunya materialism letting-go detach detachment fleeting everything-ends fade',
+   'baqi:3 warith:3 mumit:2 qabid:1 ghaniyy:2 akhir:2 malik:1'],
+  ['eternal forever everlasting immortal infinite endless timeless',
+   'baqi:3 hayy:3 qayyum:3 awwal:2 akhir:2 warith:1'],
+  ['life alive living revive revival revived resurrect bring-back-to-life reviving',
+   'hayy:3 muhyi:3 baith:2 qayyum:1 muid:2'],
+  ['sustain support  uphold maintain survive surviving keep-going carry-on',
+   'qayyum:3 muqit:3 razzaq:2 matin:1 hafiz:1 wakil:1 hayy:1'],
+  ['restore return renew renewal bring-back repaired rebuild rebuilding',
+   'muid:3 jabbar:2 muhyi:2 mubdi:1 hafiz:1'],
+
+  /* ----- majesty, kingship, glory ----- */
+  ['king kingdom ruler sovereign sovereignty owner ownership dominion throne rule rules reign lord master',
+   'malik:3 malikulmulk:3 aziz:1 jabbar:1 wali:1 qadir:1 muqtadir:1 qahhar:1 jalalikram:1'],
+  ['holy holiness pure purity sacred sanctity clean cleanse cleansing purify',
+   'quddus:3 salam:1 nur:1 ghafur:1 afuww:1'],
+  ['great greatness greatest big grand magnificent majesty majestic glory glorious grandeur exalted high highest supreme above sublime noble dignity',
+   'azim:3 kabir:3 jalil:3 majid:3 aliyy:3 mutaali:3 jalalikram:3 maajid:2 aziz:2 jabbar:2 mutakabbir:2 malik:1 malikulmulk:1'],
+  ['majestic-and-generous lord-of-majesty persist-in-calling',
+   'jalalikram:3 karim:2 jalil:2 majid:1'],
+  ['angels spirit jibril gabriel archangel',
+   'quddus:3 nur:1'],
+
+  /* ----- everyday & modern ----- */
+  ['ramadan laylat-al-qadr laylatul-qadr night-of-power last-ten-nights eid fasting ',
+   'afuww:3 ghafur:2 tawwab:2 mujib:2 rahman:2 karim:1 shakur:2 hamid:1 nur:1'],
+  ['quran koran recite recitation tilawah tajweed hifz-quran',
+   'nur:2 hadi:3 hafiz:3 haqq:1 hakim:2 alim:1'],
+  ['yunus jonah whale fish darkness-dua ya-nun',
+   'tawwab:3 afuww:1 ghafur:1 latif:1 nur:1'],
+  ['ibrahim abraham fire uhud companions-trust sufficient-for-us',
+   'wakil:3 hasib:2 qawiyy:1'],
+  ['mental-health therapy therapist counseling counselling ptsd trauma panic-attack panic-attacks self-care burnout',
+   'salam:3 latif:3 jabbar:2 mumin:2 rahim:2 rauf:2 hayy:2 qayyum:2 sabur:2 muhyi:1 wakil:2 sami:1'],
+  ['gratitude-for-health gratitude-for-family counting-my-blessings thankful-for-everything',
+   'shakur:3 hamid:3 karim:1 wasi:1'],
+  ['sufficient enough-for-me allah-is-enough',
+   'hasib:3 wakil:3 ghaniyy:2 mughni:2 samad:1'],
+  ['count counting number precise exact detail details calculate calculation record records books ledger',
+   'muhsi:3 hasib:2 alim:1 khabir:1'],
+  ['take-account reckoning accountability self-accountability audit evaluate',
+   'hasib:3 muhsi:2 shahid:1 raqib:1 adl:1'],
+  ['eyes-watching being-watched supervise supervised accountability-privately',
+   'raqib:3 basir:2 shahid:2 muhaymin:2 khabir:1'],
+  ['gentle-help subtle-help small-mercies unseen-help help-from-nowhere help hidden-favour hidden-favor quietly',
+   'latif:3 khabir:1 batin:1 fattah:1 mujib:1 wali:1'],
+  ['need-help help helping rescue rescued save saved support-me assist assistance aid',
+   'waliyy:3 mujib:2 wakil:2 qawiyy:1 qadir:1 latif:1 wali:1 rahman:1 hafiz:1'],
+  ['sick-and-patient patient-in-illness illness-patience',
+   'sabur:3 rahim:3 latif:2 jabbar:2'],
+  ['moving-on move-on closure acceptance accept acceptance-of-fate',
+   'sabur:2 hakim:2 barr:2 latif:2 baqi:1 warith:1 halim:1'],
+  ['kindness-to-others be-kind kind-words soft-speech soften soften-heart',
+   'rauf:3 rahman:1 halim:2 latif:2 barr:2 wadud:1'],
+  ['sufficiency-from-allah independence-from-people self-reliance',
+   'ghaniyy:3 mughni:3 samad:2 hasib:1']
+];
+
+/* ======================================================================
+   Smart search engine: typo-tolerant, spelling-variant aware, concept /
+   synonym aware. Pure functions, no DOM, no network. run(query) returns
+   { tiers:[{key,label,ns:[...]}], note, suggest } or null for empty input.
+   ====================================================================== */
+function buildSmartSearch(NAMES, CATEGORIES, KEYS, NAME_WORDS, CONCEPTS){
+  'use strict';
+  const STOP = new Set(('a an the and or of to for in on at by with from my me i im am is are be it its this that these those your you our we us ' +
+    'do does did can could would should will please wanna about into over as so if when what whats how who why not no some any have has had been very just really ' +
+    'ya yaa allah allahumma dear').split(' '));
+  const MEAN_STOP = new Set('the of all one who as a most self and permits'.split(' '));
+  const ARTS = ['adh','ath','ash','al','ar','as','an','ad','at','az','el','ul','ur','us','un'];
+  const ART_SET = new Set(ARTS.concat(['wal','wa','ud','ut','uz','ush']));
+  const AR_RE = /[\u0600-\u06FF]/;
+  const CAT_LABEL = {}; CATEGORIES.forEach(c => { CAT_LABEL[c.id] = c.label; });
+
+  /* ---------- normalisation ---------- */
+  function plain(s){
+    return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      .replace(/[\u02BF\u02BE\u02BC\u2018\u2019'`\u00B4]/g, '')
+      .replace(/[^a-z0-9\u0600-\u06FF\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  /* phonetic fold so Shakur/Shakoor/Shukur, Razzaq/Razaq/Razzak, Ghafur/Ghafoor, Rehman/Rahman, Hakeem/Hakim all collide */
+  function fold(w){
+    return w.replace(/ph/g, 'f').replace(/kh/g, 'x').replace(/gh/g, 'g').replace(/sh/g, 's').replace(/dh|th|zh/g, 'z').replace(/ck/g, 'k')
+      .replace(/[qc]/g, 'k').replace(/ee|ea|ii|ie/g, 'i').replace(/oo|ou|uu|ow|o/g, 'u').replace(/y/g, 'i').replace(/ei|ai/g, 'a')
+      .replace(/uw/g, 'u').replace(/e/g, 'a').replace(/(.)\1+/g, '$1');
+  }
+  const IRREG = {forgave:'forgive', forgiven:'forgive', children:'child', felt:'feel', sought:'seek', thought:'think', thoughts:'thought', ran:'run', paid:'pay', won:'win', lost:'lost', died:'die', dead:'die', sins:'sin', wives:'wife', lives:'life', knew:'know', known:'know', gave:'give', given:'give', took:'take', taken:'take', heard:'hear', saw:'see', seen:'see', mothers:'mother', fathers:'father'};
+  function stem(w){
+    if (IRREG[w]) w = IRREG[w];
+    if (w.length <= 3) return w;
+    for (let pass = 0; pass < 2; pass++) {
+      let m;
+      if ((m = /^(.{2,})(ies|ied)$/.exec(w))) w = m[1] + 'y';
+      else if ((m = /^(.{3,})(ingly|edly|fully|ness|ments?|ings?|ful|less|ers?|ed|es|ly|s|en)$/.exec(w))) w = m[1];
+      else break;
+    }
+    if (w.length > 3 && /e$/.test(w)) w = w.slice(0, -1);
+    w = w.replace(/([^aeiou])\1$/, '$1').replace(/y$/, 'i');
+    return w;
+  }
+  function allowed(len){ return len <= 3 ? 0 : len <= 8 ? 1 : 2; }
+  /* optimal-string-alignment edit distance with early exit */
+  function lev(a, b, max){
+    const al = a.length, bl = b.length;
+    if (Math.abs(al - bl) > max) return max + 1;
+    if (!al) return bl; if (!bl) return al;
+    let prev2 = null, prev = new Array(bl + 1), cur = new Array(bl + 1);
+    for (let j = 0; j <= bl; j++) prev[j] = j;
+    for (let i = 1; i <= al; i++) {
+      cur[0] = i; let rowMin = i;
+      for (let j = 1; j <= bl; j++) {
+        const cost = a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1;
+        let v = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+        if (prev2 && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, prev2[j - 2] + 0.6);
+        cur[j] = v; if (v < rowMin) rowMin = v;
+      }
+      if (rowMin > max) return max + 1;
+      prev2 = prev; prev = cur; cur = new Array(bl + 1);
+    }
+    return prev[bl];
+  }
+
+  /* ---------- Arabic ---------- */
+  function arNorm(s){
+    return String(s).replace(/[\u0640\u064B-\u065F\u0670\u06D6-\u06ED\u200c\u200d]/g, '')
+      .replace(/[\u0623\u0625\u0622\u0671]/g, '\u0627').replace(/\u0649/g, '\u064A').replace(/\u06CC/g, '\u064A').replace(/\u06A9/g, '\u0643')
+      .replace(/\u0629/g, '\u0647').replace(/\u0624/g, '\u0648').replace(/\u0626/g, '\u064A')
+      .replace(/[^\u0621-\u064A\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function arStripAl(t){ return (t.length > 3 && t.startsWith('\u0627\u0644')) ? t.slice(2) : t; }
+  function arSkel(t){ return t.replace(/[\u0627\u0648\u064A]/g, ''); }
+
+  /* ---------- per-Name index ---------- */
+  const IDX = NAMES.map(item => {
+    const toks = plain(item.tr).split(' ');
+    let core = toks.filter(t => !ART_SET.has(t)); if (!core.length) core = toks;
+    const arToks = arNorm(item.ar).split(' ');
+    const arCoreToks = arToks.map(arStripAl);
+    const arCore = arCoreToks.join('');
+    return {
+      n: item.n, item,
+      plainCore: core.join(''), plainFull: toks.join(''), toks: core,
+      foldCore: fold(core.join('')), foldFull: fold(toks.join('')), foldToks: core.map(fold),
+      arFull: arToks.join(''), arCore, arCoreToks, arSkel: arSkel(arCore),
+      duaAr: item.dua ? arNorm(item.dua.ar.replace(/\*\*/g, '')).replace(/ /g, '') : ''
+    };
   });
-  noResults.style.display = anyVisible ? 'none' : 'block';
+  const IDX_BY_N = {}; IDX.forEach(x => { IDX_BY_N[x.n] = x; });
+
+  /* ---------- concept / text vocabulary (stem -> names) ---------- */
+  const VOC = new Map();
+  function vocab(st, word){ let v = VOC.get(st); if (!v) { v = {word, cur:new Map(), txt:new Map()}; VOC.set(st, v); } return v; }
+  function addCur(word, n, w){ const st = stem(word); if (!st || st.length < 2) return; const v = vocab(st, word); if ((v.cur.get(n) || 0) < w) v.cur.set(n, w); }
+  function addTxt(word, n, w){ const st = stem(word); if (!st || st.length < 3) return; const v = vocab(st, word); if ((v.txt.get(n) || 0) < w) v.txt.set(n, w); }
+  const PHRASES = []; // {stems:[...], names:Map}
+  function addPhrase(phrase, nameWeights){
+    const stems = phrase.split('-').map(plain).filter(p => p && !STOP.has(p)).map(stem);
+    const uniq = Array.from(new Set(stems));
+    if (uniq.length === 0) return;
+    if (uniq.length === 1) { Object.keys(nameWeights).forEach(n => addCur(phrase.split('-').filter(p => !STOP.has(p))[0], +n, nameWeights[n])); return; }
+    PHRASES.push({stems:uniq, names:nameWeights});
+  }
+  const NUM_OF_KEY = {}; KEYS.forEach((k, i) => { NUM_OF_KEY[k] = i + 1; });
+  function addWord(word, nw){
+    word = word.toLowerCase();
+    if (word.indexOf('-') >= 0) addPhrase(word, nw);
+    else Object.keys(nw).forEach(n => addCur(word, +n, nw[n]));
+  }
+  Object.keys(NAME_WORDS).forEach(key => {
+    const n = NUM_OF_KEY[key]; if (!n) return;
+    NAME_WORDS[key].split(' ').forEach(spec => {
+      if (!spec) return;
+      const m = /^(.+?)(?:\^(\d(?:\.\d+)?))?$/.exec(spec);
+      addWord(m[1], {[n]: m[2] ? +m[2] : 3});
+    });
+  });
+  CONCEPTS.forEach(([words, names]) => {
+    const nw = {};
+    names.split(' ').forEach(t => { const [k, w] = t.split(':'); const n = NUM_OF_KEY[k]; if (n && +w > 0) nw[n] = +w; });
+    words.split(' ').forEach(w => { if (w) addWord(w, nw); });
+  });
+  NAMES.forEach(item => {
+    plain(item.meaning).split(' ').forEach(w => { if (w.length > 2 && !MEAN_STOP.has(w)) addCur(w, item.n, 2); });
+    plain(item.reflect).split(' ').forEach(w => { if (w.length > 3 && !STOP.has(w)) addTxt(w, item.n, 1); });
+    if (item.dua) plain(item.dua.en.replace(/\*\*/g, '')).split(' ').forEach(w => { if (w.length > 3 && !STOP.has(w)) addTxt(w, item.n, 0.7); });
+    plain(CAT_LABEL[item.cat]).split(' ').forEach(w => { if (w.length > 3 && !STOP.has(w)) addTxt(w, item.n, 0.6); });
+  });
+  VOC.forEach(v => { // rarer words in the free text weigh more
+    const df = v.txt.size;
+    if (df) v.txt.forEach((w, n) => { v.txt.set(n, w * (1 + Math.log(99 / df) / Math.log(99)) / 2); });
+  });
+  const VOC_KEYS = Array.from(VOC.keys());
+
+  /* ---------- token resolution against the vocabulary ---------- */
+  function resolveToken(t, allowFuzzy){
+    const st = stem(t);
+    const out = new Map(); // stem -> {q, kind}
+    const put = (s, q, kind) => { const o = out.get(s); if (!o || o.q < q) out.set(s, {q, kind}); };
+    if (VOC.has(st)) put(st, 1, 'exact');
+    if (st.length >= 4 || (st.length === 3 && !out.has(st))) {
+      for (let i = 0; i < VOC_KEYS.length; i++) {
+        const k = VOC_KEYS[i];
+        if (k !== st && k.startsWith(st) && k.length - st.length <= Math.max(3, st.length)) put(k, st.length >= 4 ? 0.85 : 0.6, 'prefix');
+        else if (k.length >= 4 && k !== st && t.startsWith(k) && t.length - k.length <= 3) put(k, 0.8, 'prefix');
+      }
+    }
+    if (allowFuzzy && st.length >= 4 && !out.has(st)) { // typos are only corrected when the word itself is unknown
+      const al = allowed(st.length), fz = [];
+      for (let i = 0; i < VOC_KEYS.length; i++) {
+        const k = VOC_KEYS[i];
+        if (k === st || Math.abs(k.length - st.length) > al) continue;
+        if (st.length <= 5 && k[0] !== st[0]) continue;
+        const d = lev(st, k, al);
+        if (d <= al) fz.push([k, d]);
+      }
+      const minD = fz.reduce((m, x) => Math.min(m, x[1]), 9);
+      fz.forEach(([k, d]) => { if (d <= minD + 0.25) put(k, 0.8 - 0.12 * d, 'fuzzy'); }); // only the closest spelling(s)
+    }
+    return out;
+  }
+
+  /* ---------- name matching ---------- */
+  function matchLatin(ix, p, f, known){
+    if (p === ix.plainCore || p === ix.plainFull) return [100, 'exact'];
+    if (f === ix.foldCore || f === ix.foldFull) return [97, 'variant'];
+    if (p.length >= 2 && ix.plainCore.startsWith(p)) return [90, 'prefix'];
+    if (p.length >= 3 && ix.plainFull.startsWith(p)) return [88, 'prefix'];
+    for (let i = 0; i < ix.toks.length; i++) {
+      if (ix.toks[i] === p || ix.foldToks[i] === f) return [92, 'token'];
+      if (p.length >= 3 && ix.toks[i].startsWith(p)) return [84, 'token'];
+    }
+    if (known) return [0, ''];
+    if (f.length >= 4 && ix.foldCore.startsWith(f)) return [86, 'prefix'];
+    if (f.length >= 4 && ix.foldToks.some(t => t.startsWith(f))) return [82, 'token'];
+    if (p.length >= 3 && ix.plainCore.includes(p)) return [60, 'part'];
+    if (f.length >= 4) {
+      const al = allowed(f.length);
+      let d = Math.min(lev(f, ix.foldCore, al), lev(f, ix.foldFull, al));
+      ix.foldToks.forEach(t => { d = Math.min(d, lev(f, t, al)); });
+      if (f.length < ix.foldCore.length) d = Math.min(d, lev(f, ix.foldCore.slice(0, f.length), al) + 0.5);
+      if (d <= al) return [50 - d * 8, 'fuzzy'];
+    }
+    return [0, ''];
+  }
+  function matchArabic(ix, q, qFull, qSkel){
+    if (q === ix.arCore || qFull === ix.arFull) return [100, 'exact'];
+    if (q.length >= 2 && ix.arCore.startsWith(q)) return [90, 'prefix'];
+    if (ix.arCoreToks.some(t => t === q || (q.length >= 3 && t.startsWith(q)))) return [88, 'token'];
+    if (qSkel.length >= 2 && ix.arSkel === qSkel) return [78, 'root'];
+    if (qSkel.length >= 2 && ix.arSkel.startsWith(qSkel)) return [74, 'root'];
+    if (ix.arSkel.length >= 3 && qSkel.startsWith(ix.arSkel) && qSkel.length - ix.arSkel.length <= 1) return [72, 'root'];
+    if (q.length >= 3 && ix.arCore.includes(q)) return [60, 'part'];
+    if (q.length >= 4 && lev(q, ix.arCore, 1) <= 1) return [48, 'fuzzy'];
+    if (q.length >= 3 && ix.duaAr && ix.duaAr.includes(q)) return [30, 'text'];
+    return [0, ''];
+  }
+  function stripGlued(tok){
+    for (let i = 0; i < ARTS.length; i++) {
+      const a = ARTS[i];
+      if (tok.length - a.length >= 3 && tok.startsWith(a)) return tok.slice(a.length);
+    }
+    return null;
+  }
+
+  const AR_STOP = new Set(['\u0627\u0644\u0644\u0647', '\u0627\u0644\u0644\u0647\u0645', '\u0631\u0628', '\u0631\u0628\u0646\u0627']);
+  const POPULAR = [1, 2, 34, 94, 5, 30, 17, 44];
+
+  function run(raw){
+    const q0 = String(raw == null ? '' : raw).trim();
+    if (!q0) return null;
+    const arRaw = AR_RE.test(q0) ? arNorm(q0.replace(/[^\u0600-\u06FF\s]/g, ' ')).split(' ').filter(t => t && t !== '\u064A\u0627') : [];
+    const arToks = arRaw.filter(t => !AR_STOP.has(t));
+    const latin = plain(q0.replace(/[\u0600-\u06FF]+/g, ' ')).split(' ').filter(Boolean);
+    let artFree = latin.filter(t => !ART_SET.has(t)); if (!artFree.length) artFree = latin;
+    let content = artFree.filter(t => !STOP.has(t)); if (!content.length) content = artFree;
+    if (!content.length && !arRaw.length) return {tiers:[], note:'', suggest:false, empty:true, shown:[]};
+
+    const nameBest = new Map();   // n -> [score, kind]
+    const cur = new Map(), txt = new Map(), matched = new Map();
+    const bump = (map, n, v) => map.set(n, (map.get(n) || 0) + v);
+    const noteName = (n, r) => { if (r[0] > 0 && (!nameBest.has(n) || nameBest.get(n)[0] < r[0])) nameBest.set(n, r); };
+
+    /* --- name candidates: whole query + each content token --- */
+    const cands = [];
+    if (artFree.length) {
+      const whole = artFree.join('');
+      cands.push({p:whole, f:fold(whole), known: artFree.length === 1 && VOC.has(stem(artFree[0]))});
+      if (artFree.length === 1) { const g = stripGlued(artFree[0]); if (g) cands.push({p:g, f:fold(g), known:false}); }
+    }
+    if (content.length > 1 || (content.length === 1 && artFree.length > 1)) content.forEach(t => { if (t.length >= 2) cands.push({p:t, f:fold(t), known: VOC.has(stem(t))}); });
+    cands.forEach(c => { if (c.p.length < 2) return; IDX.forEach(ix => noteName(ix.n, matchLatin(ix, c.p, c.f, c.known))); });
+
+    /* --- Arabic --- */
+    if (arToks.length) {
+      const stripped = arToks.map(arStripAl);
+      const qFull = arToks.join(''), q = stripped.join(''), qSkel = arSkel(q);
+      const arCands = [{q, qFull, qSkel}];
+      if (arToks.length > 1) stripped.forEach(t => { if (t.length >= 2) arCands.push({q:t, qFull:t, qSkel:arSkel(t)}); });
+      arCands.forEach(c => IDX.forEach(ix => noteName(ix.n, matchArabic(ix, c.q, c.qFull, c.qSkel))));
+    }
+
+    /* --- concepts: per token, best match per Name, summed over tokens --- */
+    let corrected = null;
+    const stemSet = new Set();
+    content.forEach(t => {
+      if (t.length < 2) return;
+      const nameHit = IDX.some(ix => matchLatin(ix, t, fold(t), false)[0] >= 82);
+      const res = resolveToken(t, !nameHit);
+      const tokCur = new Map(), tokTxt = new Map();
+      let bestQ = 0, bestStem = null, bestKind = '';
+      res.forEach((info, s) => {
+        if (info.q >= 0.6) stemSet.add(s);
+        const v = VOC.get(s);
+        v.cur.forEach((w, n) => { const x = w * info.q; if (x > (tokCur.get(n) || 0)) tokCur.set(n, x); });
+        v.txt.forEach((w, n) => { const x = w * info.q; if (x > (tokTxt.get(n) || 0)) tokTxt.set(n, x); });
+        if (info.q > bestQ) { bestQ = info.q; bestStem = s; bestKind = info.kind; }
+      });
+      stemSet.add(stem(t));
+      if (bestKind === 'fuzzy' && !res.has(stem(t)) && !corrected) corrected = VOC.get(bestStem).word;
+      tokCur.forEach((x, n) => { bump(cur, n, x); bump(matched, n, 1); });
+      tokTxt.forEach((x, n) => bump(txt, n, x));
+    });
+    PHRASES.forEach(ph => {
+      if (ph.stems.every(s => stemSet.has(s))) Object.keys(ph.names).forEach(n => bump(cur, +n, ph.names[n] * 0.6));
+    });
+
+    /* --- tiers --- */
+    const t1 = [], t2 = [], t3 = [];
+    IDX.forEach(ix => {
+      const n = ix.n, nb = nameBest.get(n) || [0, ''], c = cur.get(n) || 0, tx = txt.get(n) || 0;
+      if (nb[0] >= 82) t1.push({n, s: nb[0] * 100 + c});
+      else if (c >= 0.5 || (nb[0] >= 70 && nb[0] < 82)) t2.push({n, s: c * 10 + (matched.get(n) || 0) * 5 + (nb[0] >= 70 ? nb[0] / 10 : 0) + tx});
+      else if (nb[0] > 0 || tx >= 0.35) t3.push({n, s: nb[0] + tx * 20});
+    });
+    const byScore = (a, b) => b.s - a.s || a.n - b.n;
+    t1.sort(byScore); t2.sort(byScore); t3.sort(byScore);
+    const hasStrong = t1.length + t2.length > 0;
+    const tiers = [];
+    const display = q0.length > 28 ? q0.slice(0, 27) + '\u2026' : q0;
+    if (t1.length) tiers.push({key:'name', label:'Name matches', ns:t1.map(x => x.n)});
+    if (t2.length) {
+      const rootOnly = arToks.length && !latin.length;
+      tiers.push({key:'concept', label: rootOnly ? 'Same root' : 'Related to \u201C' + (corrected || (content.length > 2 ? content.join(', ') : display)) + '\u201D', ns:t2.slice(0, 30).map(x => x.n)});
+    }
+    if (t3.length) tiers.push({key:'fuzzy', label: hasStrong ? 'Other possible matches' : 'Closest matches', ns:t3.slice(0, hasStrong ? 8 : 12).map(x => x.n)});
+    let suggest = false;
+    if (!tiers.length) {
+      suggest = true;
+      const near = new Map();
+      const base = content.length ? content[0] : '';
+      if (base) {
+        const st = stem(base), f = fold(base);
+        const terms = [];
+        VOC_KEYS.forEach(k => { const d = lev(st, k, 3); if (d <= Math.max(1, Math.floor(st.length / 3))) terms.push({k, d}); });
+        terms.sort((a, b) => a.d - b.d).slice(0, 5).forEach(({k, d}) => VOC.get(k).cur.forEach((w, n) => bump(near, n, w - d)));
+        if (f.length >= 3) IDX.forEach(ix => { const d = lev(f, ix.foldCore, 2); if (d <= 2) bump(near, ix.n, 3 - d); });
+      }
+      let ns = Array.from(near.entries()).sort((a, b) => b[1] - a[1] || a[0] - b[0]).slice(0, 6).map(e => e[0]);
+      let label = 'Closest Names';
+      if (!ns.length) { ns = POPULAR.slice(); label = 'Popular Names to start with'; }
+      tiers.push({key:'suggest', label, ns});
+    }
+    return {tiers, note: corrected ? 'Showing results for \u201C' + corrected + '\u201D' : '', suggest, query:q0};
+  }
+
+  return {run, _debug:{plain, fold, stem, lev, resolveToken, VOC, IDX, PHRASES, arNorm}};
 }
-search.addEventListener('input', applySearch);
+
+/* ---------- search box: smart results (fuzzy, synonyms, concepts) ---------- */
+const search = document.getElementById('search');
+const searchClear = document.getElementById('searchClear');
+const searchResults = document.getElementById('searchResults');
+const SMART = buildSmartSearch(NAMES, CATEGORIES, SEARCH_KEYS, SEARCH_NAME_WORDS, SEARCH_CONCEPTS);
+const SEARCH_TRY = ['grateful', 'forgive', 'provision', 'patience', 'anxious', 'guidance'];
+let searchTimer = null, searchActive = false, searchScrollY = 0;
+const searchCards = {};
+function searchCard(n){
+  if (!searchCards[n]) searchCards[n] = buildCard(BY_N[n], 'ref');
+  const c = searchCards[n];
+  c.classList.remove('flipped'); c.setAttribute('aria-expanded', 'false');
+  return c;
+}
+function leaveSearch(){
+  if (!searchActive) return;
+  searchActive = false;
+  searchResults.hidden = true; searchResults.textContent = '';
+  main.style.display = '';
+  document.body.classList.remove('searching');
+  window.scrollTo(0, searchScrollY);
+}
+function applySearch(){
+  clearTimeout(searchTimer);
+  const raw = search.value;
+  searchClear.hidden = !raw;
+  noResults.style.display = 'none';
+  let res = null;
+  try { res = SMART.run(raw); } catch (err) { res = null; }
+  if (!res || res.empty) { leaveSearch(); return; }
+  const justStarted = !searchActive;
+  if (!searchActive) {
+    searchActive = true; searchScrollY = window.scrollY;
+    main.style.display = 'none'; searchResults.hidden = false;
+    document.body.classList.add('searching');
+  }
+  searchResults.textContent = '';
+  const total = res.tiers.reduce((a, t) => a + t.ns.length, 0);
+  const status = el('div', {class:'sr-status', role:'status', 'aria-live':'polite'});
+  if (res.suggest) status.appendChild(document.createTextNode('Nothing matched \u201C' + raw.trim() + '\u201D' + (res.tiers[0].key === 'suggest' && /^Popular/.test(res.tiers[0].label) ? ' \u2014 here are some Names to start with. ' : ' exactly \u2014 here are the closest Names. ')));
+  else status.appendChild(document.createTextNode(total + (total === 1 ? ' Name' : ' Names') + (res.note ? ' \u00B7 ' + res.note : '')));
+  if (res.suggest) {
+    const tryRow = el('span', {class:'sr-try'}, [document.createTextNode('Try: ')]);
+    SEARCH_TRY.forEach(w => tryRow.appendChild(el('button', {type:'button', class:'sr-try-btn', text:w, onclick:() => { search.value = w; applySearch(); }})));
+    status.appendChild(tryRow);
+  }
+  searchResults.appendChild(status);
+  res.tiers.forEach(t => {
+    const section = el('section', {class:'category sr-group'});
+    section.style.setProperty('--dot', t.key === 'name' ? '#c9a227' : t.key === 'concept' ? '#47b4d1' : '#8a6bbf');
+    const head = el('div', {class:'cat-head'}, [el('span', {class:'dot'}), el('h3', {text:t.label}), el('span', {class:'count', text:String(t.ns.length)})]);
+    const grid = el('div', {class:'grid'});
+    t.ns.forEach(n => grid.appendChild(searchCard(n)));
+    section.appendChild(head); section.appendChild(grid);
+    searchResults.appendChild(section);
+  });
+  syncSelectionUI();
+  const nav = document.getElementById('controls');
+  const stuck = nav ? (parseFloat(getComputedStyle(nav).top) || 0) + nav.offsetHeight : 0;
+  const top = searchResults.getBoundingClientRect().top + window.scrollY - stuck - 6;
+  if (justStarted ? Math.abs(window.scrollY - top) > 4 : window.scrollY > top) window.scrollTo(0, Math.max(0, top));
+}
+search.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  if (!search.value.trim()) applySearch();       // clearing is instant
+  else searchTimer = setTimeout(applySearch, 140); // typing is debounced
+});
+search.addEventListener('keydown', (e) => { if (e.key === 'Enter') { applySearch(); search.blur(); } else if (e.key === 'Escape' && search.value) { search.value = ''; applySearch(); } });
+searchClear.addEventListener('click', () => { search.value = ''; applySearch(); search.focus(); });
 
 /* ---------- select mode ---------- */
 const selectBtn = document.getElementById('selectBtn');
