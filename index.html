@@ -3473,7 +3473,7 @@ const REL_ADJ = new Set('dear close best beloved little big older younger elder 
 const REL_DET = new Set('his her their your its the a an this that whose any every each some another'.split(' '));
 const REL_SELF = new Set('a an the be being become becoming as like such'.split(' '));
 const NAME_VERBS = new Set('for heal cure help protect guide forgive bless about upon comfort ease'.split(' '));
-const NOT_PERSON = /^(Palestine|Gaza|Syria|Sudan|Yemen|Ummah|Ummat|Afghanistan|Iraq|Kashmir|Lebanon|Morocco|Algeria|Libya|Iran|Saudi|Arabia|Muslimeen|Muslimin|Believers|Rohingya|Uyghurs?|Satan|Shaytan|Iblis|Dajjal)$/i;
+const NOT_PERSON = /^(Palestine|Gaza|Austin|Syria|Sudan|Yemen|Ummah|Ummat|Afghanistan|Iraq|Kashmir|Lebanon|Morocco|Algeria|Libya|Iran|Saudi|Arabia|Muslimeen|Muslimin|Believers|Rohingya|Uyghurs?|Satan|Shaytan|Iblis|Dajjal)$/i;
 const THEME_SHORT = {deceased:'mercy', health:'health', emotion:'calm', anger:'a soft heart', habit:'leaving a habit', forgiveness:'forgiveness', debt:'debt relief', job:'a good job', provision:'provision', study:'studies', knowledge:'knowledge', children:'children', marriage:'marriage', relationship:'a mended bond', patience:'patience', protection:'protection', faith:'faith', guidance:'guidance', home:'a home', virtue:'good character'};
 function nameKey(w){
   return String(w).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/'(?:s)?$/, '').replace(/[^a-z-]/g, '').replace(/(.)\1+/g, '$1').replace(/h$/, '');
@@ -3522,6 +3522,8 @@ function peopleIn(text){
   });
   return out;
 }
+/* a relation only one person can hold: "my husband Omar" makes "my husband" and "Omar" the same person */
+const REL_ONE = new Set(['mother', 'father', 'husband', 'wife', 'spouse', 'fiance', 'mother-in-law', 'father-in-law']);
 const PEOPLE_CACHE = new Map();
 function duaPeople(d){
   const src = (d.memo || curText(d) || '');
@@ -3542,10 +3544,15 @@ function peopleIndex(now){
     r.count++; if (o.at < r.first) r.first = o.at; if (o.at > r.last) r.last = o.at;
     const age = t0 - Date.parse(o.at); if (age <= 30 * MS_DAY) r.recent++; if (age <= 7 * MS_DAY) r.week = true;
   });
-  const map = new Map();
-  data.duas.forEach(d => {
-    if (!(isLive(d) || d.status === 'answered')) return;
-    const ppl = duaPeople(d); if (!ppl.length) return;
+  const map = new Map(), alias = new Map(), clash = new Set(), shown = data.duas.filter(d => isLive(d) || d.status === 'answered');
+  shown.forEach(d => duaPeople(d).forEach(p => {
+    if (p.kind !== 'name' || !REL_ONE.has(p.via)) return;
+    const rk = 'r:' + p.via; if (alias.has(rk) && alias.get(rk).key !== p.key) clash.add(rk); else alias.set(rk, {key:p.key, label:p.label});
+  }));
+  clash.forEach(k => alias.delete(k));
+  shown.forEach(d => {
+    const ppl = []; duaPeople(d).forEach(p => { const a = alias.get(p.key), q = a ? {key:a.key, kind:'name', label:a.label, via:p.key.slice(2)} : p; if (!ppl.some(x => x.key === q.key)) ppl.push(q); });
+    if (!ppl.length) return;
     const r = occ.get(d.id) || {count:0, first:d.created, last:d.created, recent:0, week:false};
     const item = {d:d, count:r.count, first:r.first < d.created ? r.first : d.created, last:r.last > d.created ? r.last : d.created, theme:themeShort(d), recent:r.recent, week:r.week};
     ppl.forEach(p => {
