@@ -16,10 +16,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hanken+Grotesk:wght@400;500;600&family=Young+Serif&display=swap" rel="stylesheet">
 <script>
 (function(){
-  var d = document.documentElement, q = new URLSearchParams(location.search).get('mode'), mq = matchMedia('(prefers-color-scheme: light)');
-  function set(){ var m = q === 'day' || q === 'night' ? q : mq.matches ? 'day' : 'night'; d.dataset.mode = m; var t = document.querySelector('meta[name=theme-color]'); if (t) t.content = m === 'day' ? '#E2E8F2' : '#171F38'; }
+  var d = document.documentElement, q = new URLSearchParams(location.search).get('mode'), mq = matchMedia('(prefers-color-scheme: light)'), KEY = 'asmaDuaLog.ui.appearance', pref = 'auto';
+  try { var v = localStorage.getItem(KEY); if (v === 'light' || v === 'dark') pref = v; } catch (e) {}
+  var forced = q === 'day' || q === 'night';   // ?mode= wins, so tests can pin a look
+  function set(){ var m = forced ? q : pref === 'light' ? 'day' : pref === 'dark' ? 'night' : mq.matches ? 'day' : 'night'; d.dataset.mode = m; d.dataset.appearance = pref; var t = document.querySelector('meta[name=theme-color]'); if (t) t.content = m === 'day' ? '#E2E8F2' : '#171F38'; }
   set();
-  if (q !== 'day' && q !== 'night') { try { mq.addEventListener('change', set); } catch (e) {} }
+  try { mq.addEventListener('change', set); } catch (e) {}
+  window.appearance = {get:function(){ return pref; }, set:function(p){ pref = p === 'light' || p === 'dark' ? p : 'auto'; try { if (pref === 'auto') localStorage.removeItem(KEY); else localStorage.setItem(KEY, pref); } catch (e) {} set(); }};
 })();
 </script>
 <style>
@@ -275,6 +278,12 @@
   .set-p{ font-size:.8rem; color:var(--ink-dim); line-height:1.5; margin:0 0 12px; }
   .set-p.small{ font-size:.72rem; color:var(--ink-faint); margin-top:12px; }
   .set-p a{ color:var(--gold); }
+  .appearance{ margin-bottom:22px; }
+  .seg{ display:flex; border:1px solid var(--hairline); border-radius:12px; overflow:hidden; background:var(--field); }
+  .seg-btn{ flex:1; min-height:48px; padding:0 8px; border:none; background:transparent; color:var(--ink); font:600 .9rem var(--ui); cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+  .seg-btn + .seg-btn{ border-left:1px solid var(--hairline); }
+  .seg-btn.on{ background:var(--madder); color:var(--on-madder); }
+  .seg-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:-3px; }
   .set-label{ display:block; font-size:.74rem; font-weight:600; margin-bottom:6px; }
   .set-row{ display:flex; gap:8px; align-items:center; }
   .set-row .field{ flex:1; font-family:ui-monospace,Menlo,monospace; font-size:16px; }
@@ -2280,7 +2289,19 @@ function openSettings(){
   const status = el('p', {class:'set-status', id:'aiStatus', 'aria-live':'polite'});
   function refresh(){ const k = getAiKey(); input.value = ''; status.textContent = k ? 'Key saved on this device (\u2022\u2022\u2022\u2022' + k.slice(-4) + '). Memos will be refined by Gemini.' : 'No key saved \u2014 duas use the built-in wording.'; }
   const show = el('button', {type:'button', class:'btn small ghost', text:'Show', onclick:() => { input.type = input.type === 'password' ? 'text' : 'password'; show.textContent = input.type === 'password' ? 'Show' : 'Hide'; }});
+  const appr = el('div', {class:'appearance'}, [
+    el('h3', {class:'set-h', id:'apprH', text:'Appearance'}),
+    el('p', {class:'set-p', text:'Match phone follows your phone\u2019s light or dark setting.'}),
+    (() => {
+      const seg = el('div', {class:'seg', role:'radiogroup', 'aria-labelledby':'apprH'});
+      const draw = () => seg.querySelectorAll('button').forEach(b => { const on = b.dataset.v === window.appearance.get(); b.setAttribute('aria-checked', on ? 'true' : 'false'); b.classList.toggle('on', on); b.tabIndex = on ? 0 : -1; });
+      [['auto', 'Match phone'], ['light', 'Light'], ['dark', 'Dark']].forEach(([v, t]) => { const b = el('button', {type:'button', class:'seg-btn', role:'radio', text:t, onclick:() => { window.appearance.set(v); draw(); }}); b.dataset.v = v; seg.appendChild(b); });
+      seg.addEventListener('keydown', ev => { const ks = ['auto', 'light', 'dark'], i = ks.indexOf(window.appearance.get()); const d = ev.key === 'ArrowRight' || ev.key === 'ArrowDown' ? 1 : ev.key === 'ArrowLeft' || ev.key === 'ArrowUp' ? -1 : 0; if (!d) return; ev.preventDefault(); window.appearance.set(ks[(i + d + 3) % 3]); draw(); const nb = seg.querySelector('[aria-checked=true]'); if (nb) nb.focus(); });
+      draw(); return seg;
+    })()
+  ]);
   const body = el('div', {class:'sheet-body set-body'}, [
+    appr,
     el('h3', {class:'set-h', text:'Refine memos with Gemini (optional)'}),
     el('p', {class:'set-p', text:'With a key, the memos you write are turned into polished duas by Google\u2019s Gemini when you save. Without one (or offline), the built-in wording is used.'}),
     el('label', {for:'aiKey', class:'set-label', text:'Gemini API key'}),
