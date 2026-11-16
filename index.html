@@ -1669,7 +1669,7 @@ function pron(p, lo){
 const TYPO = [[/\bakirah|akhira\b|aakhirah|akhirat\b/gi,'akhirah'],[/\bbarak(a|at|ah)\b|\bbarkat\b/gi,'barakah'],[/\bumma\b/gi,'ummah'],[/\bdunia\b/gi,'dunya'],[/\bdeen\b|\bdin\b/gi,'deen'],[/\bimaan\b/gi,'iman'],
   [/\bbring my closer\b/gi,'bring me closer'],[/\bkids\b/gi,'children'],[/\bmom\b|\bmum\b/gi,'mother'],[/\bdad\b/gi,'father'],[/\bmake my trials\b/gi,'make my trials'],[/\bive\b/gi,"I've"],[/\bim\b/gi,"I'm"],[/\bdont\b/gi,"don't"],[/\bcant\b/gi,"can't"],[/\bu\b/g,'you'],[/\bur\b/g,'your'],[/\balot\b/gi,'a lot'],[/\bthru\b/gi,'through'],
   [/\b(gratful|gratefull|greatful|grateul|gratefl)\b/gi,'grateful'],[/\b(thankfull|thnkful|thankfl)\b/gi,'thankful'],[/\bfam\b/gi,'family'],[/\b(thx|thnx|tnx)\b/gi,'thanks'],[/\b(tmrw|tomorow)\b/gi,'tomorrow']];
-const OTHER_PERSON = /\b(mom|mum|mother|dad|father|abu|abba|nani|nana|dadi|abbu|ami|amma|khala|chacha|mamu|bhai|apa|baji|dada|aunty|brother|sister|son|daughter|husband|wife|friend|boss|coworker|co-worker|colleague|manager|teacher|uncle|aunt|cousin|neighbou?r|grandma|grandpa|grandmother|grandfather|baby|child|children|kid|kids|family|parents?|in-?laws?|partner|spouse|classmate|roommate|student|patient|mentor|he's my|my (?:ex|fiance|fianc\u00e9))\b/i;
+const OTHER_PERSON = /\b(mom|mum|mother|dad|father|abu|abba|baba|ammi|ummi|ammu|abbi|nani|nana|dadi|abbu|ami|amma|khala|chacha|mamu|bhai|apa|baji|dada|aunty|brother|sister|son|daughter|husband|wife|friend|boss|coworker|co-worker|colleague|manager|teacher|uncle|aunt|cousin|neighbou?r|grandma|grandpa|grandmother|grandfather|baby|child|children|kid|kids|family|parents?|in-?laws?|partner|spouse|classmate|roommate|student|patient|mentor|he's my|my (?:ex|fiance|fianc\u00e9))\b/i;
 const CLAUSE_VERB = /^(open|respond|answer|hear|make|forgive|pardon|accept|grant|give|help|guide|protect|heal|cure|bless|let|keep|increase|remove|ease|bring|permeate|put|fill|purify|raise|provide|show|teach|strengthen|soften|free|lift|relieve|settle|mend|restore|unite|reunite|save|shield|cover|turn|write|choose|allow|send|return|enable|count|clear|calm|replace|take|unlock|expand|widen|honou?r|preserve|draw|guard|steady|correct|fix|inspire|reward|have|be|use)\b/i;
 function tidy(m){
   let t = ' ' + m + ' ';
@@ -3630,11 +3630,11 @@ function buildSuggested(prayerKey){
 }
 
 /* ---------- People: who she makes dua for, derived from her duas (nothing extra is stored) ---------- */
-const REL_SLANG = /\b(?:ammi|ummi|ami|amma|ammu|abbu|abbi|mama|mommy|papa|daddy|abu|abba|nani|dadi|nana|sis|bro|hubby|\w+inlaws?)\b/i;   // forms OTHER_PERSON does not cover
+const REL_SLANG = /\b(?:ammi|ummi|ami|amma|ammu|abbu|abbi|baba|mama|mommy|papa|daddy|abu|abba|nani|dadi|nana|sis|bro|hubby|\w+inlaws?)\b/i;   // forms OTHER_PERSON does not cover
 const REL_SKIP = new Set(['family', 'cat', 'dog', 'pet']);
 const REL_MERGE = {child:'children', colleague:'coworker'};
 /* family words that stand for one person without "my" ("healing for mom"); the rest need my/our in front */
-const REL_FREE = new Set('sis bro hubby nani dadi mom mum mama mommy ammi ummi abbu abbi abba ami amma ammu mother dad father papa daddy grandma grandmother grandpa grandfather brother sister son daughter husband wife aunt uncle parents'.split(' '));
+const REL_FREE = new Set('sis bro hubby nani dadi mom mum mama mommy ammi ummi abbu abbi abba abu baba ami amma ammu mother dad father papa daddy grandma grandmother grandpa grandfather brother sister son daughter husband wife aunt uncle parents'.split(' '));
 const REL_ADJ = new Set('dear close best beloved little big older younger elder eldest oldest youngest late old new only twin sick poor lovely precious'.split(' '));
 const REL_DET = new Set('his her their your its the a an this that whose any every each some another'.split(' '));
 const REL_SELF = new Set('a an the be being become becoming as like such'.split(' '));
