@@ -519,9 +519,6 @@
   .m-lines .guards path.thin{ stroke-width:.7; }
   .m-lines .corners{ stroke:var(--bord); stroke-width:1; }
   .m-lines .arch{ stroke:var(--arch); stroke-width:1.5; }
-  .m-lines .stitch{ stroke:var(--arch); stroke-width:.8; }
-  .m-lines .tip{ stroke:var(--arch); stroke-width:1.4; }
-  .m-lines .tipd{ fill:var(--arch); stroke:none; }
 </style>
 </head>
 <body>
@@ -4699,13 +4696,28 @@ const Mat = (() => {
     for (let n = 1; n < 80; n++) { const L = avail - 2 * RT.gap, sx = L / (n * RT.w - RT.tail), d = Math.abs(sx - 1); if (L > 0 && (!best || d < best.d)) best = {n, sx, d}; }
     return best || {n:1, sx:1, d:0};
   }
+  /* The thin guard is the arch pushed outwards by GAP all the way round (sides, curves and the tip), so it never crosses or stacks on the arch line. */
+  function guardPath(w, ys, ay, FL, gap, H){
+    const cx = w / 2, S = [[[FL, ys], [FL, ys - 62], [cx - 92, ay + 92], [cx - 26, ay + 44]], [[cx - 26, ay + 44], [cx - 14, ay + 30], [cx - 5, ay + 12], [cx, ay]]];
+    const bz = (P, t) => { const u = 1 - t; return [u*u*u*P[0][0] + 3*u*u*t*P[1][0] + 3*u*t*t*P[2][0] + t*t*t*P[3][0], u*u*u*P[0][1] + 3*u*u*t*P[1][1] + 3*u*t*t*P[2][1] + t*t*t*P[3][1]]; };
+    const dv = (P, t) => { const u = 1 - t; return [3*u*u*(P[1][0] - P[0][0]) + 6*u*t*(P[2][0] - P[1][0]) + 3*t*t*(P[3][0] - P[2][0]), 3*u*u*(P[1][1] - P[0][1]) + 6*u*t*(P[2][1] - P[1][1]) + 3*t*t*(P[3][1] - P[2][1])]; };
+    const L = [[FL - gap, H], [FL - gap, ys]];
+    S.forEach((P, k) => { for (let i = k ? 0 : 1; i <= 16; i++) {
+      const t = i / 16, p = bz(P, t); let d = dv(P, t); if (Math.hypot(d[0], d[1]) < 1e-6) d = dv(P, t < .5 ? t + .01 : t - .01);
+      const m = Math.hypot(d[0], d[1]); L.push([p[0] + d[1] / m * gap, p[1] - d[0] / m * gap]);
+    } });
+    const q = L[L.length - 1], d = dv(S[1], 1), m = Math.hypot(d[0], d[1]), sx = d[0] / m, sy = d[1] / m, k = (cx - q[0]) / sx;
+    L.push([cx, q[1] + k * sy]);
+    const R = L.slice(0, -1).reverse().map(p => [w - p[0], p[1]]);
+    return 'M' + L.concat(R).map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' L');
+  }
   function html(w, H, T, A){
-    const id = 'mat' + (++seq), g0 = 4, bx = 8, bh = 20, i1 = 32, i2 = 35, FL = i2;
+    const id = 'mat' + (++seq), g0 = 4, bx = 8, bh = 20, i1 = 32, GAP = 4, FL = i1 + 2 * GAP;   // outer line, 4, strip, 4, inner line, 4, guard, 4, arch
     const ty = T + 4, by = T + 8;
-    const fy = T + i2;
-    const ay = A ? A + 22 : T + 58, ys = ay + 186;
+    const fy = T + i1 + GAP;
+    const ay = A ? A + 24 : T + 58, ys = ay + 186;
     const archC = archPath(w, ys, ay, FL, false, H) + ` L${w - FL},${H} L${FL},${H} Z`;
-    const archO = archPath(w, ys, ay, FL, true, H), stitch = archPath(w, ys + 2, ay + 7, FL + 4.5, true, H);
+    const archO = archPath(w, ys, ay, FL, true, H), guard = guardPath(w, ys, ay, FL, GAP, H);
     const edge = bx + bh;                                    // where a strip meets the corner piece
     const top = strip(w - 2 * edge), sy = top.sx;           // sides use the same stretch so every repeat is the same size
     const sideN = Math.max(1, Math.floor((H - edge - 2 * RT.gap + RT.tail * sy) / (RT.w * sy)));
@@ -4727,12 +4739,11 @@ const Mat = (() => {
     <div class="m-sp" style="clip-path:url(#${id}s)"></div>
     <div class="m-tx"></div>
     <svg class="m-lines" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}">
-      <g class="guards"><path d="M${g0},${H} V${ty} H${w - g0} V${H}"/><path d="M${i1},${H} V${T + i1} H${w - i1} V${H}"/><path class="thin" d="M${i2},${H} V${T + i2} H${w - i2} V${H}"/></g>
+      <g class="guards"><path d="M${g0},${H} V${ty} H${w - g0} V${H}"/><path d="M${i1},${H} V${T + i1} H${w - i1} V${H}"/><path class="thin" d="${guard}"/></g>
       <g class="corners"><rect x="${bx}" y="${by}" width="${bh}" height="${bh}"/><rect x="${w - bx - bh}" y="${by}" width="${bh}" height="${bh}"/>
         <path d="M${bx},${by} L${bx + bh},${by + bh} M${bx + bh},${by} L${bx},${by + bh} M${w - bx - bh},${by} L${w - bx},${by + bh} M${w - bx},${by} L${w - bx - bh},${by + bh}"/>
         <circle cx="${bx + bh / 2}" cy="${by + bh / 2}" r="3"/><circle cx="${w - bx - bh / 2}" cy="${by + bh / 2}" r="3"/></g>
-      <path class="arch" d="${archO}"/><path class="stitch" d="${stitch}"/>
-      <path class="tip" d="M${w / 2},${ay - 9} L${w / 2},${ay - 1}"/><circle class="tipd" cx="${w / 2}" cy="${ay - 12.5}" r="1.9"/>
+      <path class="arch" d="${archO}"/>
     </svg>`;
   }
   function into(root, T, A){
