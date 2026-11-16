@@ -52,7 +52,7 @@
   @media (prefers-reduced-motion: no-preference){ html{scroll-behavior:smooth;} }
   body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--ui); position:relative; min-height:100vh; }
 
-  header.hero{ position:relative; z-index:1; max-width:640px; margin:0 auto; padding:52px 24px 20px; text-align:center; }
+  header.hero{ position:relative; z-index:1; max-width:640px; margin:0 auto; padding:52px var(--mx) 20px; text-align:center; }
   .rosette{ display:block; margin:0 auto 16px; opacity:0; animation:fadeIn .9s ease-out .1s forwards; }
   @media (prefers-reduced-motion: reduce){ .rosette{opacity:1; animation:none;} }
   @keyframes fadeIn{ from{opacity:0; transform:scale(.85) rotate(-8deg);} to{opacity:1; transform:scale(1) rotate(0);} }
@@ -79,7 +79,7 @@
   .ism-box .src{ font-size:.7rem; letter-spacing:.05em; text-transform:uppercase; color:var(--gold); opacity:.85; }
   .hl{ color:var(--gold); font-weight:700; }
 
-  nav.controls{ position:sticky; top:0; z-index:10; backdrop-filter:blur(10px); background:color-mix(in srgb,var(--bg) 94%,transparent); border-bottom:1px solid var(--hairline); padding:14px 20px; }
+  nav.controls{ position:sticky; top:0; z-index:10; backdrop-filter:blur(10px); background:color-mix(in srgb,var(--bg) 94%,transparent); border-bottom:1px solid var(--hairline); padding:14px var(--mx); }
   .search-wrap{ max-width:640px; margin:0 auto 12px; }
   #search{ width:100%; font-family:var(--ui); font-size:.95rem; padding:11px 16px; border-radius:10px; border:1px solid var(--hairline); background:var(--card); color:var(--ink); outline:none; }
   #search::placeholder{ color:var(--ink-faint); }
@@ -88,7 +88,7 @@
   #search{ padding-right:40px; -webkit-appearance:none; appearance:none; }
   .search-clear{ position:absolute; right:5px; top:50%; transform:translateY(-50%); width:34px; height:34px; border:none; background:transparent; color:var(--ink-dim); font-size:1.4rem; line-height:1; cursor:pointer; border-radius:50%; padding:0; -webkit-tap-highlight-color:transparent; }
   .search-clear:active{ color:var(--gold); }
-  .search-results{ max-width:1100px; margin:0 auto; padding:6px 20px 40px; position:relative; z-index:1; }
+  .search-results{ max-width:1100px; margin:0 auto; padding:6px var(--mx) 40px; position:relative; z-index:1; }
   .sr-status{ font-size:.82rem; color:var(--ink-dim); margin:4px 0 20px; line-height:1.9; }
   .sr-try-btn{ font:inherit; font-size:.78rem; color:var(--gold); background:color-mix(in srgb,var(--gold) 8%,transparent); border:1px solid var(--hairline); border-radius:999px; padding:3px 11px; margin:0 4px 0 0; cursor:pointer; }
   .chips{ max-width:900px; margin:0 auto; display:flex; gap:8px; overflow-x:auto; scrollbar-width:thin; padding-bottom:2px; }
@@ -98,7 +98,7 @@
   .chip.active{ color:var(--ink); border-color:var(--dot,var(--gold)); background:var(--card-hover); }
   .chip .dot{ width:8px; height:8px; border-radius:50%; background:var(--dot,var(--gold)); flex:0 0 auto; }
 
-  main{ position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:28px 20px 10px; }
+  main{ position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:28px var(--mx) 10px; }
   section.category{ margin-bottom:40px; scroll-margin-top:104px; }
   .cat-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:14px; padding-bottom:9px; border-bottom:1px solid var(--hairline); }
   .cat-head .dot{ width:11px; height:11px; border-radius:50%; background:var(--dot,var(--gold)); flex:0 0 auto; }
@@ -130,7 +130,7 @@
 
   .no-results{ text-align:center; color:var(--ink-faint); padding:40px 0; display:none; font-family:var(--disp); font-style:italic; font-size:1.1rem; }
 
-  footer{ position:relative; z-index:1; max-width:520px; margin:20px auto 60px; text-align:center; padding:0 24px; color:var(--ink-faint); font-size:.82rem; line-height:1.65; }
+  footer{ position:relative; z-index:1; max-width:520px; margin:20px auto 60px; text-align:center; padding:0 var(--mx); color:var(--ink-faint); font-size:.82rem; line-height:1.65; }
   footer .dua{ margin-top:10px; font-family:var(--disp); font-style:italic; color:var(--gold); font-size:1.05rem; }
 
   @media (max-width:480px){ .grid{ grid-template-columns:1fr 1fr; } .card-inner{ height:196px; } }
@@ -139,7 +139,7 @@
   :root{ --appbar-h:54px; --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px); --fav:var(--accent-ink); }
   body{ -webkit-tap-highlight-color:transparent; padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px); }
   [hidden]{ display:none !important; }
-  .appbar{ position:sticky; top:0; z-index:20; padding-top:var(--safe-t); background:color-mix(in srgb,var(--bg) 94%,transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--hairline); }
+  .appbar{ position:sticky; top:0; z-index:20; padding-top:var(--safe-t); background:var(--bg); border-bottom:1px solid var(--hairline); }
   .appbar-in{ max-width:1080px; margin:0 auto; height:var(--appbar-h); display:flex; align-items:center; gap:10px; padding:0 14px; }
   .brand{ font-family:var(--ar); color:var(--gold); font-size:1.15rem; line-height:1; margin-right:2px; white-space:nowrap; }
   .tab{ font-size:.8rem; font-weight:600; color:var(--ink-dim); text-decoration:none; padding:7px 14px; border-radius:999px; white-space:nowrap; transition:background .2s,color .2s; }
@@ -358,7 +358,7 @@
   .tabbar .tab.active{ background:none; color:var(--gold); border-top-color:var(--gold); }
   .toast{ bottom:calc(76px + var(--safe-b)); }
   /* ---------- My Duas and History ---------- */
-  .my-wrap{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:18px 16px 30px; }
+  .my-wrap{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:18px var(--mx) 30px; }
   .my-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; position:relative; }
   .my-head h1{ font-family:var(--disp); font-weight:600; font-size:1.9rem; margin:0; color:var(--ink); }
   .my-head p{ margin:2px 0 0; font-size:.8rem; color:var(--ink-dim); line-height:1.45; }
@@ -405,12 +405,14 @@
   .sheet-opt{ display:flex; align-items:center; gap:8px; margin:10px 0 0; font-size:.82rem; color:var(--ink-dim); min-height:36px; }
   .sheet-opt input{ width:18px; height:18px; accent-color:var(--gold); }
   /* ---- Pray now ---- */
-  .pr-wrap{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:16px 16px calc(40px + var(--safe-b)); }
+  .pr-wrap{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:0 var(--mx) calc(40px + var(--safe-b)); }
   .pr-chips, .pr-recents{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+  .pr-chips{ position:sticky; top:calc(var(--appbar-h) + var(--safe-t)); z-index:5; gap:0; justify-content:space-between; margin:0 calc(-1 * var(--mx)); padding:0 calc(var(--mx) - 12px); background:var(--bg); border-bottom:1px solid var(--hairline); }
   .pr-chips::-webkit-scrollbar, .pr-recents::-webkit-scrollbar{ display:none; }
   .pr-recents{ margin-top:10px; }
-  .pr-chip{ flex:none; font:600 .8rem var(--ui); color:var(--ink-dim); background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:8px 14px; min-height:38px; cursor:pointer; }
-  .pr-chip.on{ background:var(--gold-soft); color:var(--ink); border-color:var(--gold); }
+  .pr-chip{ flex:none; position:relative; font:500 .95rem var(--ui); color:var(--ink-dim); background:none; border:0; border-radius:0; padding:12px 8px 13px; min-height:44px; cursor:pointer; }
+  .pr-chip.on{ color:var(--ink); font-weight:600; }
+  .pr-chip.on::after{ content:""; position:absolute; left:6px; right:6px; bottom:-1px; height:3px; background:var(--accent); }
   .pr-hero{ margin-top:14px; padding:16px; border-radius:18px; border:1px solid var(--gold-soft); background:var(--card); }
   .pr-kicker{ font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); }
   .pr-hero h2{ margin:4px 0 2px; font-family:var(--disp); font-weight:600; font-size:1.4rem; }
@@ -463,6 +465,28 @@
   .bk-snap{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--hairline); }
   .bk-snap-t{ display:flex; flex-direction:column; gap:2px; font-size:.78rem; color:var(--ink-dim); }
   .bk-snap-t b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- the prayer mat: one layer behind every screen, same in day and night ---------- */
+  :root{ --mx:40px; }
+  .mat{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .mat > *{ position:absolute; }
+  .mat > svg:first-child{ width:0; height:0; }
+  .m-ground, .m-field, .m-fl, .m-sp, .m-band, .m-tx{ inset:0; }
+  .m-ground{ background:var(--spfill); }
+  .m-band{ background:var(--bandfill); }
+  .m-field{ background:var(--sheet); }
+  .m-fl{ background:var(--pat); -webkit-mask:url(tiles/iznik.svg) 0 0/250px 250px repeat; mask:url(tiles/iznik.svg) 0 0/250px 250px repeat; }
+  .m-sp{ background:var(--sp); -webkit-mask:url(tiles/sp-sdots.svg) 0 0/26px 26px repeat; mask:url(tiles/sp-sdots.svg) 0 0/26px 26px repeat; }
+  .m-bord{ background:var(--bord); -webkit-mask:url(tiles/bord-rosette.svg) 0 0/auto 100% repeat; mask:url(tiles/bord-rosette.svg) 0 0/auto 100% repeat; }
+  .m-tx{ background:repeating-linear-gradient(0deg,var(--pile) 0 1px,transparent 1px 3px), repeating-linear-gradient(90deg,var(--pile) 0 1px,transparent 1px 5px), linear-gradient(112deg,transparent 30%,var(--sheen) 50%,transparent 70%); }
+  .mat svg.m-lines{ inset:0; width:100%; height:100%; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .m-lines .guards path{ stroke:var(--guard); stroke-width:1.1; }
+  .m-lines .guards path.thin{ stroke-width:.7; }
+  .m-lines .corners{ stroke:var(--bord); stroke-width:1; }
+  .m-lines .arch{ stroke:var(--arch); stroke-width:1.5; }
+  .m-lines .stitch{ stroke:var(--arch); stroke-width:.8; }
+  .m-lines .tip{ stroke:var(--arch); stroke-width:1.4; }
+  .m-lines .tipd{ fill:var(--arch); stroke:none; }
 </style>
 </head>
 <body>
@@ -4574,6 +4598,76 @@ function route(){
     if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
   });
 }
+/* ---------- the prayer mat ----------
+   One fixed layer behind the page: border, guard lines, a pointed arch with a soft Iznik field inside, sparse dots outside it.
+   Geometry only. Every colour is a CSS variable, so day and night use the same mat. The arch starts below the people row when there is one. */
+const Mat = (() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  let seq = 0, sig = '';
+  function archPath(w, ys, ay, FL, open, H){
+    const cx = w / 2, FR = w - FL;
+    const L = `M${FL},${open ? H : ys}${open ? ` L${FL},${ys}` : ''} C${FL},${ys - 62} ${cx - 92},${ay + 92} ${cx - 26},${ay + 44} C${cx - 14},${ay + 30} ${cx - 5},${ay + 12} ${cx},${ay}`;
+    const R = ` C${cx + 5},${ay + 12} ${cx + 14},${ay + 30} ${cx + 26},${ay + 44} C${cx + 92},${ay + 92} ${FR},${ys - 62} ${FR},${ys}`;
+    return L + R + (open ? ` L${FR},${H}` : '');
+  }
+  function html(w, H, T, A){
+    const id = 'mat' + (++seq), g0 = 4, bx = 8, bh = 20, i1 = 31.5, i2 = 34.5, FL = 36;
+    const ty = T + 4, by = T + 8, fy = T + 36;
+    const ay = A ? A + 22 : T + 58, ys = ay + 186;
+    const archC = archPath(w, ys, ay, FL, false, H) + ` L${w - FL},${H} L${FL},${H} Z`;
+    const archO = archPath(w, ys, ay, FL, true, H), stitch = archPath(w, ys + 2, ay + 7, FL + 4.5, true, H);
+    const len = H - (by + bh);
+    const side = (cls, css) => `<div class="m-bord ${cls}" style="${css}"></div>`;
+    return `<svg width="0" height="0"><defs>
+      <clipPath id="${id}f" clipPathUnits="userSpaceOnUse"><path d="${archC}"/></clipPath>
+      <clipPath id="${id}s" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M${FL},${fy} H${w - FL} V${H} H${FL} Z ${archC}"/></clipPath>
+    </defs></svg>
+    <div class="m-ground"></div>
+    <div class="m-band" style="clip-path:path(evenodd,'M${g0 + 1},${ty + 1} H${w - g0 - 1} V${H} H${g0 + 1} Z M${i1},${T + 31.5} H${w - i1} V${H} H${i1} Z')"></div>
+    <div class="m-field" style="clip-path:url(#${id}f)"></div>
+    <div class="m-fl" style="clip-path:url(#${id}f)"></div>
+    ${side('b-top', `left:${bx + bh}px;top:${by}px;width:${w - 2 * (bx + bh)}px;height:${bh}px;transform:scaleY(-1)`)}
+    ${side('b-left', `left:${bx + bh}px;top:${by + bh}px;width:${len}px;height:${bh}px;transform:rotate(90deg);transform-origin:0 0`)}
+    ${side('b-right', `left:${w - bx - bh}px;top:${H}px;width:${len}px;height:${bh}px;transform:rotate(-90deg);transform-origin:0 0`)}
+    <div class="m-sp" style="clip-path:url(#${id}s)"></div>
+    <div class="m-tx"></div>
+    <svg class="m-lines" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}">
+      <g class="guards"><path d="M${g0},${H} V${ty} H${w - g0} V${H}"/><path d="M${i1},${H} V${T + 31.5} H${w - i1} V${H}"/><path class="thin" d="M${i2},${H} V${T + 34.5} H${w - i2} V${H}"/></g>
+      <g class="corners"><rect x="${bx}" y="${by}" width="${bh}" height="${bh}"/><rect x="${w - bx - bh}" y="${by}" width="${bh}" height="${bh}"/>
+        <path d="M${bx},${by} L${bx + bh},${by + bh} M${bx + bh},${by} L${bx},${by + bh} M${w - bx - bh},${by} L${w - bx},${by + bh} M${w - bx},${by} L${w - bx - bh},${by + bh}"/>
+        <circle cx="${bx + bh / 2}" cy="${by + bh / 2}" r="3"/><circle cx="${w - bx - bh / 2}" cy="${by + bh / 2}" r="3"/></g>
+      <path class="arch" d="${archO}"/><path class="stitch" d="${stitch}"/>
+      <path class="tip" d="M${w / 2},${ay - 9} L${w / 2},${ay - 1}"/><circle class="tipd" cx="${w / 2}" cy="${ay - 12.5}" r="1.9"/>
+    </svg>`;
+  }
+  function into(root, T, A){
+    const old = root.querySelector(':scope > .mat'); if (old) old.remove();
+    const m = document.createElement('div'); m.className = 'mat'; m.setAttribute('aria-hidden', 'true');
+    m.innerHTML = html(root.clientWidth || innerWidth, innerHeight + 300, T, A);
+    root.insertBefore(m, root.firstChild);
+  }
+  function chromeBottom(){
+    const ab = document.getElementById('appbar'); let t = ab ? ab.getBoundingClientRect().bottom : 0;
+    if (typeof currentView !== 'undefined' && currentView === 'pray') { const c = document.querySelector('.pr-chips'); if (c) t += c.offsetHeight; }
+    return Math.round(t);
+  }
+  function peopleBottom(){
+    if (typeof currentView === 'undefined' || currentView !== 'pray') return 0;
+    const p = document.querySelector('.people'); return p ? Math.round(p.getBoundingClientRect().bottom + scrollY) : 0;
+  }
+  function sync(){
+    const T = chromeBottom(), A = peopleBottom(), s = [innerWidth, innerHeight, T, A].join();
+    if (s === sig && document.querySelector('body > .mat')) return;
+    sig = s; into(document.body, T, A);
+  }
+  let raf = 0;
+  const later = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(sync); };
+  addEventListener('resize', later);
+  addEventListener('load', later);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
+  new MutationObserver(later).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:['hidden']});
+  return {sync:later, into:into};
+})();
 window.addEventListener('hashchange', route);
 window.addEventListener('storage', (e) => {
   if (e.key !== STORE_KEY) return;
