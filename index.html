@@ -1054,7 +1054,7 @@ function buildCard(item, mode){ // mode: 'ref' | 'log'
     const flipped = card.classList.toggle('flipped');
     card.setAttribute('aria-expanded', flipped ? 'true' : 'false');
   }
-  function activate(){ toggleFlip(); } // the card body always flips; selection only via the corner button
+  function activate(){ if (selecting && mode === 'ref') toggleSelect(item.n); else toggleFlip(); } // while choosing Names a tap on the card chooses it; otherwise it flips
   card.addEventListener('click', activate);
   const selBtn = card.querySelector('.sel-check');
   if (selBtn) {
