@@ -55,7 +55,7 @@
   @media (prefers-reduced-motion: no-preference){ html{scroll-behavior:smooth;} }
   body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--ui); position:relative; min-height:100vh; }
 
-  header.hero{ position:relative; z-index:1; max-width:640px; margin:0 auto; padding:52px var(--mx) 20px; text-align:center; }
+  header.hero{ position:relative; z-index:1; max-width:640px; margin:0 auto; padding:72px var(--mx) 20px; text-align:center; }
   .rosette{ color:var(--accent-ink); display:block; margin:0 auto 16px; opacity:0; animation:fadeIn .9s ease-out .1s forwards; }
   @media (prefers-reduced-motion: reduce){ .rosette{opacity:1; animation:none;} }
   @keyframes fadeIn{ from{opacity:0; transform:scale(.85) rotate(-8deg);} to{opacity:1; transform:scale(1) rotate(0);} }
@@ -4718,8 +4718,8 @@ const Mat = (() => {
       const t = i / 16, p = bz(P, t); let d = dv(P, t); if (Math.hypot(d[0], d[1]) < 1e-6) d = dv(P, t < .5 ? t + .01 : t - .01);
       const m = Math.hypot(d[0], d[1]); L.push([p[0] + d[1] / m * gap, p[1] - d[0] / m * gap]);
     } });
-    const q = L[L.length - 1], d = dv(S[1], 1), m = Math.hypot(d[0], d[1]), sx = d[0] / m, sy = d[1] / m, k = (cx - q[0]) / sx;
-    L.push([cx, q[1] + k * sy]);
+    const d = dv(S[1], 1), m = Math.hypot(d[0], d[1]), a0 = Math.atan2(-d[0] / m, d[1] / m), a1 = -Math.PI / 2;   // round the tip: a quarter-ish arc of radius GAP around it keeps the gap even at the apex
+    for (let i = 1; i <= 10; i++) { const a = a0 + (a1 - a0) * i / 10; L.push([cx + gap * Math.cos(a), ay + gap * Math.sin(a)]); }
     const R = L.slice(0, -1).reverse().map(p => [w - p[0], p[1]]);
     return 'M' + L.concat(R).map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' L');
   }
