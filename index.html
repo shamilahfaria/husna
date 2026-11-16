@@ -329,6 +329,7 @@
   .av[data-i="1"]{ background:var(--tint-1); } .av[data-i="2"]{ background:var(--tint-2); } .av[data-i="3"]{ background:var(--tint-3); }
   .av[data-i="4"]{ background:var(--tint-4); } .av[data-i="5"]{ background:var(--tint-5); } .av[data-i="6"]{ background:var(--tint-6); }
   .people{ padding-top:14px; }
+  .pr-chips + *{ margin-top:26px; }   /* content starts below the border band (36px under the chips) */
   .people-h{ margin:0 0 8px; font:400 1.06rem/1.2 var(--disp); }
   .roll{ display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
   .roll::-webkit-scrollbar{ display:none; }
@@ -378,7 +379,7 @@
   .tabbar .tab.active::after{ content:""; position:absolute; left:50%; bottom:0; width:34px; height:3px; margin-left:-17px; background:var(--accent); }
   .toast{ bottom:calc(88px + var(--safe-b)); }
   /* ---------- My Duas and History ---------- */
-  .my-wrap{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:18px var(--mx) 30px; }
+  .my-wrap{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:42px var(--mx) 30px; }
   .my-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; position:relative; }
   .my-head h1{ font-family:var(--disp); font-weight:600; font-size:1.9rem; margin:0; color:var(--ink); }
   .my-head p{ margin:2px 0 0; font-size:.8rem; color:var(--ink-dim); line-height:1.45; }
@@ -506,6 +507,7 @@
   .mat{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
   .mat > *{ position:absolute; }
   .mat > svg:first-child{ width:0; height:0; }
+  .mat.mat-cap{ z-index:4; pointer-events:auto; }
   .m-ground, .m-field, .m-fl, .m-sp, .m-band, .m-tx{ inset:0; }
   .m-ground{ background:var(--spfill); }
   .m-band{ background:var(--bandfill); }
@@ -4682,6 +4684,7 @@ function route(){
 const Mat = (() => {
   const NS = 'http://www.w3.org/2000/svg';
   let seq = 0, sig = '';
+  const CAP = 36;
   function archPath(w, ys, ay, FL, open, H){
     const cx = w / 2, FR = w - FL;
     const L = `M${FL},${open ? H : ys}${open ? ` L${FL},${ys}` : ''} C${FL},${ys - 62} ${cx - 92},${ay + 92} ${cx - 26},${ay + 44} C${cx - 14},${ay + 30} ${cx - 5},${ay + 12} ${cx},${ay}`;
@@ -4746,11 +4749,14 @@ const Mat = (() => {
       <path class="arch" d="${archO}"/>
     </svg>`;
   }
+  /* Two copies of the mat: the full one behind everything, and a top cap above the scrolling content. The cap covers the border band
+     (everything down to the inner guard), so scrolled text slides under the frame and never over its motifs. */
   function into(root, T, A){
-    const old = root.querySelector(':scope > .mat'); if (old) old.remove();
-    const m = document.createElement('div'); m.className = 'mat'; m.setAttribute('aria-hidden', 'true');
-    m.innerHTML = html(root.clientWidth || innerWidth, innerHeight + 300, T, A);
-    root.insertBefore(m, root.firstChild);
+    root.querySelectorAll(':scope > .mat').forEach(o => o.remove());
+    const w = root.clientWidth || innerWidth, mk = (cls, h, css) => { const m = document.createElement('div'); m.className = 'mat ' + cls; m.setAttribute('aria-hidden', 'true'); if (css) m.style.cssText = css; m.innerHTML = html(w, h, T, A); return m; };
+    const band = T + CAP;
+    root.insertBefore(mk('mat-cap', band, 'inset:0 0 auto 0;height:' + band + 'px'), root.firstChild);
+    root.insertBefore(mk('', innerHeight + 300), root.firstChild);
   }
   function chromeBottom(){
     const ab = document.getElementById('appbar'); let t = ab ? ab.getBoundingClientRect().bottom : 0;
