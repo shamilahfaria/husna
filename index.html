@@ -505,7 +505,7 @@
   .m-sp{ background:var(--sp); -webkit-mask:url(tiles/sp-sdots.svg) 0 0/26px 26px repeat; mask:url(tiles/sp-sdots.svg) 0 0/26px 26px repeat; }
   .m-bord{ background:var(--bord); -webkit-mask:url(tiles/bord-rosette.svg) 0 0/auto 100% repeat; mask:url(tiles/bord-rosette.svg) 0 0/auto 100% repeat; }
   .m-tx{ background:repeating-linear-gradient(0deg,var(--pile) 0 1px,transparent 1px 3px), repeating-linear-gradient(90deg,var(--pile) 0 1px,transparent 1px 5px), linear-gradient(112deg,transparent 30%,var(--sheen) 50%,transparent 70%); }
-  .mat svg.m-lines{ inset:0; width:100%; height:100%; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .mat svg.m-lines{ left:0; top:0; max-width:none; fill:none; stroke-linecap:round; stroke-linejoin:round; }
   .m-lines .guards path{ stroke:var(--guard); stroke-width:1.1; }
   .m-lines .guards path.thin{ stroke-width:.7; }
   .m-lines .corners{ stroke:var(--bord); stroke-width:1; }
@@ -4670,29 +4670,43 @@ const Mat = (() => {
     const R = ` C${cx + 5},${ay + 12} ${cx + 14},${ay + 30} ${cx + 26},${ay + 44} C${cx + 92},${ay + 92} ${FR},${ys - 62} ${FR},${ys}`;
     return L + R + (open ? ` L${FR},${H}` : '');
   }
+  /* Border geometry. Every line sits on a 4px rhythm: outer line, 4px, motif strip (20px), 4px, inner line, then the thin line that the arch outline lies on.
+     Each strip holds a whole number of rosettes (n) and ends on a rosette, spaced evenly and centred, so no glyph is ever cut and the corners stay clean. */
+  const RT = {w:30, lead:6.3, mid:8.7, gap:1.7, tail:12.6};   // rosette tile: width, offset of the first rosette's left cut, rosette centre, gap to the corner piece, strip length = n*w - tail
+  function strip(avail){
+    let best = null;
+    for (let n = 1; n < 80; n++) { const L = avail - 2 * RT.gap, sx = L / (n * RT.w - RT.tail), d = Math.abs(sx - 1); if (L > 0 && (!best || d < best.d)) best = {n, sx, d}; }
+    return best || {n:1, sx:1, d:0};
+  }
   function html(w, H, T, A){
-    const id = 'mat' + (++seq), g0 = 4, bx = 8, bh = 20, i1 = 31.5, i2 = 34.5, FL = 36;
-    const ty = T + 4, by = T + 8, fy = T + 36;
+    const id = 'mat' + (++seq), g0 = 4, bx = 8, bh = 20, i1 = 32, i2 = 35, FL = i2;
+    const ty = T + 4, by = T + 8;
+    const fy = T + i2;
     const ay = A ? A + 22 : T + 58, ys = ay + 186;
     const archC = archPath(w, ys, ay, FL, false, H) + ` L${w - FL},${H} L${FL},${H} Z`;
     const archO = archPath(w, ys, ay, FL, true, H), stitch = archPath(w, ys + 2, ay + 7, FL + 4.5, true, H);
-    const len = H - (by + bh);
-    const side = (cls, css) => `<div class="m-bord ${cls}" style="${css}"></div>`;
+    const edge = bx + bh;                                    // where a strip meets the corner piece
+    const top = strip(w - 2 * edge), sy = top.sx;           // sides use the same stretch so every repeat is the same size
+    const sideN = Math.max(1, Math.floor((H - edge - 2 * RT.gap + RT.tail * sy) / (RT.w * sy)));
+    const mk = (cls, n, sx, css) => { const len = n * RT.w * sx - RT.tail * sx, p = RT.w * sx;
+      return `<div class="m-bord ${cls}" data-n="${n}" data-p="${p.toFixed(3)}" style="${css};width:${len.toFixed(3)}px;height:${bh}px;-webkit-mask-size:${p.toFixed(3)}px 100%;mask-size:${p.toFixed(3)}px 100%;-webkit-mask-position:${(-RT.lead * sx).toFixed(3)}px 0;mask-position:${(-RT.lead * sx).toFixed(3)}px 0"></div>`; };
+    const tl = top.n * RT.w * sy - RT.tail * sy, sl = sideN * RT.w * sy - RT.tail * sy;
+    const tx = (w - tl) / 2;
     return `<svg width="0" height="0"><defs>
       <clipPath id="${id}f" clipPathUnits="userSpaceOnUse"><path d="${archC}"/></clipPath>
       <clipPath id="${id}s" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M${FL},${fy} H${w - FL} V${H} H${FL} Z ${archC}"/></clipPath>
     </defs></svg>
     <div class="m-ground"></div>
-    <div class="m-band" style="clip-path:path(evenodd,'M${g0 + 1},${ty + 1} H${w - g0 - 1} V${H} H${g0 + 1} Z M${i1},${T + 31.5} H${w - i1} V${H} H${i1} Z')"></div>
+    <div class="m-band" style="clip-path:path(evenodd,'M${g0 + 1},${ty + 1} H${w - g0 - 1} V${H} H${g0 + 1} Z M${i1},${T + i1} H${w - i1} V${H} H${i1} Z')"></div>
     <div class="m-field" style="clip-path:url(#${id}f)"></div>
     <div class="m-fl" style="clip-path:url(#${id}f)"></div>
-    ${side('b-top', `left:${bx + bh}px;top:${by}px;width:${w - 2 * (bx + bh)}px;height:${bh}px;transform:scaleY(-1)`)}
-    ${side('b-left', `left:${bx + bh}px;top:${by + bh}px;width:${len}px;height:${bh}px;transform:rotate(90deg);transform-origin:0 0`)}
-    ${side('b-right', `left:${w - bx - bh}px;top:${H}px;width:${len}px;height:${bh}px;transform:rotate(-90deg);transform-origin:0 0`)}
+    ${mk('b-top', top.n, sy, `left:${tx.toFixed(3)}px;top:${by}px;transform:scaleY(-1)`)}
+    ${mk('b-left', sideN, sy, `left:${edge}px;top:${by + bh + RT.gap}px;transform:rotate(90deg);transform-origin:0 0`)}
+    ${mk('b-right', sideN, sy, `left:${w - bx}px;top:${by + bh + RT.gap}px;transform:rotate(90deg);transform-origin:0 0`)}
     <div class="m-sp" style="clip-path:url(#${id}s)"></div>
     <div class="m-tx"></div>
     <svg class="m-lines" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}">
-      <g class="guards"><path d="M${g0},${H} V${ty} H${w - g0} V${H}"/><path d="M${i1},${H} V${T + 31.5} H${w - i1} V${H}"/><path class="thin" d="M${i2},${H} V${T + 34.5} H${w - i2} V${H}"/></g>
+      <g class="guards"><path d="M${g0},${H} V${ty} H${w - g0} V${H}"/><path d="M${i1},${H} V${T + i1} H${w - i1} V${H}"/><path class="thin" d="M${i2},${H} V${T + i2} H${w - i2} V${H}"/></g>
       <g class="corners"><rect x="${bx}" y="${by}" width="${bh}" height="${bh}"/><rect x="${w - bx - bh}" y="${by}" width="${bh}" height="${bh}"/>
         <path d="M${bx},${by} L${bx + bh},${by + bh} M${bx + bh},${by} L${bx},${by + bh} M${w - bx - bh},${by} L${w - bx},${by + bh} M${w - bx},${by} L${w - bx - bh},${by + bh}"/>
         <circle cx="${bx + bh / 2}" cy="${by + bh / 2}" r="3"/><circle cx="${w - bx - bh / 2}" cy="${by + bh / 2}" r="3"/></g>
