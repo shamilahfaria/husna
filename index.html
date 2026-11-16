@@ -1261,7 +1261,8 @@ function mergeDua(ex, inc){
   if (ex.status !== 'retired') delete ex.retiredAt;
 }
 function ensureV2(d){
-  const f = deriveV2(d);
+  const f = deriveV2(d), gone = new Set(Array.isArray(d.gone) ? d.gone : []);
+  if (gone.size) f.occ = f.occ.filter(o => !gone.has(o.id));   // an unlogged occurrence must not be re-derived from a leftover v1 log
   let changed = d.schema !== 2;
   ['duas', 'occ', 'notes'].forEach(k => { if (!Array.isArray(d[k])) { d[k] = []; changed = true; } });
   if (unionByIdInto(d.duas, f.duas, (ex, inc) => { const n = ex.versions.length, st = ex.status; mergeDua(ex, {versions:inc.versions, status:inc.status === 'keeper' ? 'keeper' : ex.status, updated:''}); if (ex.versions.length !== n || ex.status !== st) changed = true; })) changed = true;
@@ -3771,7 +3772,7 @@ function peopleIndex(now){
 }
 
 /* ---------- Backup & restore sheet ---------- */
-function backupJson(){ return JSON.stringify({app:'asma-al-husna-dua-log', version:1, schema:2, exported:new Date().toISOString(), logs:data.logs, favDuas:data.favDuas, duas:data.duas, occ:data.occ, notes:data.notes, themes:getThemes()}, null, 2); }
+function backupJson(){ return JSON.stringify({app:'asma-al-husna-dua-log', version:1, schema:2, exported:new Date().toISOString(), logs:data.logs, favDuas:data.favDuas, duas:data.duas, occ:data.occ, notes:data.notes, gone:data.gone || [], themes:getThemes()}, null, 2); }
 function downloadText(name, text, type){
   const blob = new Blob([text], {type:type || 'application/json'});
   const a = el('a', {href:URL.createObjectURL(blob), download:name});
@@ -4606,7 +4607,8 @@ function importText(text){
       logs:(Array.isArray(d) ? d : d.logs || []).filter(validLog).map(cleanLog),
       favDuas:arr('favDuas').filter(f => f && typeof f.text === 'string' && f.text.trim() && (f.n == null || BY_N[f.n]))
         .map(f => ({id:String(f.id || uid()), n:f.n ? Number(f.n) : null, text:f.text.trim().slice(0, 2000), saved:String(f.saved || '')})),
-      duas:arr('duas').map(cleanDua).filter(Boolean), occ:arr('occ').map(cleanOcc).filter(Boolean), notes:arr('notes').map(cleanNote).filter(Boolean)
+      duas:arr('duas').map(cleanDua).filter(Boolean), occ:arr('occ').map(cleanOcc).filter(Boolean), notes:arr('notes').map(cleanNote).filter(Boolean),
+      gone:arr('gone').filter(g => typeof g === 'string').slice(-300)
     };
     if (Array.isArray(d.themes)) themesIn = cleanThemes(d.themes);
   } catch (e) { alert('That file isn\u2019t a valid Dua Log backup.'); return; }
