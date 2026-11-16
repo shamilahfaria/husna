@@ -1840,7 +1840,10 @@ const DOMAINS = [
 ];
 const ASK_DOMAINS = new Set(['patience', 'anger', 'emotion', 'forgiveness', 'habit']);   // what is being asked beats who or where it is about
 /* The domain of the request: judged on the head of the phrase (before "so that / because"), and an ask like patience beats the subject it is about. */
+const WORK_WORD = /\b(?:work|works|working|workday|workload|workplace|job|boss|office|colleagues?|co-?workers?|deadlines?|career|business|shifts?)\b/;
+const STRAIN_WORD = /\b(?:stress(?:ed|ful)?|worr(?:y|ies|ied|ying)|anxi(?:ous|ety)|pressure|burn(?:ed|t)?[ -]?out|overwhelm(?:ed|ing)?|tense|exhaust(?:ed|ing|ion)|swamped|drained|overwork(?:ed)?|too much)\b/;
 function pickDomain(lo){
+  if (WORK_WORD.test(lo) && STRAIN_WORD.test(lo)) return DOMAINS.find(d => d.k === 'emotion');   // strain at work is a worry to hand over, not a job to find
   const head = lo.split(/\s+(?:so that|so (?:i|we|he|she|they)|in order to|because|since)\b/)[0];
   for (const text of head === lo ? [lo] : [head, lo]) {
     const bare = text.replace(/\b(?:to|from) (?:work|school|college|university|class)\b/g, '');   // a destination is not the ask
@@ -4136,7 +4139,7 @@ const PAIR = {
   home:['Ar-Razzaq','Al-Wahhab','Al-Karim'], virtue:['Ar-Rahim','Al-Latif']
 };
 const PAIR_SUB = [
-  ['emotion', /\b(?:work|job|boss|office|workplace|colleagues?|co-?workers?|deadlines?|career|business|shifts?)\b/, ['Al-Wakil', 'As-Salam', 'Al-Latif']],
+  ['emotion', WORK_WORD, ['Al-Wakil', 'As-Salam', 'Al-Latif']],
   ['protection', /travel|journey|trip|flight|driv/, ['Al-Hafiz', 'As-Salam']],
   ['home', /\bcar\b/, ['Al-Hafiz', 'Ar-Razzaq']],
   ['children', /protect|safe|keep/, ['Al-Hafiz', 'Al-Waliyy', 'Ar-Rahim']],
