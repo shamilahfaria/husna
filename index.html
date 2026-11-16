@@ -4758,8 +4758,11 @@ const Mat = (() => {
     return Math.round(t);
   }
   function peopleBottom(){
-    if (typeof currentView === 'undefined' || currentView !== 'pray') return 0;
-    const p = document.querySelector('.people'); return p ? Math.round(p.getBoundingClientRect().bottom + scrollY) : 0;
+    if (typeof currentView === 'undefined') return 0;
+    let e = null;
+    if (currentView === 'pray') e = document.querySelector('.people');
+    else if (currentView === 'duas' || currentView === 'reflect') { const v = document.getElementById('view-' + currentView); e = v && (v.querySelector('.my-actions') || v.querySelector('.my-head')); }   // the arch starts below the page heading so nothing crosses its tip
+    return e ? Math.round(e.getBoundingClientRect().bottom + scrollY) : 0;
   }
   function sync(){
     const T = chromeBottom(), A = peopleBottom(), s = [innerWidth, innerHeight, T, A].join();
