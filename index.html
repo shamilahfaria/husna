@@ -95,6 +95,9 @@
   .sr-status{ font-size:.82rem; color:var(--ink-dim); margin:4px 0 20px; line-height:1.9; }
   .sr-try-btn{ font:inherit; font-size:.78rem; color:var(--gold); background:color-mix(in srgb,var(--gold) 8%,transparent); border:1px solid var(--hairline); border-radius:var(--radius); padding:3px 11px; margin:0 4px 0 0; cursor:pointer; }
   .chips{ max-width:900px; margin:0 auto; display:flex; gap:8px; overflow-x:auto; scrollbar-width:thin; padding-bottom:2px; }
+  .chips.fade-r{ -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent); }
+  .chips.fade-l{ -webkit-mask-image:linear-gradient(to left,#000 calc(100% - 36px),transparent); mask-image:linear-gradient(to left,#000 calc(100% - 36px),transparent); }
+  .chips.fade-l.fade-r{ -webkit-mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent); mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent); }
   .chip{ flex:0 0 auto; display:flex; align-items:center; gap:7px; font-size:.78rem; font-weight:500; color:var(--ink-dim); background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius); padding:7px 13px; min-height:44px; cursor:pointer; white-space:nowrap; transition:background .2s, color .2s, border-color .2s; }
   .chip:hover{ color:var(--ink); }
   .chip:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
@@ -1004,6 +1007,10 @@ const CAT_BY_ID = {}; CATEGORIES.forEach(c => { CAT_BY_ID[c.id] = c; });
 
 const main = document.getElementById('main');
 const chipsEl = document.getElementById('chips');
+/* a fade at the edge that has more chips behind it, so a cut chip always reads as "keep scrolling" */
+function chipFade(){ const e = chipsEl, max = e.scrollWidth - e.clientWidth; e.classList.toggle('fade-l', e.scrollLeft > 4); e.classList.toggle('fade-r', max > 4 && e.scrollLeft < max - 4); }
+chipsEl.addEventListener('scroll', chipFade, {passive:true});
+addEventListener('resize', chipFade);
 const noResults = document.getElementById('noResults');
 
 /* ---------- small DOM helper: user text always goes through textContent / value ---------- */
@@ -2374,6 +2381,7 @@ function makeChip(id, label, color, isFav){
   return chip;
 }
 CATEGORIES.forEach(cat => chipsEl.appendChild(makeChip(cat.id, cat.label, cat.color, false)));
+chipFade(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(chipFade);
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -2433,6 +2441,7 @@ function renderFavorites(){
   const sec = buildSection('favorites', 'Favorites', 'var(--tint-2)', top.map(n => BY_N[n]), {fav:true, uses:counts, countLabel:'your most-called Names'});
   main.insertBefore(sec, main.firstChild);
   chipsEl.insertBefore(makeChip('favorites', 'Favorites', 'var(--tint-2)', true), chipsEl.firstChild);
+  chipFade();
   applySearch();
 }
 
