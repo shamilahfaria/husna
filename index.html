@@ -309,19 +309,29 @@
   .sug-tag.sunnah{ color:#9fd3a6; border-color:rgba(159,211,166,.4); background:rgba(159,211,166,.08); }
   .sug-tag.suggestion{ color:var(--gold); border-color:var(--gold-soft); background:color-mix(in srgb,var(--gold) 8%,transparent); }
   .sug-chips{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:6px; }
-  .sug-pchips{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:6px; }
   .sug-chip{ font:inherit; font-size:.82rem; font-weight:500; color:var(--ink); background:var(--card); border:1px solid var(--hairline); border-radius:999px; padding:8px 14px; min-height:38px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .sug-chip i{ font-style:normal; color:var(--gold); font-size:.72rem; }
   .sug-chip:active{ border-color:var(--gold); background:var(--card-hover); }
-  .sug-people{ padding:0 14px 6px; }
-  .sug-people .sug-row{ margin-top:2px; }
-  .sug-person{ min-height:44px; border-radius:16px; text-align:left; line-height:1.3; }
-  .sug-person b{ font-weight:600; }
-  .sug-person span{ color:var(--ink-dim); }
-  .sug-person[aria-pressed="true"]{ border-color:var(--gold); background:color-mix(in srgb,var(--gold) 12%,transparent); }
-  .sug-person:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
   .ppl-hint{ margin:6px 0 0; }
   .ppl-hint:empty{ display:none; }
+  /* ---------- people: soft filled tiles, one palette with the page ---------- */
+  .av{ display:inline-grid; place-items:center; width:var(--av,52px); height:var(--av,52px); flex:none; position:relative; border-radius:9px; font:600 .95rem/1 var(--ui); color:var(--tint-ink); background:var(--tint-1); }
+  .av.sm{ --av:34px; font-size:.72rem; }
+  .av[data-i="1"]{ background:var(--tint-1); } .av[data-i="2"]{ background:var(--tint-2); } .av[data-i="3"]{ background:var(--tint-3); }
+  .av[data-i="4"]{ background:var(--tint-4); } .av[data-i="5"]{ background:var(--tint-5); } .av[data-i="6"]{ background:var(--tint-6); }
+  .people{ padding-top:14px; }
+  .people-h{ margin:0 0 8px; font:400 1.06rem/1.2 var(--disp); }
+  .roll{ display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
+  .roll::-webkit-scrollbar{ display:none; }
+  .pcell{ position:relative; flex:none; width:72px; min-height:44px; padding:4px 0 2px; display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:0; color:var(--ink); font:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .pcell .bd{ position:absolute; top:0; right:12px; min-width:18px; height:18px; padding:0 4px; display:grid; place-items:center; border-radius:3px; background:var(--badge); color:var(--badge-ink); font-size:.72rem; font-weight:600; line-height:1; font-variant-numeric:tabular-nums; }
+  .pcell .nm{ max-width:72px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); font-size:.8rem; }
+  .pcell[aria-pressed="true"] .av{ box-shadow:0 0 0 2px var(--ground), 0 0 0 3.5px var(--accent); }
+  .pcell[aria-pressed="true"] .nm{ color:var(--ink); font-weight:600; }
+  .pcell:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .ppl-tx{ display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 10px; min-width:0; flex:1; }
+  .ppl-hint-hd{ display:flex; align-items:center; gap:10px; }
+  .ppl-hint-hd .ppl-hint-t{ margin:0; }
   .ppl-hint-in{ margin:8px 0 0; padding:9px 10px 6px; border-left:2px solid var(--gold-soft); background:color-mix(in srgb,var(--gold) 5%,transparent); border-radius:0 10px 10px 0; text-align:left; }
   .ppl-hint-t{ margin:0 0 4px; font-size:.78rem; color:var(--ink-dim); line-height:1.45; }
   .ppl-hint-row{ display:flex; align-items:center; gap:10px; justify-content:space-between; min-height:44px; }
@@ -331,9 +341,9 @@
   .ppl-hint-more{ margin:0 0 4px; font-size:.72rem; color:var(--ink-faint); }
   .ppl-sub{ margin:0 0 6px; font-size:.78rem; color:var(--ink-dim); }
   .ppl-card{ padding:0; }
-  .ppl-sum{ display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 10px; padding:12px 14px; min-height:44px; box-sizing:border-box; cursor:pointer; list-style:none; align-content:center; }
+  .ppl-sum{ display:flex; align-items:center; gap:12px; padding:10px 14px; min-height:54px; box-sizing:border-box; cursor:pointer; list-style:none; }
   .ppl-sum::-webkit-details-marker{ display:none; }
-  .ppl-sum::after{ content:'\203A'; margin-left:auto; color:var(--ink-dim); font-size:1.3rem; line-height:1; transition:transform .2s; }
+  .ppl-sum::after{ content:'\203A'; margin-left:auto; flex:none; color:var(--ink-dim); font-size:1.3rem; line-height:1; transition:transform .2s; }
   .ppl-card[open] .ppl-sum::after{ transform:rotate(90deg); }
   .ppl-sum b{ font-weight:600; color:var(--ink); }
   .ppl-sum:focus-visible{ outline:2px solid var(--gold); outline-offset:-2px; border-radius:12px; }
@@ -413,13 +423,19 @@
   .pr-chip{ flex:none; position:relative; font:500 .95rem var(--ui); color:var(--ink-dim); background:none; border:0; border-radius:0; padding:12px 8px 13px; min-height:44px; cursor:pointer; }
   .pr-chip.on{ color:var(--ink); font-weight:600; }
   .pr-chip.on::after{ content:""; position:absolute; left:6px; right:6px; bottom:-1px; height:3px; background:var(--accent); }
-  .pr-hero{ margin-top:14px; padding:16px; border-radius:18px; border:1px solid var(--gold-soft); background:var(--card); }
-  .pr-kicker{ font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); }
-  .pr-hero h2{ margin:4px 0 2px; font-family:var(--disp); font-weight:600; font-size:1.4rem; }
-  .pr-hero p{ margin:0 0 12px; color:var(--ink-dim); font-size:.8rem; line-height:1.45; }
-  .pr-hero p.pr-note{ color:#9fd3a6; font-size:.74rem; margin:-4px 0 12px; }
+  .pr-hero{ margin-top:20px; padding:44px 20px 22px; background:var(--madder); color:var(--on-madder);
+    clip-path:polygon(0 26px,18px 26px,18px 20px,36px 20px,36px 14px,54px 14px,54px 8px,72px 8px,72px 0,calc(100% - 72px) 0,calc(100% - 72px) 8px,calc(100% - 54px) 8px,calc(100% - 54px) 14px,calc(100% - 36px) 14px,calc(100% - 36px) 20px,calc(100% - 18px) 20px,calc(100% - 18px) 26px,100% 26px,100% 100%,0 100%); }
+  .people + .pr-hero{ margin-top:104px; }
+  .pr-chips + .pr-hero{ margin-top:120px; }
+  .pr-kicker{ font-size:.72rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--on-madder); }
+  .pr-hero h2{ margin:4px 0 6px; font:400 1.9rem/1.1 var(--disp); }
+  .pr-hero p{ margin:0 0 14px; color:var(--on-madder); font-size:.92rem; line-height:1.45; }
+  .pr-hero p.pr-note{ color:var(--on-madder); font-size:.82rem; margin:-4px 0 12px; }
+  .pr-hero .btn{ background:transparent; color:var(--on-madder); border-color:color-mix(in srgb,var(--on-madder) 60%,transparent); border-radius:3px; }
+  .pr-hero .btn.gold{ background:var(--on-madder); color:var(--btn-ink); border-color:var(--on-madder); }
   .pr-hero-actions{ display:flex; gap:8px; }
-  .pr-hero-actions .btn{ flex:1; min-height:46px; }
+  .pr-hero-actions .btn{ flex:1 1 0; min-width:0; min-height:46px; padding-left:8px; padding-right:8px; }
+  @media (max-width:390px){ .pr-hero-actions .btn{ font-size:.78rem; } }
   .pr-sec{ display:flex; align-items:baseline; gap:8px; margin:22px 0 8px; }
   .pr-sec h3{ margin:0; font-family:var(--disp); font-weight:600; font-size:1.12rem; color:var(--gold); }
   .pr-sec small{ color:var(--ink-faint); font-size:.72rem; }
@@ -3476,12 +3492,12 @@ function learnedFor(w){
   return {seen:seen, names:top(nm, 4), themes:top(th, 3), repeat:repeat};
 }
 /* "For your sister: a good job · guidance": one tap adds her live duas for that person to this prayer (prayAdd never doubles up) */
-const PEOPLE_CHIPS = 4;
+const PEOPLE_CHIPS = 6;
 function addPersonToPrayer(p){
   const ids = p.live.map(i => i.d.id), fresh = ids.filter(id => !prayHas(id));
   ids.forEach(prayAdd); renderPray();
   toast(fresh.length ? 'Added ' + (fresh.length === 1 ? 'a dua' : fresh.length + ' duas') + ' for ' + p.label : 'Already in this ' + PRAYER_NAME[PRAY.prayer]);
-  const b = document.querySelector('.sug-person[data-person="' + p.key + '"]'); if (b) b.focus({preventScroll:true});
+  const b = document.querySelector('.pcell[data-person="' + p.key + '"]'); if (b) b.focus({preventScroll:true});
 }
 /* while she types: "You've also asked for your sister: a good job, guidance", each with a one-tap add. Debounced, own container, never touches the text, saving or storage. */
 function showPeopleHint(box, text, o){
@@ -3501,7 +3517,7 @@ function showPeopleHint(box, text, o){
     box.dataset.sig = sig; box.textContent = '';
     found.forEach(f => {
       const th = f.e.themes.slice(0, 3).join(', ');
-      const blk = el('div', {class:'ppl-hint-in'}, [el('p', {class:'ppl-hint-t', text:'You\u2019ve also asked for ' + f.e.label + (th ? ': ' + th : '')})]);
+      const blk = el('div', {class:'ppl-hint-in'}, [el('div', {class:'ppl-hint-hd'}, [avatar(personMarks([f.e])[0], personIndexOf(f.e), 'sm'), el('p', {class:'ppl-hint-t', text:'You\u2019ve also asked for ' + f.e.label + (th ? ': ' + th : '')})])]);
       f.rows.slice(0, 3).forEach(i => {
         const t = i.d.memo || curText(i.d), done = prayHas(i.d.id);
         blk.appendChild(el('div', {class:'ppl-hint-row'}, [
@@ -3515,22 +3531,34 @@ function showPeopleHint(box, text, o){
     });
   } catch (e) { box.textContent = ''; }
 }
+function personIndexOf(e){ try { return Math.max(0, peopleIndex().filter(p => p.live.length).slice(0, PEOPLE_CHIPS).findIndex(p => p.key === e.key)); } catch (x) { return 0; } }
 function peopleHintBox(){ return el('div', {class:'ppl-hint', role:'status', 'aria-live':'polite'}); }
 function bindPeopleHint(input, box, o){
   let t; const run = () => showPeopleHint(box, input.value, o);
   input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 250); });
   run();
 }
+/* a person's tile: two letters (Si, Mo, Sa; "Sarah's mother" is SM), colour by position in the list. Derived, never stored. */
+function personShort(p){ const w = String(p.label).replace(/^your\s+/i, ''); return w.charAt(0).toUpperCase() + w.slice(1); }
+function personMarks(list){
+  const base = list.map(p => {
+    const w = personShort(p).replace(/[\u2019']s\b/g, '').split(/[\s-]+/).filter(Boolean);
+    return w.length > 1 ? (w[0][0] + w[1][0]).toUpperCase() : (w[0] || '?').slice(0, 2).replace(/^./, c => c.toUpperCase());
+  });
+  return base.map((m, i) => base.indexOf(m) === i && base.lastIndexOf(m) === i ? m : personShort(list[i]).replace(/[^A-Za-z]/g, '').slice(0, 3));
+}
+function avatar(mark, i, cls){ return el('span', {class:'av' + (cls ? ' ' + cls : ''), 'data-i':String(i % 6 + 1), 'aria-hidden':'true', text:mark}); }
 function peopleChips(){
   let list; try { list = peopleIndex().filter(p => p.live.length).slice(0, PEOPLE_CHIPS); } catch (e) { return null; }
   if (!list.length) return null;
-  return el('div', {class:'sug-people', role:'group', 'aria-label':'People you pray for'}, [
-    el('div', {class:'sug-row'}, [sugTag('Your people'), el('span', {class:'sug-themes', text:'One tap adds what you already ask for them'})]),
-    el('div', {class:'sug-pchips'}, list.map(p => {
+  const marks = personMarks(list);
+  return el('div', {class:'people', role:'group', 'aria-label':'People you pray for'}, [
+    el('h2', {class:'people-h', text:'Praying for'}),
+    el('div', {class:'roll'}, list.map((p, k) => {
       const all = p.live.every(i => prayHas(i.d.id)), th = p.themes.slice(0, 2).join(' \u00B7 ');
-      return el('button', {type:'button', class:'sug-chip sug-person', 'data-person':p.key, 'aria-pressed':all ? 'true' : 'false',
+      return el('button', {type:'button', class:'pcell sug-person', 'data-person':p.key, 'aria-pressed':all ? 'true' : 'false',
         'aria-label':(all ? 'Already added: ' : 'Add to this prayer: ') + p.live.length + (p.live.length === 1 ? ' dua' : ' duas') + ' for ' + p.label + (th ? ', ' + th : ''), onclick:() => addPersonToPrayer(p)},
-        [el('b', {text:(all ? '\u2713 ' : '') + 'For ' + p.label}), th ? el('span', {text:': ' + th}) : null, p.live.length > 1 ? el('i', {text:' \u00B7 ' + p.live.length + ' duas'}) : null]);
+        [avatar(marks[k], k), el('span', {class:'bd', 'aria-hidden':'true', text:String(p.live.length)}), el('span', {class:'nm', text:personShort(p)})]);
     }))
   ]);
 }
@@ -3545,7 +3573,7 @@ function buildSuggested(prayerKey){
     el('span', {class:'sug-title'}, ['Suggested for now', el('small', {text:' \u00B7 ' + S.label})]),
     el('span', {class:'sug-chev', 'aria-hidden':'true', text:'\u203A'})
   ]);
-  const box = el('section', {class:'sug' + (open ? ' open' : ''), 'aria-label':'Suggested for now'}, [head, peopleChips(), body]);
+  const box = el('section', {class:'sug' + (open ? ' open' : ''), 'aria-label':'Suggested for now'}, [head, body]);
   head.addEventListener('click', () => { const o = body.hidden; body.hidden = !o; box.classList.toggle('open', o); head.setAttribute('aria-expanded', o ? 'true' : 'false'); lsSet('asmaDuaLog.ui.suggest', o ? '1' : '0'); });
 
   if (isNow) body.appendChild(el('p', {class:'sug-when', text:'About ' + fmtAustin(win.start) + ' \u2013 ' + fmtAustin(win.end) + ' Austin time (approximate). Tap a Name to add a dua with it.'}));
@@ -3959,6 +3987,7 @@ function renderPray(){
       el('button', {type:'button', class:'btn', id:'prLog', text:'I made these (' + n + ')', disabled:n === 0, onclick:() => finishPray(prayOn())})
     ])
   ]);
+  const ppl = peopleChips(); if (ppl) wrap.appendChild(ppl);
   wrap.appendChild(hero);
   if (PRAY.ids.length) {
     wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'This ' + PRAYER_NAME[p]}), el('small', {text:'tap to leave one out'})]));
@@ -4363,13 +4392,14 @@ function peopleSection(){
     el('h3', {class:'my-h', style:'margin-top:26px', text:'By person'}),
     el('p', {class:'ppl-sub', text:'What you have asked for each person, in one place.'})
   ]);
-  list.forEach(e => {
+  const marks = personMarks(list);
+  list.forEach((e, k) => {
     const bits = [e.duas.length + (e.duas.length === 1 ? ' dua' : ' duas'), spanText(e.first)];
     if (e.answered.length) bits.push(e.answered.length + ' answered');
     const det = el('details', {class:'my-card ppl-card', 'data-person':e.key}, [
-      el('summary', {class:'ppl-sum'}, [el('b', {text:e.label.charAt(0).toUpperCase() + e.label.slice(1)}), el('span', {class:'ppl-meta', text:bits.join(' \u00B7 ')})])
+      el('summary', {class:'ppl-sum'}, [avatar(marks[k], k, 'sm'), el('span', {class:'ppl-tx'}, [el('b', {text:personShort(e)}), el('span', {class:'ppl-meta', text:bits.join(' \u00B7 ')})])])
     ]);
-    if (e.rels.size) det.firstChild.appendChild(el('span', {class:'ppl-meta ppl-rel', text:'your ' + Array.from(e.rels).join(', your ')}));
+    if (e.rels.size) det.firstChild.lastChild.appendChild(el('span', {class:'ppl-meta ppl-rel', text:'your ' + Array.from(e.rels).join(', your ')}));
     if (REFL.people.has(e.key)) det.open = true;
     det.addEventListener('toggle', () => { if (det.open) REFL.people.add(e.key); else REFL.people.delete(e.key); });
     const body = el('div', {class:'ppl-body'});
