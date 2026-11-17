@@ -40,6 +40,19 @@ check("Sarah's husband is not my husband", !/\bmy husband\b/i.test(sarahH) && /S
 check("Hana stays in the dua", /Hana/.test(sarahH));
 check('patience with her is not my her', !/my her/.test(sarahH));
 
+const friendsHusband = w.composeDua(w.nameNum('Al-Wadud'), "my friends' husband is getting married, leads, has a big heart and patience with her").text;
+check("friends' husband is not rewritten as my husband", !/\bmy husband\b/i.test(friendsHusband));
+check("friends' husband memo does not say grant me has", !/grant me has\b/.test(friendsHusband) && !/bless me with has\b/.test(friendsHusband));
+check("friends' husband memo does not say my her", !/my her/.test(friendsHusband));
+
+const herList = w.composeDua(w.nameNum('As-Sabur'), 'her husband getting married, leads, has a big heart and patience with her').text;
+check('her husband list stays her husband', /her husband/.test(herList) && !/\bmy husband\b/i.test(herList));
+check('her husband list does not say grant me has', !/grant me has\b/.test(herList) && !/bless me with has\b/.test(herList));
+check('her husband list does not say my her', !/my her/.test(herList));
+
+const couple = w.composeDua(w.nameNum('As-Sabur'), 'Sarah and Aisha are getting married, leads, has a big heart and patience with her').text;
+check('both friends stay in a shared marriage', /Sarah/.test(couple) && /Aisha/.test(couple) && !/grant me Sarah/.test(couple));
+
 const want = w.composeFree('I want a righteous husband', 0).text;
 check('asking for a husband does not say my husband\'s marriage', !/my husband's marriage/.test(want));
 
@@ -71,7 +84,7 @@ const second = w.createDua({ n: 1, memo: 'leads for the week', text: 'grant me l
 check('the same dua is not added twice', again === false && second.id === made.id);
 
 if (fails.length) {
-  console.log('\n' + two + '\n' + hers + '\n' + sarahH + '\n' + want + '\n' + mom);
+  console.log('\n' + two + '\n' + hers + '\n' + sarahH + '\n' + friendsHusband + '\n' + herList + '\n' + couple + '\n' + want + '\n' + mom);
   console.error(fails.length + ' failed');
   process.exit(1);
 }

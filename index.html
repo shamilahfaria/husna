@@ -1963,6 +1963,7 @@ function nounRequest(np, seed, seen){
   const whole = np;   // who the memo is about is read from the words as typed, before an article is stripped ("The doctor is sick" is not a person called Doctor)
   np = np.replace(/^(a|an|some|more of|the)\s+/i, (m) => /^(more of)/i.test(m) ? m : '').trim() || np;
   const lo = np.toLowerCase();
+  if (/^(?:has|have|had|is|are|was|were|am)\b/.test(lo)) return '';   // "has a big heart" is a statement, not a thing to grant
   let person = personIn(lo, whole);
   if (person && /^my /.test(person) && /baby|child|family/.test(person) && !/\b(my|our|his|her)\s+(baby|child|children|family|kids?)\b/.test(lo)) person = null;
   const s = subj(person, lo);
@@ -1979,9 +1980,10 @@ function nounRequests(np, seed, seen){
   const items = np.split(/\s*(?:,|\band\b|&)\s*/).map(x => x.trim()).filter(Boolean);
   if (items.length > 1 && items.length <= 5) {
     const keys = items.map(i => { const d = pickDomain(i.toLowerCase()); return d ? d.k : null; });
-    if (new Set(keys.filter(Boolean)).size >= 2) return items.map((i, ix) => nounRequest(i, seed + ix, seen).split(/,\s+(?:and\s+)?(?=(?:grant|make|fill|bless|restore|put|keep|help|let|ease|forgive|open|bring|settle|replace|soften|guide|protect|provide|take|cure|heal|raise)\b)|\s+and\s+(?=(?:grant|make|fill|bless|restore|put|keep|help|let|ease|forgive|open|bring|settle|replace|soften|guide|protect|provide|take|cure|heal|raise)\b)/)[0]);
+    if (new Set(keys.filter(Boolean)).size >= 2) return items.map((i, ix) => nounRequest(i, seed + ix, seen).split(/,\s+(?:and\s+)?(?=(?:grant|make|fill|bless|restore|put|keep|help|let|ease|forgive|open|bring|settle|replace|soften|guide|protect|provide|take|cure|heal|raise)\b)|\s+and\s+(?=(?:grant|make|fill|bless|restore|put|keep|help|let|ease|forgive|open|bring|settle|replace|soften|guide|protect|provide|take|cure|heal|raise)\b)/)[0]).filter(Boolean);
   }
-  return [nounRequest(np, seed, seen)];
+  const one = nounRequest(np, seed, seen);
+  return one ? [one] : [];
 }
 const STATEMENT = /^(?!(?:a|an|some|more|any|someone|somebody|something|good|great|beautiful|best|please)\b)[a-z0-9'\u2019-]+(?: [a-z0-9'\u2019-]+){0,3} (?:is|are|was|were|am|has|have|had|isn't|aren't|wasn't|weren't|hasn't|doesn't|don't|didn't|can't|won't|keeps?|seems?|feels?|looks?)\b/;
 const STMT_VERB = /\b(is|are|was|were|has|have|had|ends?|starts?|keeps?|got|lost|won't|isn't|can't|doesn't|don't|did|does|gets?|goes|went|feels?|seems?|needs?|wants?|makes?|comes?|came|left|leaves?|passed|died|hurts?|broke|failed|started|ended)\b/i;
