@@ -83,6 +83,12 @@ w.sugAddDua({ tr: "Allahumma a'inni 'ala dhikrika wa shukrika wa husni 'ibadatik
 check('an older sunnah wording is reused instead of copied', w.prayAdd(oldSunnah.id) === false);
 const bothSick = w.composeFree('my friend Sarah and my friend Hana are both sick', 0).text;
 check('two sick friends are both named', /Sarah/.test(bothSick) && /Hana/.test(bothSick));
+const hubby = w.composeFree('hubby is sick', 0).text;
+check('hubby is sick is her husband', /husband/.test(hubby) && !/\bheal me\b/.test(hubby));
+const momSister = w.composeFree('my mom is sick and misses her sister', 0).text;
+check('mom stays the subject when her sister is only mentioned', /mother/.test(momSister) && !/her sister complete healing/.test(momSister));
+const struggling = w.composeFree('my mom is struggling', 0).text;
+check('a statement does not say ease this for my', !/for my\b/.test(struggling));
 const subjDua = w.createDua({ n: 1, memo: 'exam on friday', text: 'ease my exam', status: 'oneoff', how: 'typed' });
 subjDua.subject = 'Finals';
 w.saveData();
