@@ -428,8 +428,9 @@
   .pr-wrap[data-cards=line] .pr-t{ -webkit-line-clamp:2; }
   .pr-wrap[data-cards=band] .dr{ flex-direction:column; align-items:flex-start; gap:2px; }
   .pr-wrap[data-cards=band] .pr-t{ flex:none; width:100%; -webkit-line-clamp:unset; }
-  .pr-wrap[data-cards=band] .nmx{ flex-direction:row; align-items:baseline; gap:8px; max-width:100%; width:auto; }
+  .pr-wrap[data-cards=band] .nmx{ flex-direction:row; align-items:baseline; flex-wrap:wrap; gap:8px; max-width:none; width:100%; }
   .pr-wrap[data-cards=band] .nmx .ar{ white-space:nowrap; }
+  .pr-wrap[data-cards=band] .nmx .tr{ white-space:normal; flex:1 1 8em; min-width:8em; }
   .pr-wrap[data-cards=title] .pr-t{ font-family:var(--disp); font-weight:500; font-size:1.12rem; -webkit-line-clamp:2; }
   .pr-sub{ margin-bottom:8px; }
   .bake{ display:flex; gap:6px; margin:8px 0 0; }
@@ -1680,14 +1681,22 @@ function namedIn(orig){
 }
 function personIn(m, orig){
   const t = m.replace(/\b(mother|father|brother|sister)[- ]in[- ]law\b/g, '$1inlaw').replace(/\bin[- ]laws?\b/g, 'inlaws').replace(/\bco-worker/g, 'coworker');
-  const owned = orig && orig.match(/\b((?:my |our )?(?:friend |aunt |uncle |cousin )?[A-Z][\w'’-]{1,24})['’]s\s+(husband|wife|spouse|son|daughter|mother|father|brother|sister|mom|dad|mum|friend|kids?|child|children)\b/);
-  if (owned) { const kin = PEOPLE[owned[2].toLowerCase().replace(/-/g, '')] || owned[2].toLowerCase(); return owned[1] + "'s " + kin; }
+  const owned = orig && orig.match(/\b((?:my |our )?[A-Za-z][\w-]{1,24})(?:'s|s'|')\s+(husband|wife|spouse|son|daughter|mother|father|brother|sister|mom|dad|mum|friend|kids?|child|children)\b/i);
+  if (owned && !/^(?:allah|god|lord|today|yesterday|tomorrow)$/i.test(owned[1])) {
+    const kin = PEOPLE[owned[2].toLowerCase().replace(/-/g, '')] || owned[2].toLowerCase();
+    return owned[1] + "'s " + kin;
+  }
   const det = t.match(/\b(her|his|their)\s+([a-z-]+)\b/);
   if (det && PEOPLE[det[2]]) return det[1] + ' ' + PEOPLE[det[2]];
   const ls = orig && leadSubject(orig); if (ls) return ls.subject;   // the person the memo opens with is who it is about
   const nm = orig && namedIn(orig);
   const r = t.match(/\b(?:my|our)\s+([a-z]+)(?:'s|s')?\b/);
-  if (r && PEOPLE[r[1]]) return nm && nm.indexOf('my ' + PEOPLE[r[1]] + ' ') === 0 ? nm : 'my ' + PEOPLE[r[1]];
+  if (r && PEOPLE[r[1]]) {
+    const base = nm && nm.indexOf('my ' + PEOPLE[r[1]] + ' ') === 0 ? nm : 'my ' + PEOPLE[r[1]];
+    const more = orig && orig.match(/\band\s+(?:my\s+)?(?:friend\s+)?([A-Z][a-z]{2,})\b/);
+    if (more && base.indexOf(more[1]) < 0 && !NOT_NAMES.test(more[1])) return base + ' and ' + more[1];
+    return base;
+  }
   const words = t.split(/[^a-z']+/).filter(Boolean);
   for (let i = 0; i < words.length; i++) {
     const b = words[i].replace(/'s?$/, '');
@@ -1700,18 +1709,16 @@ function personIn(m, orig){
       if (/^(a|an|the|some|her|his|their)$/.test(words[j])) { blocked = true; break; }
     }
     if (blocked) continue;
-    if (/^(abu|abba|abi|abbu)$/.test(b) && orig && new RegExp('\\b' + b + '\\s+[A-Z]', 'i').test(orig)) continue;
+    if (/^(abu|abba|abi|abbu)$/.test(b)) {
+      const nxt = orig && (orig.match(new RegExp('\\b' + b + '\\s+([A-Za-z]+)', 'i')) || [])[1];
+      if (nxt && !/^(?:is|was|has|are|sick|ill|needs|in|got|feels)$/i.test(nxt)) continue;
+    }
     return 'my ' + PEOPLE[b];
   }
   return nm;
 }
 function patienceWho(rest){
-  const s = String(rest || '').trim().replace(/[.,!?]+$/, '');
-  if (!s || /^(?:my |our |the |others|people|everyone)/.test(s)) return s;
-  if (/^(?:her|him|his|their|them|me|us|you|she|he|they)\b/.test(s)) return s;
-  const first = s.split(/\s+/)[0];
-  if (typeof leadKnown === 'function' && leadKnown(first)) return s;
-  return 'my ' + s;
+  return String(rest || '').trim().replace(/[.,!?]+$/, '');
 }
 let PRON_HINT = '';   // the he/she of the next clause, so "my friend Alex is sick, she needs surgery" is her in both
 function pron(p, lo){
@@ -1961,9 +1968,15 @@ function domainOf(text){
 }
 function nounRequest(np, seed, seen){
   const whole = np;   // who the memo is about is read from the words as typed, before an article is stripped ("The doctor is sick" is not a person called Doctor)
+  np = np.replace(/,\s*(?:has|have|had|is|are|was|were)\b[\s\S]*$/i, '').trim() || np;
   np = np.replace(/^(a|an|some|more of|the)\s+/i, (m) => /^(more of)/i.test(m) ? m : '').trim() || np;
   const lo = np.toLowerCase();
-  if (/^(?:has|have|had|is|are|was|were|am)\b/.test(lo)) return '';   // "has a big heart" is a statement, not a thing to grant
+  const bareName = String(whole).trim();
+  if (/^(?:has|have|had|is|are|was|were|am)\b/.test(lo)) return '';
+  if (/^[A-Za-z][a-z'’-]{2,}$/.test(bareName) && ( /^[A-Z]/.test(bareName) || leadKnown(bareName)) && !NOT_NAMES.test(bareName) && !PEOPLE[bareName.toLowerCase()]) {
+    const name = bareName.charAt(0).toUpperCase() + bareName.slice(1);
+    return 'grant ' + name + ' ease and goodness, and bring good out of it';
+  }
   let person = personIn(lo, whole);
   if (person && /^my /.test(person) && /baby|child|family/.test(person) && !/\b(my|our|his|her)\s+(baby|child|children|family|kids?)\b/.test(lo)) person = null;
   const s = subj(person, lo);
@@ -3580,7 +3593,11 @@ function sugAddName(trName, memo){
 }
 function sugAddDua(x){
   const text = [x.ar, x.tr, x.en, '\u2014 ' + x.src].filter(Boolean).join('\n');
-  const dup = data.duas.find(d => isLive(d) && normText(curText(d)) === normText(text));
+  const dup = data.duas.find(d => {
+    if (!isLive(d) || d.n) return false;
+    const t = normText(curText(d));
+    return t === normText(text) || (x.tr && t.includes(normText(x.tr))) || (x.en && t.includes(normText(x.en)));
+  });
   if (dup && prayHas(dup.id)) { toast('Already in this ' + PRAYER_NAME[PRAY.prayer]); return; }
   const d = dup || createDua({n:null, memo:'', text:text, status:'oneoff', how:'suggested'});
   keepPlace('pr-free', () => { prayAdd(d.id); renderPray(); });
@@ -3822,7 +3839,8 @@ function peopleIn(text){
       if (!REL_FREE.has(t.base)) return;
       if (a && (REL_DET.has(a.lo) || a.poss)) return;                                  // his mom, Sarah's mom, the mother of ...
       if (b && REL_SELF.has(b.lo)) return;                                             // be a good mother
-      if (/^(?:abu|abba|abi|abbu)$/.test(t.base) && toks[k + 1] && /^[A-Z]/.test(toks[k + 1].w) && !/^(?:Is|Was|Has|Sick|Ill)$/.test(toks[k + 1].w)) return;   // Abu Dawud is a name, not your father
+      if (/^(?:abu|abba|abi|abbu)$/.test(t.base) && toks[k + 1] && !/^(?:is|was|has|are|sick|ill|needs|in|got|feels)$/i.test(toks[k + 1].base)) return;
+      if (/^(?:husband|wife|spouse|partner|hubby|fiance)$/.test(t.base)) return;
     }
     addRel(t.base);
   });
@@ -4123,10 +4141,10 @@ function glanceFor(d, surface){
   return duaTitle(d);
 }
 function duaHead(d, cls, surface){ return el('div', {class:'dr'}, [el('p', {class:cls || 'my-t', text:surface ? glanceFor(d, surface) : duaTitle(d)}), duaName(d)]); }
-function prayDuaRow(d, idx, on, onToggle, tag, added){
+function prayDuaRow(d, idx, on, onToggle, tag, added, slot){
   const st = idx.get(d.id), dot = d.n && BY_N[d.n] ? CAT_BY_ID[BY_N[d.n].cat].color : 'var(--gold)';
   const cb = el('button', {type:'button', class:'pr-cb' + (on ? ' on' : ''), 'aria-pressed':on ? 'true' : 'false', 'aria-label':(added ? 'Added: ' : on ? 'Leave out: ' : 'Include: ') + subjectOf(d).slice(0, 60), onclick:onToggle});
-  return el('div', {id:'pr-row-' + d.id, class:'pr-row' + (on ? '' : ' off') + (added ? ' added' : ''), style:'--dot:' + dot}, [cb, el('div', {class:'pr-tx', onclick:onToggle}, [
+  return el('div', {id:(slot || 'row') + '-' + d.id, class:'pr-row' + (on ? '' : ' off') + (added ? ' added' : ''), style:'--dot:' + dot}, [cb, el('div', {class:'pr-tx', onclick:onToggle}, [
     el('div', {class:'dr'}, [el('p', {class:'pr-t', text:glanceFor(d, 'pray')}), duaName(d)]),
     el('div', {class:'pr-m'}, [added ? el('span', {class:'pr-tag', text:'added'}) : null, d.status === 'oneoff' ? el('span', {class:'pr-tag', text:'just for now'}) : null, tag || null, st ? el('span', {text:'made ' + st.count + '\u00D7'}) : null])
   ])]);
@@ -4178,7 +4196,7 @@ function renderPray(){
   wrap.appendChild(hero);
   if (PRAY.ids.length) {
     wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'This ' + PRAYER_NAME[p]}), el('small', {text:'tap to leave one out'})]));
-    PRAY.ids.forEach(id => { const d = duaById(id); if (!isLive(d)) return; const inSet = !PRAY.off.has(id); wrap.appendChild(prayDuaRow(d, idx, inSet, () => { if (inSet) PRAY.off.add(id); else PRAY.off.delete(id); renderPray(); })); });
+    PRAY.ids.forEach(id => { const d = duaById(id); if (!isLive(d)) return; const inSet = !PRAY.off.has(id); wrap.appendChild(prayDuaRow(d, idx, inSet, () => { if (inSet) PRAY.off.add(id); else PRAY.off.delete(id); keepPlace('set-' + d.id, () => renderPray()); }, null, false, 'set')); });
   }
   wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'For this time'}), el('small', {text:PRAYER_NAME[p]})]));
   wrap.appendChild(buildSuggested(p));
@@ -4191,7 +4209,7 @@ function renderPray(){
     const dup = data.duas.find(d => isLive(d) && (normText(d.memo) === normText(v) || normText(curText(d)) === normText(v)));
     if (dup && prayHas(dup.id)) { toast('Already in this ' + PRAYER_NAME[p]); return; }
     const d = dup || duaFromRequest(v, 'oneoff', 'typed');
-    if (subject) d.subject = subject;
+    if (subject) { d.subject = subject; saveData(); }
     PRAY.draft = ''; PRAY.subject = '';
     prayAdd(d.id);
     keepPlace('pr-free', () => renderPray());
@@ -4215,7 +4233,7 @@ function renderPray(){
     const s = el('input', {type:'search', class:'field', id:'prSearch', placeholder:'Find a dua\u2026', value:PRAY.q, 'aria-label':'Find a dua', autocomplete:'off', hidden:!PRAY.more && !q});
     s.addEventListener('input', () => { PRAY.q = s.value; PRAY.more = true; const y = window.scrollY; renderPray(); window.scrollTo(0, y); const x = document.getElementById('prSearch'); if (x) { x.focus({preventScroll:true}); x.setSelectionRange(x.value.length, x.value.length); } });
     wrap.appendChild(s);
-    pool.slice(0, 40).forEach(d => { const added = prayHas(d.id); wrap.appendChild(prayDuaRow(d, idx, added, () => { if (added) return; prayAdd(d.id); keepPlace('pr-row-' + d.id, () => renderPray()); }, null, added)); });
+    pool.slice(0, 40).forEach(d => { const added = prayHas(d.id); wrap.appendChild(prayDuaRow(d, idx, added, () => { if (added) return; prayAdd(d.id); keepPlace('pool-' + d.id, () => renderPray()); }, null, added, 'pool')); });
   }
   window.scrollTo(0, hold);
 }
@@ -4774,6 +4792,7 @@ function cleanDua(x){
   if (x.answered && typeof x.answered === 'object') out.answered = {at:String(x.answered.at || ''), note:String(x.answered.note || '')};
   if (x.retiredAt) out.retiredAt = String(x.retiredAt);
   if (x.themeOverride) out.themeOverride = String(x.themeOverride);
+  if (typeof x.subject === 'string' && x.subject.trim()) out.subject = x.subject.trim().slice(0, 80);
   return out;
 }
 function cleanOcc(o){
