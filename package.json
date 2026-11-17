@@ -1,0 +1,10 @@
+{
+  "name": "dua-book",
+  "private": true,
+  "scripts": {
+    "test": "node test/people.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  }
+}

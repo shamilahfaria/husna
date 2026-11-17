@@ -8,12 +8,17 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Asma al-Husna">
+<meta name="apple-mobile-web-app-title" content="Dua Book">
 <meta name="format-detection" content="telephone=no">
-<title>Asma al-Husna — The 99 Names of Allah</title>
+<title>Dua Book</title>
+<link rel="icon" href="icons/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" href="icons/icon-32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="icons/icon-16.png" sizes="16x16">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hanken+Grotesk:wght@400;500;600&family=Young+Serif&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:ital,opsz,wght@0,7..72,480;0,7..72,600;1,7..72,480&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>
 (function(){
   var d = document.documentElement, q = new URLSearchParams(location.search).get('mode'), mq = matchMedia('(prefers-color-scheme: light)'), KEY = 'asmaDuaLog.ui.appearance', pref = 'auto';
@@ -27,7 +32,7 @@
 </script>
 <style>
   :root{
-    --ui:'Hanken Grotesk',system-ui,sans-serif; --disp:'Young Serif',Georgia,serif; --ar:'Amiri','Noto Naskh Arabic',serif;
+    --ui:'Source Sans 3',system-ui,sans-serif; --disp:'Literata',Georgia,serif; --ar:'Amiri','Noto Naskh Arabic',serif;
     --radius:4px;
     --bg:var(--ground); --card:var(--sheet); --card-hover:color-mix(in srgb,var(--sheet) 90%,var(--madder));
     --ink-dim:var(--muted); --ink-faint:var(--muted);
@@ -41,7 +46,10 @@
     --pat:#DBE2EE; --guard:#C1CCE0; --bandfill:#D7DEEB; --bord:#A0C6C6; --sp:#C3CCDF; --arch:#B2BFD7; --spfill:#D0D7E6;
     --sheen:rgba(255,255,255,.28); --shade:rgba(70,50,80,.10); --pile:rgba(40,30,50,.024);
     --tint-1:#95A2C7; --tint-2:#9ED0CB; --tint-3:#8DA2C4; --tint-4:#B2D9C4; --tint-5:#97A0B6; --tint-6:#A9C7BC;
-    --tint-me:#4A5A8C; --tint-me-ink:#FFFFFF; --tint-ink:#1E2540; --scrim:rgba(10,12,16,.55); --shadow:rgba(30,37,64,.18); }
+    --tint-me:#4A5A8C; --tint-me-ink:#FFFFFF; --tint-ink:#1E2540; --scrim:rgba(10,12,16,.55); --shadow:rgba(30,37,64,.18);
+    --c-majesty:#8A6A12; --c-mercy:#8E4A6C; --c-power:#9A332C; --c-knowledge:#2E5E9A; --c-creation:#1F7A4E;
+    --c-forgiveness:#6A4A9A; --c-provision:#8A6414; --c-justice:#6E5E30; --c-guardianship:#0E7568; --c-life:#3E4288;
+    --c-oneness:#6A5E28; --c-guidance:#1A7490; --c-exaltation:#A85A38; --c-response:#8A3E72; --c-time:#3E5E86; }
   html[data-mode=night]{ color-scheme:dark;
     --ground:#171F38; --sheet:#212B4C; --field:#1D2642; --madder:#3A4A7A; --on-madder:#F0F3FB; --btn-ink:#2A3560;
     --accent:#8FD3C3; --accent-ink:#8FD3C3; --badge:#8FD3C3; --badge-ink:#171F38; --olive:#A6D8BD;
@@ -49,14 +57,17 @@
     --pat:#303B5D; --guard:#434D6B; --bandfill:#1C2541; --bord:#3A5560; --sp:#313A59; --arch:#4B5677; --spfill:#1D2643;
     --sheen:rgba(255,255,255,.025); --shade:rgba(0,0,0,.22); --pile:rgba(0,0,0,.10);
     --tint-1:#414E6E; --tint-2:#4A646B; --tint-3:#4E5C75; --tint-4:#536868; --tint-5:#4E576B; --tint-6:#55676B;
-    --tint-me:#D6DCF2; --tint-me-ink:#171F38; --tint-ink:#EEF2F8; --scrim:rgba(5,8,20,.72); --shadow:rgba(0,0,0,.45); }
+    --tint-me:#D6DCF2; --tint-me-ink:#171F38; --tint-ink:#EEF2F8; --scrim:rgba(5,8,20,.72); --shadow:rgba(0,0,0,.45);
+    --c-majesty:#E0B84A; --c-mercy:#E3A3C2; --c-power:#F0A099; --c-knowledge:#9EC0F0; --c-creation:#8ED4AE;
+    --c-forgiveness:#C4B0E8; --c-provision:#E8C56A; --c-justice:#D4C48A; --c-guardianship:#7ED4C8; --c-life:#B0B4E4;
+    --c-oneness:#F0E4B8; --c-guidance:#8ED4E8; --c-exaltation:#F0B89A; --c-response:#E8A8D0; --c-time:#A8C0DC; }
   *{box-sizing:border-box;}
   html{scroll-behavior:auto;}
   @media (prefers-reduced-motion: no-preference){ html{scroll-behavior:smooth;} }
   body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--ui); position:relative; min-height:100vh; }
 
   header.hero{ position:relative; z-index:1; max-width:640px; margin:0 auto; padding:82px var(--mx) 20px; text-align:center; }
-  .rosette{ color:var(--accent-ink); display:block; margin:0 auto 16px; opacity:0; animation:fadeIn .9s ease-out .1s forwards; }
+  .rosette{ display:block; width:72px; height:72px; margin:0 auto 16px; border-radius:16px; opacity:0; animation:fadeIn .9s ease-out .1s forwards; }
   @media (prefers-reduced-motion: reduce){ .rosette{opacity:1; animation:none;} }
   @keyframes fadeIn{ from{opacity:0; transform:scale(.85) rotate(-8deg);} to{opacity:1; transform:scale(1) rotate(0);} }
   .title-ar{ font-family:var(--ar); font-size:clamp(2.1rem,6vw,2.9rem); font-weight:700; margin:0 0 6px; color:var(--gold); }
@@ -123,7 +134,7 @@
   .card-num{ font-size:.68rem; color:var(--ink-faint); font-variant-numeric:tabular-nums; }
   .card .dot{ width:7px; height:7px; border-radius:50%; background:var(--dot,var(--gold)); }
   .ar{ font-family:var(--ar); font-size:1.55rem; color:var(--ink); margin:1px 0 5px; line-height:1.25; }
-  .translit{ font-family:var(--disp); font-weight:600; font-size:1.05rem; color:var(--gold); margin:0 0 3px; }
+  .translit{ font-family:var(--disp); font-weight:600; font-size:1.05rem; color:var(--dot,var(--gold)); margin:0 0 3px; }
   .meaning{ font-size:.8rem; color:var(--ink-dim); line-height:1.35; }
   .flip-hint{ position:absolute; bottom:8px; right:10px; font-size:.85rem; color:var(--muted); opacity:1; }
   .back-reflect{ font-style:italic; font-size:.74rem; color:var(--ink-dim); line-height:1.4; margin-bottom:7px; }
@@ -147,7 +158,8 @@
   [hidden]{ display:none !important; }
   .appbar{ position:sticky; top:0; z-index:20; padding-top:var(--safe-t); background:var(--bg); border-bottom:1px solid var(--hairline); }
   .appbar-in{ max-width:1080px; margin:0 auto; height:var(--appbar-h); display:flex; align-items:center; gap:10px; padding:0 14px; }
-  .brand{ font-family:var(--ar); color:var(--gold); font-size:1.15rem; line-height:1; margin-right:2px; white-space:nowrap; }
+  .brand{ display:flex; align-items:center; margin-right:2px; text-decoration:none; }
+  .brand img{ width:40px; height:40px; border-radius:10px; display:block; }
   .tab{ font-size:.8rem; font-weight:600; color:var(--ink-dim); text-decoration:none; padding:7px 14px; border-radius:999px; white-space:nowrap; transition:background .2s,color .2s; }
   .tab.active{ background:var(--gold-soft); color:var(--ink); }
   .tab:focus-visible, .btn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
@@ -229,7 +241,7 @@
   .tag{ font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); opacity:1; }
   .tag.general{ color:var(--ink-faint); }
   .session-foot{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
-  @media (max-width:560px){ .entry{ grid-template-columns:1fr; } .entry .card-inner{ height:170px; } .brand{ display:none; } }
+  @media (max-width:560px){ .entry{ grid-template-columns:1fr; } .entry .card-inner{ height:170px; } }
   @media (max-width:480px){ #search{ font-size:16px; } .tab{ padding:7px 12px; } }
   .toast{ position:fixed; left:50%; bottom:calc(76px + var(--safe-b)); transform:translateX(-50%); z-index:50; background:var(--card-hover); border:1px solid var(--gold-soft); color:var(--ink); font-size:.82rem; padding:10px 16px; border-radius:999px; box-shadow:0 8px 30px rgba(0,0,0,.4); opacity:0; pointer-events:none; transition:opacity .25s; max-width:90vw; text-align:center; }
   .toast.show{ opacity:1; }
@@ -367,7 +379,8 @@
   .sug-dua{ margin:10px 0; padding:11px 12px; border:1px solid var(--hairline); border-radius:var(--radius); background:color-mix(in srgb,var(--ground) 55%,var(--card)); }
   .sug-dua-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
   .sug-src{ font-size:.7rem; color:var(--ink-faint); }
-  .sug-tr{ font-family:var(--ui); font-style:italic; font-size:1rem; color:var(--ink); line-height:1.4; margin:0 0 5px; }
+  .sug-ar{ font-family:var(--ar); font-size:1.35rem; line-height:1.7; color:var(--ink); margin:0 0 6px; }
+  .sug-tr{ font-family:var(--disp); font-style:italic; font-size:1rem; color:var(--ink); line-height:1.4; margin:0 0 5px; }
   .sug-en{ font-size:.8rem; color:var(--ink-dim); line-height:1.5; margin:0 0 9px; }
   .sug-sub{ font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); margin:16px 0 4px; padding-top:12px; border-top:1px solid var(--hairline); }
   .sug-again{ display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; text-align:left; font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius); padding:10px 12px; margin-bottom:6px; cursor:pointer; min-height:44px; }
@@ -396,12 +409,32 @@
   .link-btn{ background:none; border:none; color:var(--ink); font:600 .78rem var(--ui); padding:6px 8px; cursor:pointer; text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:3px; min-height:44px; min-width:44px; }
   .my-name .link-btn{ margin-left:auto; }
   .my-sec{ margin-top:20px; }
-  .my-card{ margin:10px 0; border-radius:var(--radius); border:1px solid var(--hairline); background:var(--card); overflow:hidden; }
-  .my-card.open{ border-color:var(--gold-soft); }
+  .my-card{ margin:10px 0; border-radius:var(--radius); border:1px solid var(--hairline); border-left:4px solid var(--dot,var(--gold)); background:var(--card); overflow:hidden; }
+  .my-card.open{ border-color:var(--gold-soft); border-left-color:var(--dot,var(--gold)); }
   .my-card.keep-q, .my-card.removed{ padding:12px 14px; }
   .my-top{ display:block; width:100%; text-align:left; background:none; border:none; color:inherit; padding:13px 14px; cursor:pointer; font:inherit; }
   .my-card.open .my-t{ visibility:hidden; }
   .my-m{ margin-top:6px; font-size:.72rem; color:var(--ink-faint); }
+  .my-preview{ margin:6px 0 0; font-size:.84rem; line-height:1.4; color:var(--ink-dim); display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+  .my-source{ margin:0 0 12px; padding:10px 12px; border-radius:10px; background:color-mix(in srgb,var(--ink) 5%,transparent); }
+  .my-k{ margin:0 0 2px; font:600 .62rem var(--ui); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+  .my-source p{ margin:0 0 8px; font-size:.92rem; line-height:1.4; color:var(--ink); }
+  .my-source .my-first{ font-family:var(--disp); color:var(--ink-dim); }
+  .my-wrap[data-list=stack] .my-t{ -webkit-line-clamp:8; font-weight:500; }
+  .my-wrap[data-list=rows] .my-card{ border:none; border-radius:0; border-bottom:1px solid var(--hairline); border-left:3px solid var(--dot,var(--gold)); margin:0; background:var(--card); }
+  .my-wrap[data-list=rows] .my-top{ padding:12px 8px; }
+  .my-wrap[data-list=rows] .my-m, .my-wrap[data-list=rows] .my-preview{ display:none; }
+  .my-wrap[data-list=brief] .my-t{ font-family:var(--disp); font-weight:500; font-size:1.22rem; line-height:1.3; -webkit-line-clamp:2; }
+  .pr-wrap[data-cards=line] .pr-t{ -webkit-line-clamp:2; }
+  .pr-wrap[data-cards=band] .dr{ flex-direction:column; align-items:flex-start; gap:2px; }
+  .pr-wrap[data-cards=band] .pr-t{ flex:none; width:100%; -webkit-line-clamp:unset; }
+  .pr-wrap[data-cards=band] .nmx{ flex-direction:row; align-items:baseline; gap:8px; max-width:100%; width:auto; }
+  .pr-wrap[data-cards=band] .nmx .ar{ white-space:nowrap; }
+  .pr-wrap[data-cards=title] .pr-t{ font-family:var(--disp); font-weight:500; font-size:1.12rem; -webkit-line-clamp:2; }
+  .pr-sub{ margin-bottom:8px; }
+  .bake{ display:flex; gap:6px; margin:8px 0 0; }
+  .bake-btn{ font:600 .72rem var(--ui); color:var(--ink-dim); background:var(--card); border:1px solid var(--hairline); border-radius:999px; min-height:36px; padding:4px 10px; cursor:pointer; }
+  .bake-btn.on{ color:var(--ink); border-color:var(--accent); background:color-mix(in srgb,var(--accent) 16%,var(--card)); }
   .my-body{ padding:0 14px 14px; }
   .my-edit, .my-draft{ font-family:var(--disp); font-size:1.2rem; line-height:1.45; }
   .my-earlier{ margin-top:10px; font-size:.8rem; color:var(--ink-dim); }
@@ -453,14 +486,15 @@
   .pr-sec h3{ margin:0; font-family:var(--disp); font-weight:600; font-size:1.12rem; color:var(--gold); }
   .pr-sec small{ color:var(--ink-faint); font-size:.72rem; }
   .pr-sp{ flex:1; }
-  .pr-row{ display:flex; gap:11px; align-items:center; background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius); padding:12px; margin-bottom:8px; }
+  .pr-row{ display:flex; gap:11px; align-items:center; background:var(--card); border:1px solid var(--hairline); border-left:3px solid var(--dot,var(--gold)); border-radius:var(--radius); padding:12px; margin-bottom:8px; }
+  .pr-row.added{ box-shadow:inset 0 0 0 2px var(--accent); background:color-mix(in srgb,var(--accent) 16%,var(--card)); }
   .pr-row.off{ opacity:.8; }
   .pr-tx{ flex:1; min-width:0; cursor:pointer; }
   .pr-t, .my-t, .ppl-t, .rd-sum-t{ margin:0; font:600 1.04rem/1.3 var(--ui); color:var(--ink); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-width:0; flex:1; overflow-wrap:anywhere; }
   .dr{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
   .nmx{ display:flex; flex-direction:column; align-items:flex-end; text-align:right; flex:none; max-width:46%; }
   .nmx .ar{ font:400 1.55rem/1.5 var(--ar); color:var(--ink); }
-  .nmx .tr{ margin-top:-3px; font-size:.78rem; line-height:1.2; color:var(--muted); overflow-wrap:anywhere; }
+  .nmx .tr{ margin-top:-3px; font-size:.78rem; line-height:1.2; color:var(--dot,var(--muted)); overflow-wrap:anywhere; }
   .pr-m{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px; font-size:.68rem; color:var(--ink-faint); }
   .pr-tag{ font-size:.6rem; letter-spacing:.05em; text-transform:uppercase; border:1px solid var(--hairline); color:var(--ink-dim); border-radius:3px; padding:1px 7px; }
   .pr-cb{ flex:none; width:26px; height:26px; padding:0; border-radius:4px; border:2px solid var(--ink-dim); background:none; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
@@ -530,7 +564,7 @@
 
 <header class="appbar" id="appbar">
   <div class="appbar-in">
-    <span class="brand" aria-hidden="true">الأسماء</span>
+    <a class="brand" href="#pray" aria-label="Dua Book"><img src="icons/icon-128.png" width="40" height="40" alt=""></a>
     <span class="spacer"></span>
     <button class="update-btn" id="updateBtn" type="button" aria-label="Check for updates" title="Check for updates">↻</button>
     <button class="btn" id="selectBtn" type="button" aria-pressed="false">Select</button>
@@ -540,11 +574,7 @@
 <div id="view-reference" class="view">
 
 <header class="hero">
-  <svg class="rosette" width="56" height="56" viewBox="0 0 100 100" fill="none" aria-hidden="true">
-    <rect x="20" y="20" width="60" height="60" stroke="currentColor" stroke-width="2"/>
-    <rect x="20" y="20" width="60" height="60" stroke="currentColor" stroke-width="2" transform="rotate(45 50 50)"/>
-    <circle cx="50" cy="50" r="3.5" fill="currentColor"/>
-  </svg>
+  <img class="rosette" src="icons/icon-192.png" width="72" height="72" alt="">
   <h1 class="title-ar">الأسماء الحسنى</h1>
   <h2 class="title-en">Asma al-Husna</h2>
   <p class="subtitle">The Ninety-Nine Names of Allah</p>
@@ -638,21 +668,21 @@
 
 <script>
 const CATEGORIES = [
-  {id:'majesty',      label:'Majesty & Sovereignty',       color:'var(--tint-1)'},
-  {id:'mercy',        label:'Mercy, Love & Gentleness',    color:'var(--tint-2)'},
-  {id:'power',        label:'Power & Strength',            color:'var(--tint-3)'},
-  {id:'knowledge',    label:'Knowledge & Awareness',       color:'var(--tint-4)'},
-  {id:'creation',     label:'Creation & Design',           color:'var(--tint-5)'},
-  {id:'forgiveness',  label:'Forgiveness & Repentance',    color:'var(--tint-6)'},
-  {id:'provision',    label:'Provision & Generosity',      color:'var(--tint-1)'},
-  {id:'justice',      label:'Justice',                     color:'var(--tint-2)'},
-  {id:'guardianship', label:'Guardianship & Security',     color:'var(--tint-3)'},
-  {id:'life',         label:'Life & Eternity',             color:'var(--tint-4)'},
-  {id:'oneness',      label:'Oneness',                     color:'var(--tint-5)'},
-  {id:'guidance',     label:'Guidance & Light',            color:'var(--tint-6)'},
-  {id:'exaltation',   label:'Exaltation & Standing',       color:'var(--tint-1)'},
-  {id:'response',     label:'Response & Reward',           color:'var(--tint-2)'},
-  {id:'time',         label:'Time & Order',                color:'var(--tint-3)'},
+  {id:'majesty',      label:'Majesty & Sovereignty',       color:'var(--c-majesty)'},
+  {id:'mercy',        label:'Mercy, Love & Gentleness',    color:'var(--c-mercy)'},
+  {id:'power',        label:'Power & Strength',            color:'var(--c-power)'},
+  {id:'knowledge',    label:'Knowledge & Awareness',       color:'var(--c-knowledge)'},
+  {id:'creation',     label:'Creation & Design',           color:'var(--c-creation)'},
+  {id:'forgiveness',  label:'Forgiveness & Repentance',    color:'var(--c-forgiveness)'},
+  {id:'provision',    label:'Provision & Generosity',      color:'var(--c-provision)'},
+  {id:'justice',      label:'Justice',                     color:'var(--c-justice)'},
+  {id:'guardianship', label:'Guardianship & Security',     color:'var(--c-guardianship)'},
+  {id:'life',         label:'Life & Eternity',             color:'var(--c-life)'},
+  {id:'oneness',      label:'Oneness',                     color:'var(--c-oneness)'},
+  {id:'guidance',     label:'Guidance & Light',            color:'var(--c-guidance)'},
+  {id:'exaltation',   label:'Exaltation & Standing',       color:'var(--c-exaltation)'},
+  {id:'response',     label:'Response & Reward',           color:'var(--c-response)'},
+  {id:'time',         label:'Time & Order',                color:'var(--c-time)'},
 ];
 
 /* Each entry: n, tr (transliteration), ar (Arabic), meaning, cat,
@@ -1650,12 +1680,38 @@ function namedIn(orig){
 }
 function personIn(m, orig){
   const t = m.replace(/\b(mother|father|brother|sister)[- ]in[- ]law\b/g, '$1inlaw').replace(/\bin[- ]laws?\b/g, 'inlaws').replace(/\bco-worker/g, 'coworker');
+  const owned = orig && orig.match(/\b((?:my |our )?(?:friend |aunt |uncle |cousin )?[A-Z][\w'’-]{1,24})['’]s\s+(husband|wife|spouse|son|daughter|mother|father|brother|sister|mom|dad|mum|friend|kids?|child|children)\b/);
+  if (owned) { const kin = PEOPLE[owned[2].toLowerCase().replace(/-/g, '')] || owned[2].toLowerCase(); return owned[1] + "'s " + kin; }
+  const det = t.match(/\b(her|his|their)\s+([a-z-]+)\b/);
+  if (det && PEOPLE[det[2]]) return det[1] + ' ' + PEOPLE[det[2]];
   const ls = orig && leadSubject(orig); if (ls) return ls.subject;   // the person the memo opens with is who it is about
   const nm = orig && namedIn(orig);
   const r = t.match(/\b(?:my|our)\s+([a-z]+)(?:'s|s')?\b/);
   if (r && PEOPLE[r[1]]) return nm && nm.indexOf('my ' + PEOPLE[r[1]] + ' ') === 0 ? nm : 'my ' + PEOPLE[r[1]];
-  for (const w of t.split(/[^a-z']+/)) { const b = w.replace(/'s?$/, ''); if (PEOPLE[b]) return 'my ' + PEOPLE[b]; }
+  const words = t.split(/[^a-z']+/).filter(Boolean);
+  for (let i = 0; i < words.length; i++) {
+    const b = words[i].replace(/'s?$/, '');
+    if (!PEOPLE[b] || typeof REL_FREE === 'undefined' || !REL_FREE.has(b)) continue;
+    if (/^(?:husband|wife|spouse|partner|hubby|fiance)$/.test(b)) continue;
+    const prev = words[i - 1] || '';
+    if (/^(a|an|the|her|his|their|your|its|that|this|some)$/.test(prev)) continue;
+    let blocked = false;
+    for (let j = i - 1; j >= 0 && !/^(for|about|with|to|is|was|has|and|of)$/.test(words[j]); j--) {
+      if (/^(a|an|the|some|her|his|their)$/.test(words[j])) { blocked = true; break; }
+    }
+    if (blocked) continue;
+    if (/^(abu|abba|abi|abbu)$/.test(b) && orig && new RegExp('\\b' + b + '\\s+[A-Z]', 'i').test(orig)) continue;
+    return 'my ' + PEOPLE[b];
+  }
   return nm;
+}
+function patienceWho(rest){
+  const s = String(rest || '').trim().replace(/[.,!?]+$/, '');
+  if (!s || /^(?:my |our |the |others|people|everyone)/.test(s)) return s;
+  if (/^(?:her|him|his|their|them|me|us|you|she|he|they)\b/.test(s)) return s;
+  const first = s.split(/\s+/)[0];
+  if (typeof leadKnown === 'function' && leadKnown(first)) return s;
+  return 'my ' + s;
 }
 let PRON_HINT = '';   // the he/she of the next clause, so "my friend Alex is sick, she needs surgery" is her in both
 function pron(p, lo){
@@ -1837,7 +1893,7 @@ const DOMAINS = [
     return pickOf(['bless me with a righteous spouse who brings me closer to You', 'grant me a good, kind spouse and make the way to marriage easy'], s, 9); }},
   {k:'relationship', label:'Mending relationships', re:/\b(fight|fighting|argu\w+|conflict|tension|relationship|friendship|get along|reconcil\w+|misunderstanding|distance|strained)\b/, build:(c) => 'mend what is between ' + (c.self ? 'me and those I love' : 'me and ' + c.name) + ', and fill our hearts with mercy and understanding'},
   {k:'patience', label:'Patience', re:/\b(patien(t|ce)|sabr|endure|enduring|bear with|tolerance|driving (?:me|us) (?:crazy|nuts|mad|insane)|on my nerves|losing (?:my )?patience)\b/, build:(c, s) => {
-    const w = c.lo.match(/patien(?:t|ce)? (?:with|towards?|for) (.+)$/); const who = w ? w[1].replace(/^(?!my |our |the |others|people|everyone)/, 'my ') : c.self ? '' : c.name;
+    const w = c.lo.match(/patien(?:t|ce)? (?:with|towards?|for) (.+)$/); const who = w ? patienceWho(w[1]) : c.self ? '' : c.name;
     if (who) return pickOf(['make me more patient and gentle with ' + who + ', and fill my heart with calm', 'grant me beautiful patience with ' + who + ', and soften my words'], s, 10);
     return pickOf(['grant me beautiful patience and steadiness in what I am facing', 'fill me with patience, and make me steadfast through this test'], s, 10); }},
   {k:'protection', label:'Protection & safety', re:/\b(protect\w*|safe|safety|travel\w*|journey|trip|flight|driv(?:e|ing)(?!\s+(?:me|us|him|her|them)\b)|harm|evil|envy|evil eye|danger|surround\w*)\b/, build:(c, s) => {
@@ -1947,7 +2003,7 @@ function splitMemo(t){
   const out2 = [];
   out.forEach(c => {
     const parts = c.split(/\s+(?=(?:he|she|they) (?:has|is|have|are|was|had|got)\b)|\s+(?=(?:because|since|cuz) )|\s+(?:and also|and|also|plus|&)\s+(?=(?:i (?:want|need|wanna|would|wish|hope|am|feel)|help|make|let|grant|give|forgive|guide|protect|heal|cure|bless|keep|open|bring|ease|increase|remove|accept|please|that|you)\b)/i);
-    parts.forEach(p => out2.push(p.trim()));
+    parts.forEach(p => { const t = p.trim(); if (t && !/^(?:and|also|plus|&|but)$/i.test(t)) out2.push(t); });
   });
   // "...tired and stressed and i have a deadline and my dad is in the hospital": each statement is its own clause
   const NEW_CLAUSE = /\s+(?:and also|and|also|plus|&)\s+(?=(?:(?:i|we) (?:have|had|got|keep|can't|cannot|don't|just|passed|failed|lost)|(?:my|our|the) [a-z-]+(?: [a-z]+)? (?:is|are|has|have|was|had|needs?|got)|(?:he|she|they|it) (?:is|has|are|was|needs?))\b)/i;
@@ -1981,10 +2037,24 @@ function clauseCore(c, seed, first, st){
   PRON_HINT = (st && st.hint) || '';
   try { return clauseCore0(c, seed, first, st); } finally { PRON_HINT = ''; }
 }
+function asStatement(c){
+  const tailM = c.match(/^(.*?)(?:\s+and\s+|\s*,\s*)(patience with .+)$/i);
+  const head = (tailM ? tailM[1] : c).trim().replace(/[,\s]+$/, '');
+  const tail = tailM ? tailM[2] : '';
+  if (!/^(?:she|he|they|i|we|[a-z][\w'’-]*)(?:\s+[a-z][\w'’-]*){0,4}\s+(?:has|have|had|is|are|was|were)\b/i.test(head)) return null;
+  if (!tail && pickDomain(head.toLowerCase())) return null;
+  const ctx = {t:'ctx', s:head};
+  if (!tail) {
+    const who = head.match(/^(she|he|they|[A-Za-z][\w'’]+)/i);
+    const obj = !who ? 'them' : /^she$/i.test(who[1]) ? 'her' : /^he$/i.test(who[1]) ? 'him' : /^they$/i.test(who[1]) ? 'them' : who[1];
+    return {t:'ctx', s:head, then:'ease this for ' + obj + ' and bring good out of it'};
+  }
+  return [ctx, {t:'req', s:'grant me beautiful patience with ' + patienceWho(tail.replace(/^patience with\s+/i, ''))}];
+}
 function clauseCore0(c, seed, first, st){
   st = st || {};
   c = c.trim().replace(/^(and|also|plus|&|so|but)\s+/i, '').replace(/\s+/g, ' ');
-  if (!c) return null;
+  if (!c || /^(?:and|also|plus|&|but)$/i.test(c)) return null;
   const lead = leadSubject(c);
   c = lead ? lead.fixed : lcFirst(c);
   let m;
@@ -2057,6 +2127,7 @@ function clauseCore0(c, seed, first, st){
   }
   // "my mom is sick" style statements
   if ((m = cm(/^((?:my|our|the) [a-z-]+(?: [a-z]+)?) (is|are|was|were|has|have|had|got|lost|keeps|passed|died|broke|broken|crashed|failed|stopped|ends?|starts?|won't|isn't|aren't|needs?|feels?|seems?|doesn't|can't)\b(.*)$/)) || (wcount(c) >= 5 && /^(my|our|the|it|this|that)\b/i.test(c) && STMT_VERB.test(c)) || lead) {
+    const stated = asStatement(c); if (stated) return stated;
     if (DOMAINS.some(d => d.re.test(lo))) return nounRequests(c, seed).map(x => ({t:'req', s:x}));
     return {t:'ctx', s:c, then: lead ? 'ease this for ' + (lead.plural ? 'them' : pron(lead.subject, lo).obj) + ' and bring good out of it' : 'ease this for me and bring good out of it'};
   }
@@ -2070,7 +2141,8 @@ function clauseCore0(c, seed, first, st){
   if (/^(be|become|stay|get|pass|finish|do|reach|achieve|learn|understand|overcome|stop|quit|find|win|start|build|improve|memori[sz]e|complete|keep up|remember|forget|focus|sleep|wake)\b/i.test(c)) return {t:'req', s:'help me ' + lcFirst(c)};
   // a statement ("Money is tight", "this is hard") is how things are, not a noun to ask for: say it to Allah and ask for ease
   if (STATEMENT.test(lo) && !/\b(?:who|that|which|where|whose)\b/.test(lo.split(/ (?:is|are|was|were|am|has|have|had)\b/)[0]) && !pickDomain(lo)) return {t:'ctx', s:c, then:'ease this for me and bring good out of it'};
-  // fragments
+  const stated = asStatement(c); if (stated) return stated;
+  if (/^(?:has|have|is|are)\b/i.test(c)) return st.person ? (asStatement(st.person + ' ' + c) || {t:'ctx', s:st.person + ' ' + c}) : {t:'ctx', s:c};
   return nounRequests(c, seed).map(x => ({t:'req', s:x}));
 }
 function hasFrame(raw){
@@ -3475,12 +3547,12 @@ function fmtAustin(ms){ try { return new Date(ms).toLocaleTimeString('en-US', {t
 /* ---------- "Suggested for now": one-or-two-tap duas for the current prayer window, plus a personal layer learned on this device ---------- */
 const NAME_N = {}; NAMES.forEach(x => { NAME_N[x.tr.toLowerCase().replace(/[^a-z]/g, '')] = x.n; });
 function nameNum(tr){ return NAME_N[tr.toLowerCase().replace(/[^a-z]/g, '')]; }
-const DUA_MUADH = {tr:"Allahumma a\u2018inni \u2018ala dhikrika wa shukrika wa husni \u2018ibadatik", en:'O Allah, help me to remember You, to thank You, and to worship You in the best manner.', src:'Abu Dawud 1522'};
+const DUA_MUADH = {ar:'\u0627\u0644\u0644\u0647\u0645 \u0623\u0639\u0646\u064a \u0639\u0644\u0649 \u0630\u0643\u0631\u0643 \u0648\u0634\u0643\u0631\u0643 \u0648\u062d\u0633\u0646 \u0639\u0628\u0627\u062f\u062a\u0643', tr:"Allahumma a\u2018inni \u2018ala dhikrika wa shukrika wa husni \u2018ibadatik", en:'O Allah, help me to remember You, to thank You, and to worship You in the best manner.', src:'Abu Dawud 1522'};
 const SUGGEST = {
   salah: {names:[['Al-Hamid', 'make me one who praises You always'], ['Ash-Shakur', 'help me be grateful for what You have given me'], ['Al-Ghafur', 'forgive my shortcomings in this prayer'], ['As-Salam', 'fill my heart with peace after this prayer']]},
   fajr: {label:'Fajr \u00B7 morning', themes:['Knowledge', 'Provision', 'Accepted deeds', 'Praise'],
     names:[['Al-Fattah', 'open the doors of good for me today'], ['Al-\u2018Alim', 'grant me beneficial knowledge'], ['Ar-Razzaq', 'provide me with good provision'], ['Al-Hamid', 'accept my deeds and keep me praising You today'], ['An-Nur', 'put light in my heart and in my day']],
-    dua:{tr:"Allahumma inni as\u2018aluka \u2018ilman nafi\u2018an, wa rizqan tayyiban, wa \u2018amalan mutaqabbalan", en:'O Allah, I ask You for beneficial knowledge, good provision, and accepted deeds.', src:'Ibn Majah 925'}},
+    dua:{ar:'\u0627\u0644\u0644\u0647\u0645 \u0625\u0646\u064a \u0623\u0633\u0623\u0644\u0643 \u0639\u0644\u0645\u0627\u064b \u0646\u0627\u0641\u0639\u0627\u064b\u060c \u0648\u0631\u0632\u0642\u0627\u064b \u0637\u064a\u0628\u0627\u064b\u060c \u0648\u0639\u0645\u0644\u0627\u064b \u0645\u062a\u0642\u0628\u0644\u0627\u064b', tr:"Allahumma inni as\u2018aluka \u2018ilman nafi\u2018an, wa rizqan tayyiban, wa \u2018amalan mutaqabbalan", en:'O Allah, I ask You for beneficial knowledge, good provision, and accepted deeds.', src:'Ibn Majah 925'}},
   dhuhr: {label:'Dhuhr \u00B7 midday', themes:['Provision', 'Reliance on Allah'],
     names:[['Ar-Razzaq', 'provide for me and my family'], ['Al-Wakil', 'help me rely on You fully in my work'], ['Al-Muqit', 'give me the nourishment I need today'], ['Al-Qawiyy', 'give me strength for the rest of my day'], ['Al-Fattah', 'open the way for my work today']],
     dua:DUA_MUADH, duaIsMuadh:true},
@@ -3488,22 +3560,29 @@ const SUGGEST = {
     names:[['Al-Hamid', 'accept my day and make me thankful'], ['Al-Quddus', 'purify my heart and what I did today'], ['Al-Hafiz', 'protect me and my family until night'], ['As-Salam', 'grant me peace for the rest of the day'], ['Al-Latif', 'be gentle with me and ease what I am facing']], dua:null},
   maghrib: {label:'Maghrib \u00B7 evening', themes:['The good of the night', 'Protection', 'Forgiveness'],
     names:[['Al-Malik', 'make the coming night good for me'], ['Al-Hafiz', 'protect me and my family tonight'], ['Al-Muhaymin', 'watch over me and my family tonight'], ['Al-Ghafur', 'forgive me for what I did today'], ['Al-Hamid', 'accept my day and make me thankful']],
-    dua:{tr:"Allahumma bika amsayna, wa bika asbahna, wa bika nahya, wa bika namutu, wa ilaykan-nushur", en:'O Allah, by You we have reached the evening, by You we reach the morning, by You we live, by You we die, and to You is the Resurrection.', src:'Tirmidhi 3391'}},
+    dua:{ar:'\u0627\u0644\u0644\u0647\u0645 \u0628\u0643 \u0623\u0645\u0633\u064a\u0646\u0627 \u0648\u0628\u0643 \u0623\u0635\u0628\u062d\u0646\u0627 \u0648\u0628\u0643 \u0646\u062d\u064a\u0627 \u0648\u0628\u0643 \u0646\u0645\u0648\u062a \u0648\u0625\u0644\u064a\u0643 \u0627\u0644\u0646\u0634\u0648\u0631', tr:"Allahumma bika amsayna, wa bika asbahna, wa bika nahya, wa bika namutu, wa ilaykan-nushur", en:'O Allah, by You we have reached the evening, by You we reach the morning, by You we live, by You we die, and to You is the Resurrection.', src:'Tirmidhi 3391'}},
   isha: {label:'Isha \u00B7 night', themes:['Entrusting yourself to Allah', 'Protection', 'Sleep'],
     names:[['Al-Wakil', 'be enough for me and take care of my affairs'], ['Al-Hafiz', 'protect me while I sleep'], ['Al-Muhaymin', 'watch over me and my family tonight'], ['Al-Qayyum', 'take care of all my affairs'], ['As-Salam', 'grant me a peaceful, restful sleep']],
-    dua:{tr:'Bismika Allahumma amutu wa ahya', en:'In Your name, O Allah, I die and I live.', src:'Bukhari 6324'}},
+    dua:{ar:'\u0628\u0627\u0633\u0645\u0643 \u0627\u0644\u0644\u0647\u0645 \u0623\u0645\u0648\u062a \u0648\u0623\u062d\u064a\u0627', tr:'Bismika Allahumma amutu wa ahya', en:'In Your name, O Allah, I die and I live.', src:'Bukhari 6324'}},
   last3: {label:'Last third of the night', themes:['Forgiveness', 'Any need'],
     names:[['Al-Ghafur', 'forgive my sins'], ['Al-Ghaffar', 'forgive me again and again'], ['At-Tawwab', 'accept my repentance'], ['Al-\u2018Afuww', 'pardon me and erase my mistakes'], ['Al-Mujib', 'answer my dua']],
-    dua:{tr:"Allahumma anta Rabbi la ilaha illa ant, khalaqtani wa ana \u2018abduk, wa ana \u2018ala \u2018ahdika wa wa\u2018dika mastata\u2018t, a\u2018udhu bika min sharri ma sana\u2018t, abu\u2019u laka bini\u2018matika \u2018alayya, wa abu\u2019u laka bidhanbi faghfir li, fa innahu la yaghfirudh-dhunuba illa ant", en:'O Allah, You are my Lord; there is no god but You. You created me and I am Your servant, and I keep Your covenant and promise as best I can. I seek refuge in You from the evil I have done. I acknowledge Your favor upon me and I acknowledge my sin, so forgive me, for none forgives sins but You.', src:'Bukhari 6306 \u00B7 Sayyid al-Istighfar'}}
+    dua:{ar:'\u0627\u0644\u0644\u0647\u0645 \u0623\u0646\u062a \u0631\u0628\u064a \u0644\u0627 \u0625\u0644\u0647 \u0625\u0644\u0627 \u0623\u0646\u062a\u060c \u062e\u0644\u0642\u062a\u0646\u064a \u0648\u0623\u0646\u0627 \u0639\u0628\u062f\u0643\u060c \u0648\u0623\u0646\u0627 \u0639\u0644\u0649 \u0639\u0647\u062f\u0643 \u0648\u0648\u0639\u062f\u0643 \u0645\u0627 \u0627\u0633\u062a\u0637\u0639\u062a\u060c \u0623\u0639\u0648\u0630 \u0628\u0643 \u0645\u0646 \u0634\u0631 \u0645\u0627 \u0635\u0646\u0639\u062a\u060c \u0623\u0628\u0648\u0621 \u0644\u0643 \u0628\u0646\u0639\u0645\u062a\u0643 \u0639\u0644\u064a \u0648\u0623\u0628\u0648\u0621 \u0644\u0643 \u0628\u0630\u0646\u0628\u064a \u0641\u0627\u063a\u0641\u0631 \u0644\u064a\u060c \u0641\u0625\u0646\u0647 \u0644\u0627 \u064a\u063a\u0641\u0631 \u0627\u0644\u0630\u0646\u0648\u0628 \u0625\u0644\u0627 \u0623\u0646\u062a', tr:"Allahumma anta Rabbi la ilaha illa ant, khalaqtani wa ana \u2018abduk, wa ana \u2018ala \u2018ahdika wa wa\u2018dika mastata\u2018t, a\u2018udhu bika min sharri ma sana\u2018t, abu\u2019u laka bini\u2018matika \u2018alayya, wa abu\u2019u laka bidhanbi faghfir li, fa innahu la yaghfirudh-dhunuba illa ant", en:'O Allah, You are my Lord; there is no god but You. You created me and I am Your servant, and I keep Your covenant and promise as best I can. I seek refuge in You from the evil I have done. I acknowledge Your favor upon me and I acknowledge my sin, so forgive me, for none forgives sins but You.', src:'Bukhari 6306 \u00B7 Sayyid al-Istighfar'}}
 };
 function sugAddName(trName, memo){
   const n = nameNum(trName); if (!n) return;
   const d = createDua({n:n, memo:memo || '', text:composeDua(n, memo || '').text, status:'oneoff', how:'suggested'});
-  prayAdd(d.id); renderPray(); toast('Added for this ' + PRAYER_NAME[PRAY.prayer]);
+  if (prayHas(d.id)) { toast('Already in this ' + PRAYER_NAME[PRAY.prayer]); return; }
+  prayAdd(d.id);
+  keepPlace('pr-free', () => renderPray());
+  toast('Added for this ' + PRAYER_NAME[PRAY.prayer]);
 }
 function sugAddDua(x){
-  const d = createDua({n:null, memo:'', text:x.tr + '\n' + x.en + '\n\u2014 ' + x.src, status:'oneoff', how:'suggested'});
-  prayAdd(d.id); renderPray(); toast('Added for this ' + PRAYER_NAME[PRAY.prayer]);
+  const text = [x.ar, x.tr, x.en, '\u2014 ' + x.src].filter(Boolean).join('\n');
+  const dup = data.duas.find(d => isLive(d) && normText(curText(d)) === normText(text));
+  if (dup && prayHas(dup.id)) { toast('Already in this ' + PRAYER_NAME[PRAY.prayer]); return; }
+  const d = dup || createDua({n:null, memo:'', text:text, status:'oneoff', how:'suggested'});
+  keepPlace('pr-free', () => { prayAdd(d.id); renderPray(); });
+  toast('Added for this ' + PRAYER_NAME[PRAY.prayer]);
 }
 function sugTag(kind){ return el('span', {class:'sug-tag ' + kind.toLowerCase(), text:kind}); }
 function sugChip(trName, memo, extra){
@@ -3512,6 +3591,7 @@ function sugChip(trName, memo, extra){
 function sugDuaCard(d, kind){
   return el('div', {class:'sug-dua'}, [
     el('div', {class:'sug-dua-top'}, [sugTag(kind), el('span', {class:'sug-src', text:d.src})]),
+    d.ar ? el('p', {class:'sug-ar', lang:'ar', dir:'rtl', text:d.ar}) : null,
     el('p', {class:'sug-tr', text:d.tr}),
     el('p', {class:'sug-en', text:d.en}),
     el('button', {type:'button', class:'btn small', text:'+ Add to this prayer', onclick:() => sugAddDua(d)})
@@ -3538,7 +3618,7 @@ function learnedFor(w){
 const PEOPLE_CHIPS = 6;
 function addPersonToPrayer(p){
   const ids = p.live.map(i => i.d.id), fresh = ids.filter(id => !prayHas(id));
-  ids.forEach(prayAdd); renderPray();
+  ids.forEach(prayAdd); keepPlace('pr-free', () => renderPray());
   toast(fresh.length ? 'Added ' + (fresh.length === 1 ? 'a dua' : fresh.length + ' duas') + ' for ' + p.label : 'Already in this ' + PRAYER_NAME[PRAY.prayer]);
   const b = document.querySelector('.pcell[data-person="' + p.key + '"]'); if (b) b.focus({preventScroll:true});
 }
@@ -3566,7 +3646,7 @@ function showPeopleHint(box, text, o){
         blk.appendChild(el('div', {class:'ppl-hint-row'}, [
           el('span', {class:'ppl-hint-x', text:t.length > 70 ? t.slice(0, 68) + '\u2026' : t}),
           el('button', {type:'button', class:'btn small ppl-add', 'aria-pressed':done ? 'true' : 'false', 'aria-label':(done ? 'Already added: ' : 'Add to this prayer: ') + t.slice(0, 60),
-            text:done ? '\u2713 Added' : '+ Add', onclick:() => { if (!done) o.onAdd(i.d.id); }})
+            text:done ? '\u2713 Added' : '+ Add', onclick:() => { if (done || prayHas(i.d.id)) return; o.onAdd(i.d.id); }})
         ]));
       });
       if (f.rows.length > 3) blk.appendChild(el('p', {class:'ppl-hint-more', text:'+ ' + (f.rows.length - 3) + ' more in My Duas'}));
@@ -3651,7 +3731,7 @@ function buildSuggested(prayerKey){
     }
     if (L.repeat.length) {
       mine.appendChild(el('div', {class:'sug-row'}, [el('span', {class:'sug-themes', text:'Ask again in one tap'})]));
-      L.repeat.forEach(r => mine.appendChild(el('button', {type:'button', class:'sug-again', onclick:() => { prayAdd(r.duaId); renderPray(); }}, [el('span', {class:'sug-again-m', text:'\u201C' + (r.label.length > 70 ? r.label.slice(0, 68) + '\u2026' : r.label) + '\u201D'}), el('span', {class:'sug-again-n', text:(r.n && BY_N[r.n] ? BY_N[r.n].tr + ' \u00B7 ' : '') + '\u00D7' + r.c})])));
+      L.repeat.forEach(r => mine.appendChild(el('button', {type:'button', class:'sug-again' + (prayHas(r.duaId) ? ' added' : ''), onclick:() => { if (prayHas(r.duaId)) { toast('Already in this ' + PRAYER_NAME[PRAY.prayer]); return; } prayAdd(r.duaId); keepPlace('pr-free', () => renderPray()); }}, [el('span', {class:'sug-again-m', text:'\u201C' + (r.label.length > 70 ? r.label.slice(0, 68) + '\u2026' : r.label) + '\u201D'}), el('span', {class:'sug-again-n', text:(r.n && BY_N[r.n] ? BY_N[r.n].tr + ' \u00B7 ' : '') + '\u00D7' + r.c})])));
     }
   }
   body.appendChild(mine);
@@ -3740,6 +3820,7 @@ function peopleIn(text){
       if (!REL_FREE.has(t.base)) return;
       if (a && (REL_DET.has(a.lo) || a.poss)) return;                                  // his mom, Sarah's mom, the mother of ...
       if (b && REL_SELF.has(b.lo)) return;                                             // be a good mother
+      if (/^(?:abu|abba|abi|abbu)$/.test(t.base) && toks[k + 1] && /^[A-Z]/.test(toks[k + 1].w) && !/^(?:Is|Was|Has|Sick|Ill)$/.test(toks[k + 1].w)) return;   // Abu Dawud is a name, not your father
     }
     addRel(t.base);
   });
@@ -3902,9 +3983,9 @@ function addVersion(d, text, how){
 function createDua(o){
   const memo = o.memo || '', n = o.n || null;
   const same = data.duas.find(d => isLive(d) && (d.n || null) === n && normText(d.memo) === normText(memo) && (memo || normText(curText(d)) === normText(o.text)));
-  if (same) { if (o.text && same.status === 'oneoff' && o.status === 'keeper') same.status = 'keeper'; saveData(); return same; }
+  if (same) { if (o.text && same.status === 'oneoff' && o.status === 'keeper') same.status = 'keeper'; if (o.subject && !same.subject) same.subject = String(o.subject).trim(); saveData(); return same; }
   const at = new Date().toISOString();
-  const d = {id:'d' + uid(), n:n, memo:memo, versions:[], cur:'', status:o.status || 'keeper', created:at, updated:at};
+  const d = {id:'d' + uid(), n:n, memo:memo, subject:o.subject ? String(o.subject).trim() : '', versions:[], cur:'', status:o.status || 'keeper', created:at, updated:at};
   const v = {id:'v' + uid(), text:String(o.text || '').trim(), at:at, how:o.how || 'typed'};
   d.versions.push(v); d.cur = v.id;
   data.duas.push(d); saveData();
@@ -3977,13 +4058,52 @@ function unlogMade(occIds){
 
 /* ---------- Pray now ---------- */
 const prayView = document.getElementById('view-pray');
-const PRAY = {day:'', prayer:'', ids:[], off:new Set(), seed:null, q:'', more:false, logged:null, draft:''};
+const PRAY = {day:'', prayer:'', ids:[], off:new Set(), seed:null, q:'', more:false, logged:null, draft:'', subject:''};
 function shortDay(k){ return dateFromKey(k).toLocaleDateString('en-US', {month:'short', day:'numeric'}); }
 function prayReset(prayer){
   PRAY.prayer = prayer; PRAY.seed = seedSet(prayer, Date.now()); PRAY.ids = PRAY.seed.ids.slice(); PRAY.off = new Set(); PRAY.q = ''; PRAY.more = false;
 }
 function prayOn(){ return PRAY.ids.filter(id => !PRAY.off.has(id) && isLive(duaById(id))); }
-function prayAdd(id){ if (!PRAY.ids.includes(id)) PRAY.ids.push(id); PRAY.off.delete(id); }
+function prayAdd(id){ if (PRAY.ids.includes(id)) { PRAY.off.delete(id); return false; } PRAY.ids.push(id); PRAY.off.delete(id); return true; }
+function keepPlace(anchorId, fn){
+  const el = anchorId ? document.getElementById(anchorId) : null;
+  const y = window.scrollY, top = el ? el.getBoundingClientRect().top : null;
+  fn();
+  const el2 = anchorId ? document.getElementById(anchorId) : null;
+  if (el2 && top != null) window.scrollTo(0, window.scrollY + (el2.getBoundingClientRect().top - top));
+  else window.scrollTo(0, y);
+}
+const DAY_PART = {fajr:'this morning', dhuhr:'today', asr:'this afternoon', maghrib:'this evening', isha:'tonight'};
+function dayPart(prayer){ return DAY_PART[prayer] || 'now'; }
+function layoutChoice(name, allowed, fallback){
+  const q = new URLSearchParams(location.search).get(name);
+  let saved = '';
+  try { saved = localStorage.getItem('duaBook.' + name) || ''; } catch (e) {}
+  const v = allowed.indexOf(q) >= 0 ? q : allowed.indexOf(saved) >= 0 ? saved : fallback;
+  if (allowed.indexOf(q) >= 0) { try { localStorage.setItem('duaBook.' + name, q); } catch (e) {} }
+  return v;
+}
+function listLayout(){ return layoutChoice('list', ['stack', 'rows', 'brief'], 'brief'); }
+function cardLayout(){ return layoutChoice('cards', ['line', 'band', 'title'], 'band'); }
+function subjectOf(d){
+  const s = String(d.subject || '').trim();
+  if (s) return s;
+  const src = String(d.memo || curText(d) || '').split('\n')[0].replace(/\s+/g, ' ').trim();
+  const cut = src.split(/[,.!?;]/)[0].trim() || src;
+  const words = cut.split(/\s+/).slice(0, 5).join(' ');
+  return words.length > 42 ? words.slice(0, 42).replace(/\s+\S*$/, '') : words;
+}
+function layoutSwitch(kind){
+  if (new URLSearchParams(location.search).get('bakeoff') !== '1') return null;
+  const opts = kind === 'list' ? [['stack', 'Stack'], ['rows', 'Rows'], ['brief', 'Brief']] : [['line', 'Line'], ['band', 'Band'], ['title', 'Title']];
+  const cur = kind === 'list' ? listLayout() : cardLayout();
+  return el('div', {class:'bake', role:'group', 'aria-label':kind === 'list' ? 'My Duas layout' : 'Pray card layout'}, opts.map(([id, label]) => el('button', {type:'button', class:'bake-btn' + (id === cur ? ' on' : ''), text:label, onclick:() => {
+    const u = new URL(location.href);
+    u.searchParams.set('bakeoff', '1');
+    u.searchParams.set(kind === 'list' ? 'list' : 'cards', id);
+    location.href = u.pathname + u.search + location.hash;
+  }})));
+}
 function duaFromRequest(text, status, how){
   const c = composeFree(text);
   return createDua({n:c.n, memo:c.memo, text:c.text, status:status, how:how});
@@ -3994,13 +4114,19 @@ function duaName(d){
   const g = d.n && GEN[d.n]; if (!g) return null;
   return el('span', {class:'nmx'}, [el('span', {class:'ar', lang:'ar', dir:'rtl', text:g[1]}), el('span', {class:'tr', text:g[0]})]);
 }
-function duaHead(d, cls){ return el('div', {class:'dr'}, [el('p', {class:cls || 'my-t', text:duaTitle(d)}), duaName(d)]); }
-function prayDuaRow(d, idx, on, onToggle, tag){
+function glanceFor(d, surface){
+  if (surface === 'pray' && cardLayout() === 'line') return duaTitle(d);
+  if (surface === 'my' && listLayout() === 'stack') return duaTitle(d);
+  if (surface === 'pray' || surface === 'my') return subjectOf(d);
+  return duaTitle(d);
+}
+function duaHead(d, cls, surface){ return el('div', {class:'dr'}, [el('p', {class:cls || 'my-t', text:surface ? glanceFor(d, surface) : duaTitle(d)}), duaName(d)]); }
+function prayDuaRow(d, idx, on, onToggle, tag, added){
   const st = idx.get(d.id), dot = d.n && BY_N[d.n] ? CAT_BY_ID[BY_N[d.n].cat].color : 'var(--gold)';
-  const cb = el('button', {type:'button', class:'pr-cb' + (on ? ' on' : ''), 'aria-pressed':on ? 'true' : 'false', 'aria-label':(on ? 'Leave out: ' : 'Include: ') + curText(d).slice(0, 60), onclick:onToggle});
-  return el('div', {class:'pr-row' + (on ? '' : ' off'), style:'--dot:' + dot}, [cb, el('div', {class:'pr-tx', onclick:onToggle}, [
-    el('div', {class:'dr'}, [el('p', {class:'pr-t', text:duaTitle(d)}), duaName(d)]),
-    el('div', {class:'pr-m'}, [d.status === 'oneoff' ? el('span', {class:'pr-tag', text:'just for now'}) : null, tag || null, st ? el('span', {text:'made ' + st.count + '\u00D7'}) : null])
+  const cb = el('button', {type:'button', class:'pr-cb' + (on ? ' on' : ''), 'aria-pressed':on ? 'true' : 'false', 'aria-label':(added ? 'Added: ' : on ? 'Leave out: ' : 'Include: ') + subjectOf(d).slice(0, 60), onclick:onToggle});
+  return el('div', {id:'pr-row-' + d.id, class:'pr-row' + (on ? '' : ' off') + (added ? ' added' : ''), style:'--dot:' + dot}, [cb, el('div', {class:'pr-tx', onclick:onToggle}, [
+    el('div', {class:'dr'}, [el('p', {class:'pr-t', text:glanceFor(d, 'pray')}), duaName(d)]),
+    el('div', {class:'pr-m'}, [added ? el('span', {class:'pr-tag', text:'added'}) : null, d.status === 'oneoff' ? el('span', {class:'pr-tag', text:'just for now'}) : null, tag || null, st ? el('span', {text:'made ' + st.count + '\u00D7'}) : null])
   ])]);
 }
 function prayEnsure(){
@@ -4009,11 +4135,14 @@ function prayEnsure(){
 }
 function prayHas(id){ return PRAY.ids.includes(id) && !PRAY.off.has(id); }
 function renderPray(){
+  const hold = window.scrollY;
   const today = dayKey(new Date());
   prayEnsure();
   prayView.innerHTML = '';
   const wrap = el('div', {class:'pr-wrap'});
+  wrap.dataset.cards = cardLayout();
   prayView.appendChild(wrap);
+  const bake = layoutSwitch('cards'); if (bake) wrap.appendChild(bake);
   if (PRAY.logged) {
     const L = PRAY.logged;
     wrap.appendChild(el('div', {class:'pr-done'}, [
@@ -4024,6 +4153,7 @@ function renderPray(){
         el('button', {type:'button', class:'btn gold', text:'Done', onclick:() => { PRAY.logged = null; prayReset(PRAY.prayer); renderPray(); }})
       ])
     ]));
+    window.scrollTo(0, hold);
     return;
   }
   const idx = duaIndex(), on = prayOn(), n = on.length, p = PRAY.prayer, seed = PRAY.seed;
@@ -4051,27 +4181,41 @@ function renderPray(){
   wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'For this time'}), el('small', {text:PRAYER_NAME[p]})]));
   wrap.appendChild(buildSuggested(p));
   wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'Just for now'}), el('small', {text:'stays out of My Duas'})]));
-  const inp = el('input', {type:'text', class:'field', id:'prFree', placeholder:'Something for tonight\u2026', maxlength:'300', enterkeyhint:'done', autocomplete:'off', value:PRAY.draft});
-  const add = () => { const v = inp.value.trim(); if (!v) return; const d = duaFromRequest(v, 'oneoff', 'typed'); PRAY.draft = ''; prayAdd(d.id); renderPray(); toast('Added for this ' + PRAYER_NAME[p]); };
+  const subjectField = el('input', {type:'text', class:'field pr-sub', id:'prSub', placeholder:'Subject, optional', maxlength:'80', autocomplete:'off', value:PRAY.subject || ''});
+  const inp = el('input', {type:'text', class:'field', id:'prFree', placeholder:'Something for ' + dayPart(p) + '\u2026', maxlength:'300', enterkeyhint:'done', autocomplete:'off', value:PRAY.draft});
+  const add = () => {
+    const v = inp.value.trim(); if (!v) return;
+    const subject = subjectField.value.trim();
+    const dup = data.duas.find(d => isLive(d) && (normText(d.memo) === normText(v) || normText(curText(d)) === normText(v)));
+    if (dup && prayHas(dup.id)) { toast('Already in this ' + PRAYER_NAME[p]); return; }
+    const d = dup || duaFromRequest(v, 'oneoff', 'typed');
+    if (subject) d.subject = subject;
+    PRAY.draft = ''; PRAY.subject = '';
+    prayAdd(d.id);
+    keepPlace('pr-free', () => renderPray());
+    toast('Added for this ' + PRAYER_NAME[p]);
+  };
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
   inp.addEventListener('input', () => { PRAY.draft = inp.value; });
-  wrap.appendChild(el('div', {class:'pr-free'}, [inp, el('button', {type:'button', class:'btn', text:'Add', onclick:add})]));
+  subjectField.addEventListener('input', () => { PRAY.subject = subjectField.value; });
+  wrap.appendChild(el('div', {class:'pr-free', id:'pr-free'}, [subjectField, inp, el('button', {type:'button', class:'btn', text:'Add', onclick:add})]));
   const hint = peopleHintBox(); wrap.appendChild(hint);
-  bindPeopleHint(inp, hint, {onAdd:id => { prayAdd(id); renderPray(); toast('Added for this ' + PRAYER_NAME[p]); }});
+  bindPeopleHint(inp, hint, {onAdd:id => { if (prayHas(id)) { toast('Already in this ' + PRAYER_NAME[PRAY.prayer]); return; } prayAdd(id); keepPlace('pr-free', () => renderPray()); toast('Added for this ' + PRAYER_NAME[PRAY.prayer]); }});
   const recents = data.duas.filter(d => d.status === 'oneoff' && !PRAY.ids.includes(d.id) && Date.now() - Date.parse(((idx.get(d.id) || {}).last) || d.created) < 7 * MS_DAY)
     .sort((a, b) => (((idx.get(b.id) || {}).last) || b.created).localeCompare(((idx.get(a.id) || {}).last) || a.created)).slice(0, 4);
-  if (recents.length) wrap.appendChild(el('div', {class:'pr-recents'}, recents.map(d => { const t = curText(d); return el('button', {type:'button', class:'pr-chip', onclick:() => { prayAdd(d.id); renderPray(); }, text:(t.length > 28 ? t.slice(0, 26) + '\u2026' : t) + ((idx.get(d.id) || {}).count ? ' \u00B7 ' + idx.get(d.id).count + '\u00D7' : '')}); })));
+  if (recents.length) wrap.appendChild(el('div', {class:'pr-recents'}, recents.map(d => { const t = subjectOf(d); return el('button', {type:'button', class:'pr-chip', onclick:() => { if (prayHas(d.id)) { toast('Already in this ' + PRAYER_NAME[p]); return; } prayAdd(d.id); keepPlace('pr-free', () => renderPray()); }, text:(t.length > 28 ? t.slice(0, 26) + '\u2026' : t) + ((idx.get(d.id) || {}).count ? ' \u00B7 ' + idx.get(d.id).count + '\u00D7' : '')}); })));
   const q = normText(PRAY.q);
-  const pool = data.duas.filter(d => isLive(d) && !PRAY.ids.includes(d.id) && (q ? normText(curText(d) + ' ' + d.memo + ' ' + (d.n ? BY_N[d.n].tr : '')).includes(q) : d.status === 'keeper'))
+  const pool = data.duas.filter(d => isLive(d) && (q ? normText(curText(d) + ' ' + d.memo + ' ' + (d.subject || '') + ' ' + (d.n ? BY_N[d.n].tr : '')).includes(q) : d.status === 'keeper'))
     .sort((a, b) => (((idx.get(b.id) || {}).count) || 0) - (((idx.get(a.id) || {}).count) || 0));
   wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'From My Duas'}), el('small', {text:pool.length + (q ? ' found' : ' more')}),
     el('span', {class:'pr-sp'}), pool.length > 3 || q ? el('button', {type:'button', class:'btn small ghost', text:PRAY.more || q ? 'Hide' : 'Show', onclick:() => { PRAY.more = !PRAY.more; PRAY.q = ''; renderPray(); }}) : null]));
   if (PRAY.more || q || (pool.length && pool.length <= 3)) {
     const s = el('input', {type:'search', class:'field', id:'prSearch', placeholder:'Find a dua\u2026', value:PRAY.q, 'aria-label':'Find a dua', autocomplete:'off', hidden:!PRAY.more && !q});
-    s.addEventListener('input', () => { PRAY.q = s.value; PRAY.more = true; renderPray(); const x = document.getElementById('prSearch'); x.focus(); x.setSelectionRange(x.value.length, x.value.length); });
+    s.addEventListener('input', () => { PRAY.q = s.value; PRAY.more = true; const y = window.scrollY; renderPray(); window.scrollTo(0, y); const x = document.getElementById('prSearch'); if (x) { x.focus({preventScroll:true}); x.setSelectionRange(x.value.length, x.value.length); } });
     wrap.appendChild(s);
-    pool.slice(0, 40).forEach(d => wrap.appendChild(prayDuaRow(d, idx, false, () => { prayAdd(d.id); renderPray(); })));
+    pool.slice(0, 40).forEach(d => { const added = prayHas(d.id); wrap.appendChild(prayDuaRow(d, idx, added, () => { if (added) return; prayAdd(d.id); keepPlace('pr-row-' + d.id, () => renderPray()); }, null, added)); });
   }
+  window.scrollTo(0, hold);
 }
 function finishPray(ids){
   const p = PRAY.prayer;
@@ -4213,7 +4357,7 @@ function composeFree(text, variant){
    My Duas and History
    ====================================================================== */
 const duasView = document.getElementById('view-duas');
-const MY = {composer:false, request:'', variant:0, draft:null, openId:null, showHist:60, restingOpen:false, answeredOpen:false, removedOpen:false};
+const MY = {composer:false, request:'', subject:'', variant:0, draft:null, openId:null, showHist:60, restingOpen:false, answeredOpen:false, removedOpen:false};
 const REST_DAYS = 30, REPEAT_DAYS = 30;
 const NO_ANSWER = ['forgiveness', 'deceased'];
 function versionById(d, vid){ return d.versions.find(v => v.id === vid) || curVersion(d); }
@@ -4249,10 +4393,13 @@ function repeatedOneoffs(idx){
 
 function composerCard(){
   const box = el('section', {class:'my-composer'});
+  const sub = el('input', {type:'text', class:'field', id:'mySub', placeholder:'Subject, optional', maxlength:'80', autocomplete:'off', value:MY.subject || ''});
+  sub.addEventListener('input', () => { MY.subject = sub.value; });
   const ta = el('textarea', {class:'field', id:'myReq', rows:'3', maxlength:'400', placeholder:'What do you want to ask for? e.g. healing for my mother, ease in my exams\u2026'});
   ta.value = MY.request;
   ta.addEventListener('input', () => { MY.request = ta.value; autoGrow(ta); });
   box.appendChild(el('h3', {text:'New dua'}));
+  box.appendChild(sub);
   box.appendChild(ta);
   const hint = peopleHintBox(); box.appendChild(hint);
   const hintOpts = {showAdded:true, onAdd:id => { prayEnsure(); prayAdd(id); toast('Added for this ' + PRAYER_NAME[PRAY.prayer]); showPeopleHint(hint, ta.value, hintOpts); }};
@@ -4260,7 +4407,7 @@ function composerCard(){
   if (!MY.draft) {
     box.appendChild(el('div', {class:'my-row'}, [
       el('button', {type:'button', class:'btn gold', id:'myWrite', text:'Write it as a dua', onclick:() => { if (!MY.request.trim()) { ta.focus(); return; } MY.variant = 0; MY.draft = composeFree(MY.request, 0); renderDuas(); }}),
-      el('button', {type:'button', class:'btn ghost', text:'Cancel', onclick:() => { MY.composer = false; MY.request = ''; MY.draft = null; renderDuas(); }})
+      el('button', {type:'button', class:'btn ghost', text:'Cancel', onclick:() => { MY.composer = false; MY.request = ''; MY.subject = ''; MY.draft = null; renderDuas(); }})
     ]));
     return box;
   }
@@ -4270,7 +4417,7 @@ function composerCard(){
   box.appendChild(el('div', {class:'my-name'}, [el('span', {class:'ar-s', text:nm.ar}), ' Ya ' + nm.tr + ' \u00B7 ' + nm.meaning,
     c.options.length > 1 ? el('button', {type:'button', class:'link-btn', id:'myAnother', text:'Another Name', onclick:() => { MY.variant++; const d2 = composeFree(MY.request, MY.variant); MY.draft = d2; renderDuas(); }}) : null]));
   box.appendChild(text);
-  const save = status => { const t = text.value.trim(); if (!t) return; const d = createDua({n:c.n, memo:c.memo, text:t, status:status, how:c.edited ? 'edited' : 'composed'}); MY.composer = false; MY.request = ''; MY.draft = null; MY.openId = d.id; renderFavorites(); renderDuas(); toast(status === 'keeper' ? 'Saved to My Duas' : 'Saved just for now'); };
+  const save = status => { const t = text.value.trim(); if (!t) return; const d = createDua({n:c.n, memo:c.memo, text:t, status:status, how:c.edited ? 'edited' : 'composed', subject:(MY.subject || '').trim()}); MY.composer = false; MY.request = ''; MY.subject = ''; MY.draft = null; MY.openId = d.id; const y = window.scrollY; renderFavorites(); renderDuas(); window.scrollTo(0, y); toast(status === 'keeper' ? 'Saved to My Duas' : 'Saved just for now'); };
   box.appendChild(el('div', {class:'my-row'}, [
     el('button', {type:'button', class:'btn gold', id:'mySave', text:'Save to My Duas', onclick:() => save('keeper')}),
     el('button', {type:'button', class:'btn', id:'myOneoff', text:'Just for now', onclick:() => save('oneoff')}),
@@ -4305,10 +4452,20 @@ function duaCard(d, idx){
   const open = MY.openId === d.id, nm = d.n && BY_N[d.n];
   const dot = nm ? CAT_BY_ID[nm.cat].color : 'var(--gold)';
   const card = el('div', {class:'my-card' + (open ? ' open' : ''), 'data-id':d.id, style:'--dot:' + dot});
-  card.appendChild(el('button', {type:'button', class:'my-top', 'aria-expanded':open ? 'true' : 'false', onclick:() => { MY.openId = open ? null : d.id; renderDuas(); }}, [
-    duaHead(d), el('div', {class:'my-m', text:duaMeta(d, idx)})]));
+  const preview = listLayout() === 'brief' ? curText(d).split('\n')[0] : '';
+  card.appendChild(el('button', {type:'button', class:'my-top', 'aria-expanded':open ? 'true' : 'false', onclick:() => { const y = window.scrollY; MY.openId = open ? null : d.id; renderDuas(); window.scrollTo(0, y); }}, [
+    duaHead(d, 'my-t', 'my'),
+    preview && preview !== subjectOf(d) ? el('p', {class:'my-preview', text:preview}) : null,
+    el('div', {class:'my-m', text:duaMeta(d, idx)})]));
   if (!open) return card;
   const body = el('div', {class:'my-body'});
+  const first = d.versions[0];
+  body.appendChild(el('div', {class:'my-source'}, [
+    el('p', {class:'my-k', text:'What you wrote'}),
+    el('p', {text:d.memo ? d.memo : 'No note was saved with this dua.'}),
+    first ? el('p', {class:'my-k', text:'First wording'}) : null,
+    first ? el('p', {class:'my-first', text:first.text}) : null
+  ]));
   const ta = el('textarea', {class:'field my-edit', rows:'4', maxlength:'900', 'aria-label':'Dua wording'}); ta.value = curText(d);
   let t = null;
   ta.addEventListener('input', () => { autoGrow(ta); clearTimeout(t); t = setTimeout(() => { addVersion(d, ta.value, 'edited'); saveData(); }, 500); });
@@ -4357,9 +4514,11 @@ function duaSection(title, list, idx, opts){
   return sec;
 }
 function renderDuas(){
+  const hold = window.scrollY;
   const idx = duaIndex(), now = Date.now();
   duasView.innerHTML = '';
   const wrap = el('div', {class:'my-wrap'});
+  wrap.dataset.list = listLayout();
   duasView.appendChild(wrap);
   const fileIn = el('input', {type:'file', accept:'application/json,.json', hidden:true});
   fileIn.addEventListener('change', () => { if (fileIn.files[0]) importFile(fileIn.files[0]); fileIn.value = ''; });
@@ -4367,6 +4526,7 @@ function renderDuas(){
     el('div', null, [el('h1', {text:'My Duas'}), el('p', {text:'The duas you keep coming back to. Saved only on this device.'})]),
     el('button', {class:'gear-btn', type:'button', 'aria-label':'Settings', title:'Settings', text:'\u2699', onclick:openSettings})
   ]));
+  const bake = layoutSwitch('list'); if (bake) wrap.appendChild(bake);
   wrap.appendChild(el('div', {class:'my-actions'}, [
     el('button', {type:'button', class:'btn gold', id:'myNew', text:'+ New dua', onclick:() => { MY.composer = true; renderDuas(); const r = document.getElementById('myReq'); if (r) r.focus(); }}),
     el('button', {type:'button', class:'btn', text:'History', onclick:() => { location.hash = '#duas/history'; }}),
@@ -4397,6 +4557,7 @@ function renderDuas(){
   const g = el('div', {class:'my-guide-body'}); g.appendChild(document.getElementById('duaGuide').content.cloneNode(true));
   wrap.appendChild(el('details', {class:'my-fold my-guide'}, [el('summary', {text:'Before you pray'}), g]));
   wrap.querySelectorAll('textarea').forEach(autoGrow);
+  window.scrollTo(0, hold);
 }
 
 /* ======================================================================
@@ -4525,7 +4686,7 @@ function dayText(r){
     occsOf(g).forEach((o, i) => { const d = duaById(o.duaId); if (d) L.push((i + 1) + '. ' + versionById(d, o.vid).text, ''); });
   });
   dayNotes(r.day).forEach(n => L.push('My words: ' + n.text, ''));
-  L.push('\u2014 from my Asma al-Husna Dua Log');
+  L.push('\u2014 from my Dua Book');
   return L.join('\n');
 }
 function occsOf(g){ return data.occ.filter(o => occKey(o) === g.key).sort((a, b) => a.at.localeCompare(b.at)); }
@@ -4640,7 +4801,7 @@ function importText(text){
       gone:arr('gone').filter(g => typeof g === 'string').slice(-300)
     };
     if (Array.isArray(d.themes)) themesIn = cleanThemes(d.themes);
-  } catch (e) { alert('That file isn\u2019t a valid Dua Log backup.'); return; }
+  } catch (e) { alert('That file isn\u2019t a valid Dua Book backup.'); return; }
   if (!inc.logs.length && !inc.favDuas.length && !inc.duas.length && !themesIn) { alert('No duas found in that file.'); return; }
   const what = inc.duas.length ? inc.duas.length + ' dua' + (inc.duas.length === 1 ? '' : 's') + ' and ' + inc.occ.length + ' times made' : inc.logs.length + ' log' + (inc.logs.length === 1 ? '' : 's');
   if (!confirm('Add ' + what + ' from this backup to what you have?' + (themesIn ? ' (Your standing themes will be replaced by the backup\u2019s.)' : '') + ' Nothing you have now is deleted.')) return;
@@ -4804,23 +4965,6 @@ window.addEventListener('storage', (e) => {
 renderFavorites();
 syncSelectionUI();
 route();
-
-/* ---------- home-screen icon (generated, so the file stays self-contained) ---------- */
-(function(){
-  try {
-    const c = document.createElement('canvas'); c.width = c.height = 180;
-    const x = c.getContext('2d');
-    x.fillStyle = '#0c1022'; x.fillRect(0, 0, 180, 180);
-    x.strokeStyle = '#c9a227'; x.lineWidth = 5;
-    x.save(); x.translate(90, 90);
-    x.strokeRect(-48, -48, 96, 96); x.rotate(Math.PI / 4); x.strokeRect(-48, -48, 96, 96);
-    x.restore();
-    x.fillStyle = '#c9a227'; x.beginPath(); x.arc(90, 90, 7, 0, Math.PI * 2); x.fill();
-    const link = document.createElement('link'); link.rel = 'apple-touch-icon'; link.href = c.toDataURL('image/png');
-    document.head.appendChild(link);
-    const ic = document.createElement('link'); ic.rel = 'icon'; ic.href = link.href; document.head.appendChild(ic);
-  } catch (e) {}
-})();
 </script>
 </body>
 </html>
