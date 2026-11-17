@@ -1,0 +1,58 @@
+{
+ "powder day": {
+  "onMadder": 4.82,
+  "badgeInk": 5.1,
+  "btnInk": 9.45,
+  "oliveOnSheet": 5.44,
+  "inkOnGround": 11.87
+ },
+ "powder night": {
+  "onMadder": 6.96,
+  "badgeInk": 9.13,
+  "btnInk": 9.64,
+  "oliveOnSheet": 7.37,
+  "inkOnGround": 13.37
+ },
+ "powder_v1 day": {
+  "onMadder": 5.57,
+  "badgeInk": 5.09,
+  "btnInk": 9.87,
+  "oliveOnSheet": 5.58,
+  "inkOnGround": 11.48
+ },
+ "powder_v1 night": {
+  "onMadder": 7.06,
+  "badgeInk": 8.91,
+  "btnInk": 10.04,
+  "oliveOnSheet": 8.09,
+  "inkOnGround": 13.22
+ },
+ "powder_v2 day": {
+  "onMadder": 6.7,
+  "badgeInk": 6.7,
+  "btnInk": 11.45,
+  "oliveOnSheet": 5.57,
+  "inkOnGround": 12.17
+ },
+ "powder_v2 night": {
+  "onMadder": 7.75,
+  "badgeInk": 9.32,
+  "btnInk": 10.65,
+  "oliveOnSheet": 8.74,
+  "inkOnGround": 13.94
+ },
+ "powder_v3 day": {
+  "onMadder": 6.7,
+  "badgeInk": 6.53,
+  "btnInk": 11.45,
+  "oliveOnSheet": 5.53,
+  "inkOnGround": 12.24
+ },
+ "powder_v3 night": {
+  "onMadder": 7.75,
+  "badgeInk": 9.52,
+  "btnInk": 10.65,
+  "oliveOnSheet": 8.7,
+  "inkOnGround": 13.88
+ }
+}

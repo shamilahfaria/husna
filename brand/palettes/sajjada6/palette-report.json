@@ -1,0 +1,128 @@
+{
+ "a": {
+  "name": "Iznik tile (cobalt, turquoise, sage, coral-dust)",
+  "day": [
+   "#8CA4CD",
+   "#78B2AE",
+   "#A3BC9B",
+   "#D69A8C",
+   "#93A6BF",
+   "#D8CBA6"
+  ],
+  "night": [
+   "#455776",
+   "#43646A",
+   "#53625C",
+   "#725859",
+   "#515E73",
+   "#63625C"
+  ],
+  "minDayInitials": 5.74,
+  "minNightInitials": 5.45
+ },
+ "b": {
+  "name": "Indigo dye (indigo, woad, denim, celadon)",
+  "day": [
+   "#95A2C7",
+   "#92A6C6",
+   "#A4B8D2",
+   "#A9C7BC",
+   "#9CA4B9",
+   "#D3D8D2"
+  ],
+  "night": [
+   "#414E6E",
+   "#4E5C75",
+   "#536175",
+   "#55676B",
+   "#4E576B",
+   "#596067"
+  ],
+  "minDayInitials": 5.72,
+  "minNightInitials": 5.28
+ },
+ "c": {
+  "name": "Mughal miniature (lapis, verdigris, saffron-dust, rose-madder)",
+  "day": [
+   "#8FA1CA",
+   "#7FB0A0",
+   "#DDBF7E",
+   "#D39AA0",
+   "#9DBB8F",
+   "#D8A58A"
+  ],
+  "night": [
+   "#445373",
+   "#476363",
+   "#6D644E",
+   "#715863",
+   "#56695B",
+   "#735E58"
+  ],
+  "minDayInitials": 5.61,
+  "minNightInitials": 5.22
+ },
+ "d": {
+  "name": "Kashmiri shawl (slate, teal, mustard, plum)",
+  "day": [
+   "#97A3B2",
+   "#7DABAB",
+   "#D3B771",
+   "#B399B1",
+   "#C79A86",
+   "#90AA98"
+  ],
+  "night": [
+   "#4C5767",
+   "#435F67",
+   "#696049",
+   "#5C5166",
+   "#6B5856",
+   "#4A5D5B"
+  ],
+  "minDayInitials": 5.61,
+  "minNightInitials": 5.55
+ },
+ "e": {
+  "name": "Sea-glass (aqua, seafoam, blue-glass, sand)",
+  "day": [
+   "#9ED0CB",
+   "#B2D9C4",
+   "#A4C6DA",
+   "#C3DDB6",
+   "#E0D8C0",
+   "#BCC7DC"
+  ],
+  "night": [
+   "#4A646B",
+   "#536868",
+   "#536779",
+   "#53625D",
+   "#5E6061",
+   "#576072"
+  ],
+  "minDayInitials": 8.07,
+  "minNightInitials": 5.22
+ },
+ "f": {
+  "name": "Dusk sky (periwinkle, violet-dusk, rose, apricot)",
+  "day": [
+   "#93A2D2",
+   "#A99DC9",
+   "#D6A2B4",
+   "#E3B493",
+   "#9DB8D6",
+   "#B4B2CE"
+  ],
+  "night": [
+   "#4E5A7B",
+   "#585575",
+   "#725C6D",
+   "#705F58",
+   "#506177",
+   "#5A5E73"
+  ],
+  "minDayInitials": 5.76,
+  "minNightInitials": 5.39
+ }
+}
