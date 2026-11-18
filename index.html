@@ -450,7 +450,7 @@
   .my-card.open{ border-color:var(--gold-soft); border-left-color:var(--dot,var(--gold)); }
   .my-card.keep-q, .my-card.removed{ padding:12px 14px; }
   .my-top{ display:block; width:100%; text-align:left; background:none; border:none; color:inherit; padding:13px 14px; cursor:pointer; font:inherit; }
-  .my-card.open .my-t{ visibility:hidden; }
+  .my-card.open .my-t{ display:none; }
   .my-m{ margin-top:6px; font-size:.72rem; color:var(--ink-faint); }
   .my-preview{ margin:6px 0 0; font-size:.84rem; line-height:1.4; color:var(--ink-dim); display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
   .my-source{ margin:0 0 12px; padding:10px 12px; border-radius:10px; background:color-mix(in srgb,var(--ink) 5%,transparent); }
@@ -610,7 +610,7 @@
   <p class="subtitle">The Ninety-Nine Names of Allah</p>
   <p class="verse">"And to Allah belong the most beautiful names, so call upon Him by them." — Qur'an 7:180</p>
   <p class="tip">Tap or click a card to flip it and see a dua, where an authentic one exists.</p>
-  <p class="tip">Tap <em style="font-weight:600">Select</em> to choose Names for My Duas.</p>
+  <p class="tip">Tap <em style="font-weight:600">Select</em> to choose Names for the notebook.</p>
 </header>
 
 <nav class="controls" id="controls">
@@ -666,7 +666,7 @@
   <div class="selbar-in">
     <div class="count" id="selCount" aria-live="polite"></div>
     <button class="btn ghost" id="selCancel" type="button">Cancel</button>
-    <button class="btn gold" id="selAdd" type="button" disabled>Add to My Duas</button>
+    <button class="btn gold" id="selAdd" type="button" disabled>Add to the notebook</button>
   </div>
 </div>
 
@@ -674,15 +674,15 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet-head">
       <button class="sheet-edit" id="sheetEdit" type="button" aria-pressed="false">Edit</button>
-      <h2 id="sheetTitle">Add to My Duas</h2>
+      <h2 id="sheetTitle">Add to the notebook</h2>
       <p>What are you calling on each Name for? Leave any blank and a general supplication will be written for it.</p>
-      <div class="target" id="sheetTarget">Saving to My Duas</div>
-      <label class="sheet-opt"><input type="checkbox" id="sheetOneoff"> Just for now (don’t keep in My Duas)</label>
+      <div class="target" id="sheetTarget">Saving to the notebook</div>
+      <label class="sheet-opt"><input type="checkbox" id="sheetOneoff"> Just for now (don’t keep in the notebook)</label>
     </div>
     <div class="sheet-body" id="sheetBody"></div>
     <div class="sheet-foot">
       <button class="btn" id="sheetCancel" type="button">Back</button>
-      <button class="btn gold" id="sheetSave" type="button">Save to My Duas</button>
+      <button class="btn gold" id="sheetSave" type="button">Save to the notebook</button>
     </div>
   </div>
 </div>
@@ -3554,7 +3554,7 @@ function removeMemoRow(row){
 function updateSheetCount(){
   const k = (sheetWrap._ns || []).length;
   document.getElementById('sheetSave').disabled = k === 0;
-  document.getElementById('sheetTitle').textContent = k ? 'Add ' + k + (k === 1 ? ' Name' : ' Names') + ' to My Duas' : 'Add to My Duas';
+  document.getElementById('sheetTitle').textContent = k ? 'Add ' + k + (k === 1 ? ' Name' : ' Names') + ' to the notebook' : 'Add to the notebook';
 }
 function setSheetEditing(on){
   const sheet = sheetWrap.querySelector('.sheet');
@@ -3597,7 +3597,7 @@ document.getElementById('sheetSave').addEventListener('click', async () => {
     } catch (err) {
       aiNote = aiErrorText(err) + ' \u2014 used the built-in wording';
     }
-    savingSheet = false; btn.disabled = false; btn.classList.remove('busy'); btn.textContent = 'Save to My Duas';
+    savingSheet = false; btn.disabled = false; btn.classList.remove('busy'); btn.textContent = 'Save to the notebook';
     if (sheetWrap.hidden) return;   // user backed out while waiting
   }
   const status = document.getElementById('sheetOneoff').checked ? 'oneoff' : 'keeper';
@@ -3606,7 +3606,7 @@ document.getElementById('sheetSave').addEventListener('click', async () => {
   setSelecting(false);
   renderFavorites();
   location.hash = '#duas';
-  toast(entries.length + (entries.length === 1 ? ' Name' : ' Names') + (status === 'keeper' ? ' added to My Duas' : ' saved just for now') + (aiNote ? ' \u00B7 ' + aiNote : ''));
+  toast(entries.length + (entries.length === 1 ? ' Name' : ' Names') + (status === 'keeper' ? ' added to the notebook' : ' saved just for now') + (aiNote ? ' \u00B7 ' + aiNote : ''));
 });
 
 /* ---------- approximate Austin prayer windows (offline solar calculation) ---------- */
@@ -3759,7 +3759,7 @@ function showPeopleHint(box, text, o){
             text:done ? '\u2713 Added' : '+ Add', onclick:() => { if (done || prayHas(i.d.id)) return; o.onAdd(i.d.id); }})
         ]));
       });
-      if (f.rows.length > 3) blk.appendChild(el('p', {class:'ppl-hint-more', text:'+ ' + (f.rows.length - 3) + ' more in My Duas'}));
+      if (f.rows.length > 3) blk.appendChild(el('p', {class:'ppl-hint-more', text:'+ ' + (f.rows.length - 3) + ' more in the notebook'}));
       box.appendChild(blk);
     });
   } catch (e) { box.textContent = ''; }
@@ -4293,7 +4293,7 @@ function renderPray(){
   }
   wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'For this time'}), el('small', {text:PRAYER_NAME[p]})]));
   wrap.appendChild(buildSuggested(p));
-  wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'Just for now'}), el('small', {text:'stays out of My Duas'})]));
+  wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'Just for now'}), el('small', {text:'stays out of the notebook'})]));
   const subjectField = el('input', {type:'text', class:'field pr-sub', id:'prSub', placeholder:'Subject, optional', maxlength:'80', autocomplete:'off', value:PRAY.subject || ''});
   const inp = el('input', {type:'text', class:'field', id:'prFree', placeholder:'Something for ' + dayPart(p) + '\u2026', maxlength:'300', enterkeyhint:'done', autocomplete:'off', value:PRAY.draft});
   const add = () => {
@@ -4526,9 +4526,9 @@ function composerCard(){
   box.appendChild(el('div', {class:'my-name'}, [el('span', {class:'ar-s', text:nm.ar}), ' Ya ' + nm.tr + ' \u00B7 ' + nm.meaning,
     c.options.length > 1 ? el('button', {type:'button', class:'link-btn', id:'myAnother', text:'Another Name', onclick:() => { MY.variant++; const d2 = composeFree(MY.request, MY.variant); MY.draft = d2; refreshDuas(); }}) : null]));
   box.appendChild(text);
-  const save = status => { const t = text.value.trim(); if (!t) return; const d = createDua({n:c.n, memo:c.memo, text:t, status:status, how:c.edited ? 'edited' : 'composed', subject:(MY.subject || '').trim()}); MY.composer = false; MY.request = ''; MY.subject = ''; MY.draft = null; MY.openId = d.id; const y = window.scrollY; renderFavorites(); refreshDuas(); window.scrollTo(0, y); toast(status === 'keeper' ? 'Saved to My Duas' : 'Saved just for now'); };
+  const save = status => { const t = text.value.trim(); if (!t) return; const d = createDua({n:c.n, memo:c.memo, text:t, status:status, how:c.edited ? 'edited' : 'composed', subject:(MY.subject || '').trim()}); MY.composer = false; MY.request = ''; MY.subject = ''; MY.draft = null; MY.openId = d.id; const y = window.scrollY; renderFavorites(); refreshDuas(); window.scrollTo(0, y); toast(status === 'keeper' ? 'Saved to the notebook' : 'Saved just for now'); };
   box.appendChild(el('div', {class:'my-row'}, [
-    el('button', {type:'button', class:'btn gold', id:'mySave', text:'Save to My Duas', onclick:() => save('keeper')}),
+    el('button', {type:'button', class:'btn gold', id:'mySave', text:'Save to the notebook', onclick:() => save('keeper')}),
     el('button', {type:'button', class:'btn', id:'myOneoff', text:'Just for now', onclick:() => save('oneoff')}),
     el('button', {type:'button', class:'btn ghost', text:'Back', onclick:() => { MY.draft = null; refreshDuas(); }})
   ]));
@@ -4589,7 +4589,7 @@ function duaCard(d, idx){
   if (d.status === 'answered') acts.appendChild(el('button', {type:'button', class:'btn small', text:'Still asking', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }}));
   else {
     acts.appendChild(el('button', {type:'button', class:'btn small gold', text:'Pray this now', onclick:() => { prayAddNow(d.id); }}));
-    if (d.status === 'oneoff') acts.appendChild(el('button', {type:'button', class:'btn small', text:'Keep in My Duas', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }}));
+    if (d.status === 'oneoff') acts.appendChild(el('button', {type:'button', class:'btn small', text:'Keep in the notebook', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }}));
     if (canAnswer(d)) acts.appendChild(el('button', {type:'button', class:'btn small', text:'Mark as answered', onclick:() => answeredSheet(d)}));
   }
   acts.appendChild(el('button', {type:'button', class:'btn small danger', text:'Remove', onclick:() => { setDuaStatus(d, 'retired'); MY.openId = null; refreshDuas(); toast('Removed. It stays under Recently removed for 30 days.'); }}));
@@ -4686,7 +4686,7 @@ function renderDuas(parent){
   const rep = repeatedOneoffs(idx);
   if (rep.length) wrap.appendChild(duaSection('Keep these?', rep, idx, {row:d => el('div', {class:'my-card keep-q'}, [
     duaHead(d), el('div', {class:'my-m', text:'You\u2019ve made this on ' + idx.get(d.id).days.size + ' different days.'}),
-    el('div', {class:'my-row'}, [el('button', {type:'button', class:'btn small gold', text:'Keep in My Duas', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }})])])}));
+    el('div', {class:'my-row'}, [el('button', {type:'button', class:'btn small gold', text:'Keep in the notebook', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }})])])}));
   const keepers = data.duas.filter(d => d.status === 'keeper');
   const recent = [], resting = [];
   keepers.forEach(d => (now - Date.parse(lastTouch(d, idx)) > REST_DAYS * MS_DAY ? resting : recent).push(d));
@@ -4847,7 +4847,7 @@ function renderHistory(){
   const wrap = el('div', {class:'my-wrap'});
   duasView.appendChild(wrap);
   wrap.appendChild(el('div', {class:'my-head'}, [el('div', null, [el('h1', {text:'History'}), el('p', {text:'Every dua you\u2019ve made, in the words you used then.'})]),
-    el('button', {type:'button', class:'btn small', text:'\u2039 My Duas', onclick:() => { location.hash = '#duas'; }})]));
+    el('button', {type:'button', class:'btn small', text:'\u2039 Notebook', onclick:() => { location.hash = '#duas'; }})]));
   const days = historyDays();
   if (!days.length) { wrap.appendChild(el('div', {class:'empty', text:'Nothing yet. When you tap \u201CI made these\u201D in Pray, it shows up here.'})); return; }
   days.slice(0, MY.showHist).forEach(r => {
