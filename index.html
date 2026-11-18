@@ -24,7 +24,8 @@
   var d = document.documentElement, params = new URLSearchParams(location.search), q = params.get('mode'), mq = matchMedia('(prefers-color-scheme: light)'), KEY = 'asmaDuaLog.ui.appearance', pref = 'auto';
   var type = params.get('type');
   d.dataset.type = type === 'b' || type === 'c' ? type : 'a';
-  d.dataset.tabs = params.get('tabs') === 'rename' ? 'rename' : 'merge';
+  var tabQ = params.get('tabs');
+  d.dataset.tabs = (tabQ === 'rename' || tabQ === 'session' || tabQ === 'timeline') ? tabQ : 'merge';
   try { var v = localStorage.getItem(KEY); if (v === 'light' || v === 'dark') pref = v; } catch (e) {}
   var forced = q === 'day' || q === 'night';   // ?mode= wins, so tests can pin a look
   function set(){ var m = forced ? q : pref === 'light' ? 'day' : pref === 'dark' ? 'night' : mq.matches ? 'day' : 'night'; d.dataset.mode = m; d.dataset.appearance = pref; var t = document.querySelector('meta[name=theme-color]'); if (t) t.content = m === 'day' ? '#E2E8F2' : '#171F38'; }
@@ -419,6 +420,12 @@
   .tabbar .tab.active{ background:none; color:var(--ink); }
   .tabbar .tab.active::after{ content:""; position:absolute; left:50%; bottom:0; width:34px; height:3px; margin-left:-17px; background:var(--accent); }
   html[data-tabs=merge] .tab[data-view=duas]{ display:none; }
+  html[data-tabs=session] .tab[data-view=pray]{ display:none; }
+  .tl-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; text-align:left; background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius); padding:14px 16px; margin:0 0 8px; min-height:56px; color:var(--ink); font:600 1.05rem/1.2 var(--disp); cursor:pointer; }
+  .tl-row.on{ box-shadow:inset 3px 0 0 var(--accent); }
+  .tl-row small{ font:500 .78rem/1.3 var(--ui); color:var(--ink-dim); }
+  .sess-banner{ margin:0 0 16px; padding:14px 16px; background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius); }
+  .sess-banner .btn{ margin-top:8px; }
   .page-sub{ margin:2px 0 14px; font-size:.86rem; line-height:1.4; color:var(--ink-dim); }
   .notebook{ margin-top:28px; padding-top:8px; border-top:1px solid var(--hairline); }
   .nb-link{ margin:14px 0 0; font-size:.9rem; }
@@ -4224,10 +4231,33 @@ function renderPray(){
   const wrap = el('div', {class:'pr-wrap'});
   prayView.appendChild(wrap);
   const mode = tabsMode();
-  wrap.appendChild(el('div', {class:'my-head'}, [el('div', null, [
-    el('h1', {text:mode === 'rename' ? 'Now' : 'For this prayer'}),
-    el('p', {class:'page-sub', text:mode === 'rename' ? 'Only this prayer. The full wording stays in Notebook.' : 'Suggestions, Names, and the duas lined up for this salah. The notebook is below.'})
-  ])]));
+  if (mode === 'timeline' && !TL.prayer) {
+    const nowP = currentPrayer(Date.now());
+    wrap.appendChild(el('div', {class:'my-head'}, [el('div', null, [
+      el('h1', {text:'Today'}),
+      el('p', {class:'page-sub', text:'Five prayers. Open one for only what you are asking then. The notebook is a different list.'})
+    ])]));
+    PRAYER_KEYS.forEach(k => {
+      const on = k === nowP;
+      wrap.appendChild(el('button', {type:'button', class:'tl-row' + (on ? ' on' : ''), onclick:() => { TL.prayer = k; prayReset(k); renderPray(); }}, [
+        el('span', {text:PRAYER_NAME[k] + (on ? ' · now' : '')}),
+        el('small', {text:'Open'})
+      ]));
+    });
+    window.scrollTo(0, hold);
+    return;
+  }
+  const head = mode === 'rename'
+    ? ['Now', 'Only this prayer. The full wording stays in Notebook.']
+    : mode === 'session'
+      ? ['This ' + PRAYER_NAME[PRAY.prayer || currentPrayer(Date.now())], 'A session you can leave. The notebook is unchanged when you exit.']
+      : mode === 'timeline'
+        ? [PRAYER_NAME[TL.prayer], 'Only this prayer. Today is the list of the five.']
+        : ['For this prayer', 'Suggestions, Names, and the duas lined up for this salah. The notebook is below.'];
+  const headRow = [el('h1', {text:head[0]}), el('p', {class:'page-sub', text:head[1]})];
+  if (mode === 'session') headRow.push(el('button', {type:'button', class:'btn', text:'Exit to notebook', onclick:() => { setSession(false); location.hash = '#duas'; }}));
+  if (mode === 'timeline') headRow.push(el('button', {type:'button', class:'btn', text:'Back to today', onclick:() => { TL.prayer = null; renderPray(); }}));
+  wrap.appendChild(el('div', {class:'my-head'}, [el('div', null, headRow)]));
   if (PRAY.logged) {
     const L = PRAY.logged;
     wrap.appendChild(el('div', {class:'pr-done'}, [
@@ -4590,18 +4620,27 @@ function duaSection(title, list, idx, opts){
   }
   return sec;
 }
-function tabsMode(){ return document.documentElement.dataset.tabs === 'rename' ? 'rename' : 'merge'; }
+function tabsMode(){
+  const t = document.documentElement.dataset.tabs;
+  if (t === 'rename' || t === 'session' || t === 'timeline') return t;
+  return 'merge';
+}
+const TL = { prayer: null };
+function sessionOn(){ try { return sessionStorage.getItem('duaBook.session') === '1'; } catch (e) { return false; } }
+function setSession(on){ try { if (on) sessionStorage.setItem('duaBook.session', '1'); else sessionStorage.removeItem('duaBook.session'); } catch (e) {} }
 function applyTabs(){
   const mode = tabsMode();
   document.documentElement.dataset.tabs = mode;
-  const pray = document.querySelector('.tab[data-view=pray] span');
-  const duas = document.querySelector('.tab[data-view=duas]');
-  if (pray) pray.textContent = mode === 'rename' ? 'Now' : 'Pray';
-  if (duas) {
-    const label = duas.querySelector('span');
-    if (label) label.textContent = mode === 'rename' ? 'Notebook' : 'My Duas';
-    duas.hidden = mode !== 'rename';
-  }
+  const prayTab = document.querySelector('.tab[data-view=pray]');
+  const duasTab = document.querySelector('.tab[data-view=duas]');
+  const prayLabel = prayTab && prayTab.querySelector('span');
+  const duasLabel = duasTab && duasTab.querySelector('span');
+  const prayName = {rename:'Now', timeline:'Today', session:'Pray', merge:'Pray'}[mode];
+  const duasName = mode === 'merge' ? 'My Duas' : 'Notebook';
+  if (prayLabel) prayLabel.textContent = prayName;
+  if (duasLabel) duasLabel.textContent = duasName;
+  if (prayTab) prayTab.hidden = mode === 'session';
+  if (duasTab) duasTab.hidden = mode === 'merge';
 }
 function refreshDuas(){
   const pv = document.getElementById('view-pray');
@@ -4618,9 +4657,21 @@ function renderDuas(parent){
   if (!embedded) host.appendChild(wrap);
   const fileIn = el('input', {type:'file', accept:'application/json,.json', hidden:true});
   fileIn.addEventListener('change', () => { if (fileIn.files[0]) importFile(fileIn.files[0]); fileIn.value = ''; });
-  const notebook = embedded || tabsMode() === 'rename';
+  const mode = tabsMode();
+  const notebook = embedded || mode !== 'merge';
+  const sub = mode === 'session' ? 'What you are asking Allah for. Begin a prayer when you are ready. It does not copy this list.'
+    : mode === 'timeline' ? 'The living list. Each prayer opens on its own from Today.'
+    : mode === 'rename' ? 'Your library. This is not the prayer lineup.'
+    : 'The full wording. Add, edit, and mark answered here.';
+  if (mode === 'session' && !embedded) {
+    const nowP = currentPrayer(Date.now());
+    wrap.appendChild(el('div', {class:'sess-banner'}, [
+      el('p', {class:'page-sub', text:'It is ' + PRAYER_NAME[nowP] + '.'}),
+      el('button', {type:'button', class:'btn gold', text:'Begin this prayer', onclick:() => { setSession(true); prayReset(nowP); location.hash = '#pray'; }})
+    ]));
+  }
   wrap.appendChild(el('div', {class:'my-head'}, [
-    el('div', null, [el('h1', {text:notebook ? 'Notebook' : 'My Duas'}), el('p', {class:'page-sub', text:notebook ? 'The full wording. Add, edit, and mark answered here.' : 'The duas you keep coming back to. Saved only on this device.'})]),
+    el('div', null, [el('h1', {text:notebook ? 'Notebook' : 'My Duas'}), el('p', {class:'page-sub', text:embedded && mode === 'merge' ? sub : (notebook ? sub : 'The duas you keep coming back to. Saved only on this device.')})]),
     el('button', {class:'gear-btn', type:'button', 'aria-label':'Settings', title:'Settings', text:'\u2699', onclick:openSettings})
   ]));
   wrap.appendChild(el('div', {class:'my-actions'}, [
@@ -4930,11 +4981,12 @@ let refScroll = 0;
 let currentView = 'reference';
 function route(){
   applyTabs();
-  const h = location.hash || '#pray';
+  const h = location.hash || (tabsMode() === 'session' ? '#duas' : '#pray');
   if (h === '#logs' || h.startsWith('#log/')) { location.replace('#duas/history'); return; }
   let view = h === '#pray' ? 'pray' : h === '#duas' ? 'duas' : h === '#duas/history' ? 'history' : h === '#reflect' ? 'reflect' : 'reference';
   const toNotebook = tabsMode() === 'merge' && view === 'duas';
   if (toNotebook) view = 'pray';
+  if (tabsMode() === 'session' && view === 'pray' && !sessionOn()) view = 'duas';
   const wasRef = currentView === 'reference';
   if (wasRef && view !== 'reference') refScroll = window.scrollY;
   if (!sheetWrap.hidden) closeSheet();
@@ -4952,11 +5004,17 @@ function route(){
   const shown = view === 'reference' ? refView : view === 'pray' ? prayView : view === 'reflect' ? reflectView : duasView;
   if (shown) { shown.classList.remove('view-in'); void shown.offsetWidth; shown.classList.add('view-in'); }
   const barTitle = document.getElementById('barTitle');
-  const titles = tabsMode() === 'rename'
-    ? {reference:'Names', pray:'Now', duas:'Notebook', reflect:'Reflect', history:'History'}
-    : {reference:'Names', pray:'Pray', duas:'Pray', reflect:'Reflect', history:'History'};
-  if (barTitle) barTitle.textContent = titles[view] || 'Dua Book';
-  const tabOn = tabsMode() === 'merge' && (currentView === 'pray' || currentView === 'duas') ? 'pray' : currentView;
+  const mode = tabsMode();
+  const titles = {
+    merge: {reference:'Names', pray:'Pray', duas:'Pray', reflect:'Reflect', history:'History'},
+    rename: {reference:'Names', pray:'Now', duas:'Notebook', reflect:'Reflect', history:'History'},
+    session: {reference:'Names', pray:'This prayer', duas:'Notebook', reflect:'Reflect', history:'History'},
+    timeline: {reference:'Names', pray: TL.prayer ? PRAYER_NAME[TL.prayer] : 'Today', duas:'Notebook', reflect:'Reflect', history:'History'}
+  };
+  if (barTitle) barTitle.textContent = (titles[mode] || titles.merge)[view] || 'Dua Book';
+  let tabOn = currentView;
+  if (mode === 'merge' && (currentView === 'pray' || currentView === 'duas')) tabOn = 'pray';
+  if (mode === 'session' && currentView === 'pray') tabOn = '';
   document.querySelectorAll('.tab').forEach(t => {
     const on = t.dataset.view === tabOn;
     t.classList.toggle('active', on);
