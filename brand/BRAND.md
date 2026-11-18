@@ -105,7 +105,7 @@ Same drawing day and night. The field is `tiles/iznik.svg` (softened Iznik mille
 
 The arch mark is `assets/mark-soft.png`, used as a mask and filled with `--accent`, so the sage drawing takes the sea-glass token.
 
-Home-screen icons are resized from `assets/icon-soft-indigo-1024.png` on `brand-refs` at `0197c3c`. The pixels were not redrawn.
+Home-screen icons, the apple-touch icon, and the favicon are resized from `assets/icon-final-1024.png` on `brand-refs` at `1a1750f`. The art is borderless and full bleed. The pixels were not redrawn.
 
 ## Type kits
 
