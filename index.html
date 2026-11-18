@@ -24,6 +24,7 @@
   var d = document.documentElement, params = new URLSearchParams(location.search), q = params.get('mode'), mq = matchMedia('(prefers-color-scheme: light)'), KEY = 'asmaDuaLog.ui.appearance', pref = 'auto';
   var type = params.get('type');
   d.dataset.type = type === 'b' || type === 'c' ? type : 'a';
+  d.dataset.tabs = params.get('tabs') === 'rename' ? 'rename' : 'merge';
   try { var v = localStorage.getItem(KEY); if (v === 'light' || v === 'dark') pref = v; } catch (e) {}
   var forced = q === 'day' || q === 'night';   // ?mode= wins, so tests can pin a look
   function set(){ var m = forced ? q : pref === 'light' ? 'day' : pref === 'dark' ? 'night' : mq.matches ? 'day' : 'night'; d.dataset.mode = m; d.dataset.appearance = pref; var t = document.querySelector('meta[name=theme-color]'); if (t) t.content = m === 'day' ? '#E2E8F2' : '#171F38'; }
@@ -417,6 +418,11 @@
   .tabbar .tab svg{ width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
   .tabbar .tab.active{ background:none; color:var(--ink); }
   .tabbar .tab.active::after{ content:""; position:absolute; left:50%; bottom:0; width:34px; height:3px; margin-left:-17px; background:var(--accent); }
+  html[data-tabs=merge] .tab[data-view=duas]{ display:none; }
+  .page-sub{ margin:2px 0 14px; font-size:.86rem; line-height:1.4; color:var(--ink-dim); }
+  .notebook{ margin-top:28px; padding-top:8px; border-top:1px solid var(--hairline); }
+  .nb-link{ margin:14px 0 0; font-size:.9rem; }
+  .nb-link a{ color:var(--accent-ink); }
   .toast{ bottom:calc(88px + var(--safe-b)); }
   /* ---------- My Duas and History ---------- */
   .my-wrap{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:42px var(--mx) 30px; }
@@ -4199,9 +4205,10 @@ function duaHead(d, cls, surface){ return el('div', {class:'dr'}, [el('p', {clas
 function prayDuaRow(d, idx, on, onToggle, tag, added, slot){
   const st = idx.get(d.id), dot = d.n && BY_N[d.n] ? CAT_BY_ID[BY_N[d.n].cat].color : 'var(--gold)';
   const cb = el('button', {type:'button', class:'pr-cb' + (on ? ' on' : ''), 'aria-pressed':on ? 'true' : 'false', 'aria-label':(added ? 'Added: ' : on ? 'Leave out: ' : 'Include: ') + subjectOf(d).slice(0, 60), onclick:onToggle});
+  const openBook = tabsMode() === 'rename' ? el('button', {type:'button', class:'link-btn', text:'In Notebook', onclick:(e) => { e.stopPropagation(); MY.openId = d.id; location.hash = '#duas'; }}) : null;
   return el('div', {id:(slot || 'row') + '-' + d.id, class:'pr-row' + (on ? '' : ' off') + (added ? ' added' : ''), style:'--dot:' + dot}, [cb, el('div', {class:'pr-tx', onclick:onToggle}, [
     el('div', {class:'dr'}, [el('p', {class:'pr-t', text:glanceFor(d, 'pray')}), duaName(d)]),
-    el('div', {class:'pr-m'}, [added ? el('span', {class:'pr-tag', text:'added'}) : null, d.status === 'oneoff' ? el('span', {class:'pr-tag', text:'just for now'}) : null, tag || null, st ? el('span', {text:'made ' + st.count + '\u00D7'}) : null])
+    el('div', {class:'pr-m'}, [added ? el('span', {class:'pr-tag', text:'added'}) : null, d.status === 'oneoff' ? el('span', {class:'pr-tag', text:'just for now'}) : null, tag || null, openBook, st ? el('span', {text:'made ' + st.count + '\u00D7'}) : null])
   ])]);
 }
 function prayEnsure(){
@@ -4216,6 +4223,11 @@ function renderPray(){
   prayView.innerHTML = '';
   const wrap = el('div', {class:'pr-wrap'});
   prayView.appendChild(wrap);
+  const mode = tabsMode();
+  wrap.appendChild(el('div', {class:'my-head'}, [el('div', null, [
+    el('h1', {text:mode === 'rename' ? 'Now' : 'For this prayer'}),
+    el('p', {class:'page-sub', text:mode === 'rename' ? 'Only this prayer. The full wording stays in Notebook.' : 'Suggestions, Names, and the duas lined up for this salah. The notebook is below.'})
+  ])]));
   if (PRAY.logged) {
     const L = PRAY.logged;
     wrap.appendChild(el('div', {class:'pr-done'}, [
@@ -4226,9 +4238,7 @@ function renderPray(){
         el('button', {type:'button', class:'btn gold', text:'Done', onclick:() => { PRAY.logged = null; prayReset(PRAY.prayer); renderPray(); }})
       ])
     ]));
-    window.scrollTo(0, hold);
-    return;
-  }
+  } else {
   const idx = duaIndex(), on = prayOn(), n = on.length, p = PRAY.prayer, seed = PRAY.seed;
   wrap.appendChild(el('div', {class:'pr-chips', role:'tablist', 'aria-label':'Prayer'}, PRAYER_KEYS.map(k =>
     el('button', {type:'button', class:'pr-chip' + (k === p ? ' on' : ''), role:'tab', 'aria-selected':k === p ? 'true' : 'false', text:PRAYER_NAME[k], onclick:() => { prayReset(k); renderPray(); }}))));
@@ -4277,16 +4287,12 @@ function renderPray(){
   const recents = data.duas.filter(d => d.status === 'oneoff' && !PRAY.ids.includes(d.id) && Date.now() - Date.parse(((idx.get(d.id) || {}).last) || d.created) < 7 * MS_DAY)
     .sort((a, b) => (((idx.get(b.id) || {}).last) || b.created).localeCompare(((idx.get(a.id) || {}).last) || a.created)).slice(0, 4);
   if (recents.length) wrap.appendChild(el('div', {class:'pr-recents'}, recents.map(d => { const t = subjectOf(d); return el('button', {type:'button', class:'pr-chip', onclick:() => { if (prayHas(d.id)) { toast('Already in this ' + PRAYER_NAME[p]); return; } prayAdd(d.id); keepPlace('pr-free', () => renderPray()); }, text:(t.length > 28 ? t.slice(0, 26) + '\u2026' : t) + ((idx.get(d.id) || {}).count ? ' \u00B7 ' + idx.get(d.id).count + '\u00D7' : '')}); })));
-  const q = normText(PRAY.q);
-  const pool = data.duas.filter(d => isLive(d) && (q ? normText(curText(d) + ' ' + d.memo + ' ' + (d.subject || '') + ' ' + (d.n ? BY_N[d.n].tr : '')).includes(q) : d.status === 'keeper'))
-    .sort((a, b) => (((idx.get(b.id) || {}).count) || 0) - (((idx.get(a.id) || {}).count) || 0));
-  wrap.appendChild(el('div', {class:'pr-sec'}, [el('h3', {text:'From My Duas'}), el('small', {text:pool.length + (q ? ' found' : ' more')}),
-    el('span', {class:'pr-sp'}), pool.length > 3 || q ? el('button', {type:'button', class:'btn small ghost', text:PRAY.more || q ? 'Hide' : 'Show', onclick:() => { PRAY.more = !PRAY.more; PRAY.q = ''; renderPray(); }}) : null]));
-  if (PRAY.more || q || (pool.length && pool.length <= 3)) {
-    const s = el('input', {type:'search', class:'field', id:'prSearch', placeholder:'Find a dua\u2026', value:PRAY.q, 'aria-label':'Find a dua', autocomplete:'off', hidden:!PRAY.more && !q});
-    s.addEventListener('input', () => { PRAY.q = s.value; PRAY.more = true; const y = window.scrollY; renderPray(); window.scrollTo(0, y); const x = document.getElementById('prSearch'); if (x) { x.focus({preventScroll:true}); x.setSelectionRange(x.value.length, x.value.length); } });
-    wrap.appendChild(s);
-    pool.slice(0, 40).forEach(d => { const added = prayHas(d.id); wrap.appendChild(prayDuaRow(d, idx, added, () => { if (added) return; prayAdd(d.id); keepPlace('pool-' + d.id, () => renderPray()); }, null, added, 'pool')); });
+  if (mode === 'rename') wrap.appendChild(el('p', {class:'nb-link'}, ['Full wording is in Notebook. ', el('a', {href:'#duas', text:'Open Notebook'})]));
+  }
+  if (mode === 'merge') {
+    const nb = el('section', {id:'notebook', class:'notebook'});
+    wrap.appendChild(nb);
+    renderDuas(nb);
   }
   window.scrollTo(0, hold);
 }
@@ -4479,8 +4485,8 @@ function composerCard(){
   bindPeopleHint(ta, hint, hintOpts);
   if (!MY.draft) {
     box.appendChild(el('div', {class:'my-row'}, [
-      el('button', {type:'button', class:'btn gold', id:'myWrite', text:'Write it as a dua', onclick:() => { if (!MY.request.trim()) { ta.focus(); return; } MY.variant = 0; MY.draft = composeFree(MY.request, 0); renderDuas(); }}),
-      el('button', {type:'button', class:'btn ghost', text:'Cancel', onclick:() => { MY.composer = false; MY.request = ''; MY.subject = ''; MY.draft = null; renderDuas(); }})
+      el('button', {type:'button', class:'btn gold', id:'myWrite', text:'Write it as a dua', onclick:() => { if (!MY.request.trim()) { ta.focus(); return; } MY.variant = 0; MY.draft = composeFree(MY.request, 0); refreshDuas(); }}),
+      el('button', {type:'button', class:'btn ghost', text:'Cancel', onclick:() => { MY.composer = false; MY.request = ''; MY.subject = ''; MY.draft = null; refreshDuas(); }})
     ]));
     return box;
   }
@@ -4488,13 +4494,13 @@ function composerCard(){
   const text = el('textarea', {class:'field my-draft', id:'myDraft', rows:'4', maxlength:'900'}); text.value = c.text;
   text.addEventListener('input', () => { c.edited = true; c.text = text.value; autoGrow(text); });
   box.appendChild(el('div', {class:'my-name'}, [el('span', {class:'ar-s', text:nm.ar}), ' Ya ' + nm.tr + ' \u00B7 ' + nm.meaning,
-    c.options.length > 1 ? el('button', {type:'button', class:'link-btn', id:'myAnother', text:'Another Name', onclick:() => { MY.variant++; const d2 = composeFree(MY.request, MY.variant); MY.draft = d2; renderDuas(); }}) : null]));
+    c.options.length > 1 ? el('button', {type:'button', class:'link-btn', id:'myAnother', text:'Another Name', onclick:() => { MY.variant++; const d2 = composeFree(MY.request, MY.variant); MY.draft = d2; refreshDuas(); }}) : null]));
   box.appendChild(text);
-  const save = status => { const t = text.value.trim(); if (!t) return; const d = createDua({n:c.n, memo:c.memo, text:t, status:status, how:c.edited ? 'edited' : 'composed', subject:(MY.subject || '').trim()}); MY.composer = false; MY.request = ''; MY.subject = ''; MY.draft = null; MY.openId = d.id; const y = window.scrollY; renderFavorites(); renderDuas(); window.scrollTo(0, y); toast(status === 'keeper' ? 'Saved to My Duas' : 'Saved just for now'); };
+  const save = status => { const t = text.value.trim(); if (!t) return; const d = createDua({n:c.n, memo:c.memo, text:t, status:status, how:c.edited ? 'edited' : 'composed', subject:(MY.subject || '').trim()}); MY.composer = false; MY.request = ''; MY.subject = ''; MY.draft = null; MY.openId = d.id; const y = window.scrollY; renderFavorites(); refreshDuas(); window.scrollTo(0, y); toast(status === 'keeper' ? 'Saved to My Duas' : 'Saved just for now'); };
   box.appendChild(el('div', {class:'my-row'}, [
     el('button', {type:'button', class:'btn gold', id:'mySave', text:'Save to My Duas', onclick:() => save('keeper')}),
     el('button', {type:'button', class:'btn', id:'myOneoff', text:'Just for now', onclick:() => save('oneoff')}),
-    el('button', {type:'button', class:'btn ghost', text:'Back', onclick:() => { MY.draft = null; renderDuas(); }})
+    el('button', {type:'button', class:'btn ghost', text:'Back', onclick:() => { MY.draft = null; refreshDuas(); }})
   ]));
   setTimeout(() => autoGrow(text), 0);
   return box;
@@ -4525,7 +4531,7 @@ function duaCard(d, idx){
   const open = MY.openId === d.id, nm = d.n && BY_N[d.n];
   const dot = nm ? CAT_BY_ID[nm.cat].color : 'var(--gold)';
   const card = el('div', {class:'my-card' + (open ? ' open' : ''), 'data-id':d.id, style:'--dot:' + dot});
-  card.appendChild(el('button', {type:'button', class:'my-top', 'aria-expanded':open ? 'true' : 'false', onclick:() => { const y = window.scrollY; MY.openId = open ? null : d.id; renderDuas(); window.scrollTo(0, y); }}, [
+  card.appendChild(el('button', {type:'button', class:'my-top', 'aria-expanded':open ? 'true' : 'false', onclick:() => { const y = window.scrollY; MY.openId = open ? null : d.id; refreshDuas(); window.scrollTo(0, y); }}, [
     duaHead(d, 'my-t', 'my'),
     el('div', {class:'my-m', text:duaMeta(d, idx)})]));
   if (!open) return card;
@@ -4546,17 +4552,17 @@ function duaCard(d, idx){
   if (earlier.length) {
     const box = el('details', {class:'my-earlier'}, [el('summary', {text:'Earlier wordings (' + earlier.length + ')'})]);
     earlier.forEach(v => box.appendChild(el('div', {class:'my-ver'}, [
-      el('p', {text:v.text}), el('div', {class:'my-ver-m'}, [el('span', {text:shortDay(dayKey(new Date(v.at)))}), el('button', {type:'button', class:'link-btn', text:'Use this', onclick:() => { d.cur = v.id; d.updated = new Date().toISOString(); saveData(); renderDuas(); }})])])));
+      el('p', {text:v.text}), el('div', {class:'my-ver-m'}, [el('span', {text:shortDay(dayKey(new Date(v.at)))}), el('button', {type:'button', class:'link-btn', text:'Use this', onclick:() => { d.cur = v.id; d.updated = new Date().toISOString(); saveData(); refreshDuas(); }})])])));
     body.appendChild(box);
   }
   const acts = el('div', {class:'my-row'});
-  if (d.status === 'answered') acts.appendChild(el('button', {type:'button', class:'btn small', text:'Still asking', onclick:() => { setDuaStatus(d, 'keeper'); renderDuas(); }}));
+  if (d.status === 'answered') acts.appendChild(el('button', {type:'button', class:'btn small', text:'Still asking', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }}));
   else {
     acts.appendChild(el('button', {type:'button', class:'btn small gold', text:'Pray this now', onclick:() => { prayAddNow(d.id); }}));
-    if (d.status === 'oneoff') acts.appendChild(el('button', {type:'button', class:'btn small', text:'Keep in My Duas', onclick:() => { setDuaStatus(d, 'keeper'); renderDuas(); }}));
+    if (d.status === 'oneoff') acts.appendChild(el('button', {type:'button', class:'btn small', text:'Keep in My Duas', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }}));
     if (canAnswer(d)) acts.appendChild(el('button', {type:'button', class:'btn small', text:'Mark as answered', onclick:() => answeredSheet(d)}));
   }
-  acts.appendChild(el('button', {type:'button', class:'btn small danger', text:'Remove', onclick:() => { setDuaStatus(d, 'retired'); MY.openId = null; renderDuas(); toast('Removed. It stays under Recently removed for 30 days.'); }}));
+  acts.appendChild(el('button', {type:'button', class:'btn small danger', text:'Remove', onclick:() => { setDuaStatus(d, 'retired'); MY.openId = null; refreshDuas(); toast('Removed. It stays under Recently removed for 30 days.'); }}));
   body.appendChild(acts);
   card.appendChild(body);
   setTimeout(() => autoGrow(ta), 0);
@@ -4584,20 +4590,41 @@ function duaSection(title, list, idx, opts){
   }
   return sec;
 }
-function renderDuas(){
+function tabsMode(){ return document.documentElement.dataset.tabs === 'rename' ? 'rename' : 'merge'; }
+function applyTabs(){
+  const mode = tabsMode();
+  document.documentElement.dataset.tabs = mode;
+  const pray = document.querySelector('.tab[data-view=pray] span');
+  const duas = document.querySelector('.tab[data-view=duas]');
+  if (pray) pray.textContent = mode === 'rename' ? 'Now' : 'Pray';
+  if (duas) {
+    const label = duas.querySelector('span');
+    if (label) label.textContent = mode === 'rename' ? 'Notebook' : 'My Duas';
+    duas.hidden = mode !== 'rename';
+  }
+}
+function refreshDuas(){
+  const pv = document.getElementById('view-pray');
+  if (tabsMode() === 'merge' && pv && !pv.hidden) { const y = window.scrollY; renderPray(); window.scrollTo(0, y); }
+  else renderDuas();
+}
+function renderDuas(parent){
   const hold = window.scrollY;
   const idx = duaIndex(), now = Date.now();
-  duasView.innerHTML = '';
-  const wrap = el('div', {class:'my-wrap'});
-  duasView.appendChild(wrap);
+  const embedded = !!parent;
+  const host = parent || duasView;
+  host.innerHTML = '';
+  const wrap = embedded ? host : el('div', {class:'my-wrap'});
+  if (!embedded) host.appendChild(wrap);
   const fileIn = el('input', {type:'file', accept:'application/json,.json', hidden:true});
   fileIn.addEventListener('change', () => { if (fileIn.files[0]) importFile(fileIn.files[0]); fileIn.value = ''; });
+  const notebook = embedded || tabsMode() === 'rename';
   wrap.appendChild(el('div', {class:'my-head'}, [
-    el('div', null, [el('h1', {text:'My Duas'}), el('p', {text:'The duas you keep coming back to. Saved only on this device.'})]),
+    el('div', null, [el('h1', {text:notebook ? 'Notebook' : 'My Duas'}), el('p', {class:'page-sub', text:notebook ? 'The full wording. Add, edit, and mark answered here.' : 'The duas you keep coming back to. Saved only on this device.'})]),
     el('button', {class:'gear-btn', type:'button', 'aria-label':'Settings', title:'Settings', text:'\u2699', onclick:openSettings})
   ]));
   wrap.appendChild(el('div', {class:'my-actions'}, [
-    el('button', {type:'button', class:'btn gold', id:'myNew', text:'+ New dua', onclick:() => { MY.composer = true; renderDuas(); const r = document.getElementById('myReq'); if (r) r.focus(); }}),
+    el('button', {type:'button', class:'btn gold', id:'myNew', text:'+ New dua', onclick:() => { MY.composer = true; refreshDuas(); const r = document.getElementById('myReq'); if (r) r.focus(); }}),
     el('button', {type:'button', class:'btn', text:'History', onclick:() => { location.hash = '#duas/history'; }}),
     el('button', {type:'button', class:'btn', text:'Backup', onclick:openBackup}),
     el('button', {type:'button', class:'btn', text:'Export', onclick:exportData, disabled:!data.duas.length}),
@@ -4608,7 +4635,7 @@ function renderDuas(){
   const rep = repeatedOneoffs(idx);
   if (rep.length) wrap.appendChild(duaSection('Keep these?', rep, idx, {row:d => el('div', {class:'my-card keep-q'}, [
     duaHead(d), el('div', {class:'my-m', text:'You\u2019ve made this on ' + idx.get(d.id).days.size + ' different days.'}),
-    el('div', {class:'my-row'}, [el('button', {type:'button', class:'btn small gold', text:'Keep in My Duas', onclick:() => { setDuaStatus(d, 'keeper'); renderDuas(); }})])])}));
+    el('div', {class:'my-row'}, [el('button', {type:'button', class:'btn small gold', text:'Keep in My Duas', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }})])])}));
   const keepers = data.duas.filter(d => d.status === 'keeper');
   const recent = [], resting = [];
   keepers.forEach(d => (now - Date.parse(lastTouch(d, idx)) > REST_DAYS * MS_DAY ? resting : recent).push(d));
@@ -4621,12 +4648,12 @@ function renderDuas(){
   if (ans) wrap.appendChild(ans);
   const removed = data.duas.filter(d => d.status === 'retired' && now - Date.parse(d.retiredAt || d.updated) < REST_DAYS * MS_DAY);
   const rm = duaSection('Recently removed', removed, idx, {fold:true, key:'removedOpen', open:MY.removedOpen, row:d => el('div', {class:'my-card removed'}, [
-    duaHead(d), el('div', {class:'my-row'}, [el('button', {type:'button', class:'btn small', text:'Restore', onclick:() => { setDuaStatus(d, 'keeper'); renderDuas(); }})])])});
+    duaHead(d), el('div', {class:'my-row'}, [el('button', {type:'button', class:'btn small', text:'Restore', onclick:() => { setDuaStatus(d, 'keeper'); refreshDuas(); }})])])});
   if (rm) wrap.appendChild(rm);
   const g = el('div', {class:'my-guide-body'}); g.appendChild(document.getElementById('duaGuide').content.cloneNode(true));
   wrap.appendChild(el('details', {class:'my-fold my-guide'}, [el('summary', {text:'Before you pray'}), g]));
   wrap.querySelectorAll('textarea').forEach(autoGrow);
-  window.scrollTo(0, hold);
+  if (!embedded) window.scrollTo(0, hold);
 }
 
 /* ======================================================================
@@ -4667,7 +4694,7 @@ function reflectCandidates(now){
     .map(d => ({d:d, c:idx.get(d.id).c, score:idx.get(d.id).c + (last.get(d.id) ? (now - Date.parse(last.get(d.id))) / MS_DAY / 7 : 10)}))
     .sort((a, b) => b.score - a.score);
 }
-function renderHere(){ if (currentView === 'reflect') renderReflect(); else renderDuas(); }
+function renderHere(){ if (currentView === 'reflect') renderReflect(); else refreshDuas(); }
 /* Reflect > By person: what she has asked for each person, how long, and what she has marked answered */
 function spanText(iso, now){
   const days = Math.floor(((now || Date.now()) - Date.parse(iso)) / MS_DAY);
@@ -4902,9 +4929,12 @@ const refView = document.getElementById('view-reference');
 let refScroll = 0;
 let currentView = 'reference';
 function route(){
+  applyTabs();
   const h = location.hash || '#pray';
   if (h === '#logs' || h.startsWith('#log/')) { location.replace('#duas/history'); return; }
-  const view = h === '#pray' ? 'pray' : h === '#duas' ? 'duas' : h === '#duas/history' ? 'history' : h === '#reflect' ? 'reflect' : 'reference';
+  let view = h === '#pray' ? 'pray' : h === '#duas' ? 'duas' : h === '#duas/history' ? 'history' : h === '#reflect' ? 'reflect' : 'reference';
+  const toNotebook = tabsMode() === 'merge' && view === 'duas';
+  if (toNotebook) view = 'pray';
   const wasRef = currentView === 'reference';
   if (wasRef && view !== 'reference') refScroll = window.scrollY;
   if (!sheetWrap.hidden) closeSheet();
@@ -4916,14 +4946,19 @@ function route(){
     if (selecting) setSelecting(false);
     if (view === 'pray') renderPray(); else if (view === 'duas') renderDuas(); else if (view === 'reflect') renderReflect(); else renderHistory();
     window.scrollTo(0, 0);
+    if (toNotebook) { const nb = document.getElementById('notebook'); if (nb) window.scrollTo({left:0, top:nb.getBoundingClientRect().top + window.scrollY - 72, behavior:'instant'}); }
   }
   currentView = view === 'history' ? 'duas' : view;
   const shown = view === 'reference' ? refView : view === 'pray' ? prayView : view === 'reflect' ? reflectView : duasView;
   if (shown) { shown.classList.remove('view-in'); void shown.offsetWidth; shown.classList.add('view-in'); }
   const barTitle = document.getElementById('barTitle');
-  if (barTitle) barTitle.textContent = {reference:'Names', pray:'Pray', duas:'My Duas', reflect:'Reflect', history:'History'}[view] || 'Dua Book';
+  const titles = tabsMode() === 'rename'
+    ? {reference:'Names', pray:'Now', duas:'Notebook', reflect:'Reflect', history:'History'}
+    : {reference:'Names', pray:'Pray', duas:'Pray', reflect:'Reflect', history:'History'};
+  if (barTitle) barTitle.textContent = titles[view] || 'Dua Book';
+  const tabOn = tabsMode() === 'merge' && (currentView === 'pray' || currentView === 'duas') ? 'pray' : currentView;
   document.querySelectorAll('.tab').forEach(t => {
-    const on = t.dataset.view === currentView;
+    const on = t.dataset.view === tabOn;
     t.classList.toggle('active', on);
     if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
   });
